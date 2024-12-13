@@ -16,7 +16,7 @@ public class GameScreen implements Screen {
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
     private final BitmapFont font;
-
+//test
     private float sinusInput = 0f;
 
     /**
