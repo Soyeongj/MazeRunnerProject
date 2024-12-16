@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 //soyeong
 /**
+ * /hi
  * The GameScreen class is responsible for rendering the gameplay screen.
  * It handles the game logic and rendering of the game elements.
  */
