@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import de.tum.cit.fop.maze.MazeRunnerGame;
 
 
-
 public class GameScreen implements Screen {
 
 
