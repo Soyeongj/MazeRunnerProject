@@ -4,10 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-//soyeong
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
  * It handles the game logic and rendering of the game elements.
@@ -16,12 +17,11 @@ public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
-    private final BitmapFont font;
-//test 101
-    private float sinusInput = 0f;
+    private final TiledMap tiledMap;
+    private final OrthogonalTiledMapRenderer mapRenderer;
 
     /**
-     * Constructor for GameScreen. Sets up the camera and font.
+     * Constructor for GameScreen. Sets up the camera and Tiled map.
      *
      * @param game The main game class, used to access global resources and methods.
      */
@@ -31,14 +31,45 @@ public class GameScreen implements Screen {
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        camera.zoom = 0.75f;
+        camera.zoom = 0.2f; // Zoom in to focus on the map's center
 
-        // Get the font from the game's skin
-        font = game.getSkin().getFont("font");
+        // Load Tiled map
+        tiledMap = new TmxMapLoader().load("maps/map1.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+
+        // Center the camera on the map
+        centerCameraOnMap();
     }
 
+    /**
+     * Centers the camera on the map based on its dimensions and logs debug information.
+     */
+    private void centerCameraOnMap() {
+        // Retrieve map properties
+        int mapWidth = tiledMap.getProperties().get("width", Integer.class); // Tile count width
+        int mapHeight = tiledMap.getProperties().get("height", Integer.class); // Tile count height
+        int tileWidth = tiledMap.getProperties().get("tilewidth", Integer.class); // Pixel width per tile
+        int tileHeight = tiledMap.getProperties().get("tileheight", Integer.class); // Pixel height per tile
 
-    // Screen interface methods with necessary functionality
+        // Calculate map center in pixels
+        float centerX = (mapWidth * tileWidth) / 2f;
+        float centerY = (mapHeight * tileHeight) / 2f;
+
+        // Debugging outputs
+        System.out.println("Map Properties:");
+        System.out.println("  Map Width (tiles): " + mapWidth);
+        System.out.println("  Map Height (tiles): " + mapHeight);
+        System.out.println("  Tile Width (pixels): " + tileWidth);
+        System.out.println("  Tile Height (pixels): " + tileHeight);
+        System.out.println("Calculated Center:");
+        System.out.println("  Center X: " + centerX);
+        System.out.println("  Center Y: " + centerY);
+
+        // Set camera position to the center of the map
+        camera.position.set(centerX, centerY, 0);
+        camera.update(); // Apply the updated position
+    }
+
     @Override
     public void render(float delta) {
         // Check for escape key press to go back to the menu
@@ -50,34 +81,17 @@ public class GameScreen implements Screen {
 
         camera.update(); // Update the camera
 
-        // Move text in a circular path to have an example of a moving object
-        sinusInput += delta;
-        float textX = (float) (camera.position.x + Math.sin(sinusInput) * 100);
-        float textY = (float) (camera.position.y + Math.cos(sinusInput) * 100);
-
-        // Set up and begin drawing with the sprite batch
-        game.getSpriteBatch().setProjectionMatrix(camera.combined);
-
-        game.getSpriteBatch().begin(); // Important to call this before drawing anything
-
-        // Render the text
-        font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);
-
-        // Draw the character next to the text :) / We can reuse sinusInput here
-        game.getSpriteBatch().draw(
-                game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
-                textX - 96,
-                textY - 64,
-                64,
-                128
-        );
-
-        game.getSpriteBatch().end(); // Important to call this after drawing everything
+        // Render the Tiled map
+        mapRenderer.setView(camera);
+        mapRenderer.render();
     }
 
     @Override
     public void resize(int width, int height) {
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
         camera.setToOrtho(false);
+        centerCameraOnMap();
     }
 
     @Override
@@ -99,7 +113,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        tiledMap.dispose();
+        mapRenderer.dispose();
     }
-
-    // Additional methods and logic can be added as needed for the game screen
 }
+
