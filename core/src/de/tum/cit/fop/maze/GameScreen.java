@@ -14,7 +14,6 @@ import de.tum.cit.fop.maze.MazeRunnerGame;
 
 
 
-
 public class GameScreen implements Screen {
 
 
