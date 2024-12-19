@@ -8,13 +8,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import de.tum.cit.fop.maze.MazeRunnerGame;
 
-
 public class GameScreen implements Screen {
-
 
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
@@ -275,10 +274,11 @@ public class GameScreen implements Screen {
                     break;
             }
 
-            // Griever's movement is calculated by the angle between x-axis and the vector from griever towards the player
-            float angle = (float) Math.atan2(diffY, diffX);
-            float deltaX = (float) (monsterSpeed * Math.cos(angle) * delta);
-            float deltaY = (float) (monsterSpeed * Math.sin(angle) * delta);
+            Vector2 grieverPosition = new Vector2(monsterX, monsterY);
+            Vector2 playerPosition = new Vector2(playerx, playery);
+            Vector2 direction = new Vector2(playerPosition).sub(grieverPosition).nor();
+            float deltaX = direction.x * monsterSpeed * delta;
+            float deltaY = direction.y * monsterSpeed * delta;
 
             //Stunning mechanism
             if (distance < 30 && isOppositeDirection(playerDirection, fixedGrieverDirection) && !isGrieverStunned) {
