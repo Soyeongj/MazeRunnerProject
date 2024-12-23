@@ -1,11 +1,9 @@
 package de.tum.cit.fop.maze;
 
-
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
-
 
 public class Griever {
     private Texture grieverUp1, grieverUp2, grieverDown1, grieverDown2, grieverLeft1, grieverLeft2, grieverRight1, grieverRight2;
@@ -19,21 +17,21 @@ public class Griever {
     private boolean isGrieverFollowingPlayer = false;
     private float grieverChaseDelayTimer = 0.0f;
     private final float grieverAnimationTime = 0.1f;  // Time between animation frames
-    private Rectangle grieverRectangle;
     private float scale = 1.0f;
     private float previousX, previousY;
-
 
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
 
+    private TiledMapTileLayer collisionLayer;
+    private String blockedKey = "blocked";
 
-    public Griever(float startX, float startY) {
+    public Griever(float startX, float startY, TiledMapTileLayer collisionLayer) {
         this.monsterX = startX;
         this.monsterY = startY;
         this.previousX = startX;
         this.previousY = startY;
-
+        this.collisionLayer = collisionLayer;
 
         // Load griever textures
         grieverRight1 = new Texture("grieverright.png");
@@ -45,32 +43,23 @@ public class Griever {
         grieverDown1 = new Texture("grieverdown.png");
         grieverDown2 = new Texture("grieverdown2.png");
 
-
         griever = grieverRight1;
         fixedGrieverDirection = "right";
         grieverStateTime = 0f;
-        grieverRectangle = new Rectangle(monsterX, monsterY, griever.getWidth(), griever.getHeight());
     }
-
 
     public void render(SpriteBatch batch) {
-        batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() *scale);
+        batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() * scale);
     }
 
-
     public void update(float delta, float playerX, float playerY, String playerDirection) {
-
-        grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
-
         int diffX = (int) (playerX - monsterX);
         int diffY = (int) (playerY - monsterY);
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
 
-
         if (distance <= detectionRange) {
             isGrieverwaiting = true;
         }
-
 
         if (isGrieverwaiting) {
             grieverChaseDelayTimer += delta;
@@ -79,118 +68,46 @@ public class Griever {
             }
         }
 
-
-        // Check if the griever should be stunned
-        if (distance < 3 && isOppositeDirection(playerDirection, fixedGrieverDirection) && !isGrieverStunned) {
-            isGrieverStunned = true;
-            stunTimer = 0f;
-        }
-
         if (isGrieverStunned) {
             stunTimer += delta;
-            float deltaX = 0;
-            float deltaY = 0;
-
-
-
             if (stunTimer >= 3f) {
                 isGrieverStunned = false;
                 stunTimer = 0;
             }
         } else if (isGrieverFollowingPlayer) {
+            previousX = monsterX;
+            previousY = monsterY;
 
-            if (isGrieverFollowingPlayer) {
-                if (fixedGrieverDirection == null  || !fixedGrieverDirection.equals(playerDirection)) {
-                    fixedGrieverDirection = playerDirection;
-                }
+            Vector2 grieverPosition = new Vector2(monsterX, monsterY);
+            Vector2 playerPosition = new Vector2(playerX, playerY);
+            Vector2 direction = new Vector2(playerPosition).sub(grieverPosition).nor();
 
+            float deltaX = direction.x * monsterSpeed * delta;
+            float deltaY = direction.y * monsterSpeed * delta;
 
-                switch (fixedGrieverDirection) {
-                    case "right":
-                        if (diffX < 0) {
-                            fixedGrieverDirection = "left";
-                        }
-                        break;
-                    case "left":
-                        if (diffX > 0) {
-                            fixedGrieverDirection = "right";
-                        }
-                        break;
-                    case "up":
-                        if (diffY < 0) {
-                            fixedGrieverDirection = "down";
-                        }
-                        break;
-                    case "down":
-                        if (diffY > 0) {
-                            fixedGrieverDirection = "up";
-                        }
-                        break;
-                }
-                previousX = monsterX;
-                previousY = monsterY;
-
-                // Griever starts moving towards player
-                Vector2 grieverPosition = new Vector2(monsterX, monsterY);
-                Vector2 playerPosition = new Vector2(playerX, playerY);
-                Vector2 direction = new Vector2(playerPosition).sub(grieverPosition).nor();
-                float deltaX = direction.x * monsterSpeed * delta;
-                float deltaY = direction.y * monsterSpeed * delta;
-
-
-                switch (fixedGrieverDirection) {
-                    case "right":
-                        if (deltaX < 0) deltaX = 0;
-                        break;
-                    case "left":
-                        if (deltaX > 0) deltaX = 0;
-                        break;
-                    case "up":
-                        if (deltaY < 0) deltaY = 0;
-                        break;
-                    case "down":
-                        if (deltaY > 0) deltaY = 0;
-                        break;
-                }
-
-
+            // collision detection
+            if (!isCellBlocked(monsterX + deltaX, monsterY)) {
                 monsterX += deltaX;
-                monsterY += deltaY;
-
-
-                if (fixedGrieverDirection != null) {
-                    grieverStateTime += delta;
-
-
-                    if (grieverStateTime >= grieverAnimationTime) {
-                        griever = getGrieverTextureForDirection(fixedGrieverDirection);
-                        grieverStateTime = 0;
-                    }
-                }
             }
-            grieverRectangle.setPosition(monsterX, monsterY);
+            if (!isCellBlocked(monsterX, monsterY + deltaY)) {
+                monsterY += deltaY;
+            }
 
+            grieverStateTime += delta;
+            if (grieverStateTime >= grieverAnimationTime) {
+                griever = getGrieverTextureForDirection(fixedGrieverDirection);
+                grieverStateTime = 0;
+            }
         }
     }
 
-
-    public float getX() {
-        return monsterX;
+    private boolean isCellBlocked(float x, float y) {
+        TiledMapTileLayer.Cell cell = collisionLayer.getCell(
+                (int) (x / collisionLayer.getTileWidth()),
+                (int) (y / collisionLayer.getTileHeight())
+        );
+        return cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey(blockedKey);
     }
-
-
-    public float getY() {
-        return monsterY;
-    }
-
-
-    private boolean isOppositeDirection(String currentDirection, String newDirection) {
-        return (currentDirection.equals("up") && newDirection.equals("down")) ||
-                (currentDirection.equals("down") && newDirection.equals("up")) ||
-                (currentDirection.equals("left") && newDirection.equals("right")) ||
-                (currentDirection.equals("right") && newDirection.equals("left"));
-    }
-
 
     private Texture getGrieverTextureForDirection(String direction) {
         switch (direction) {
@@ -207,19 +124,22 @@ public class Griever {
         }
     }
 
+    public float getX() {
+        return monsterX;
+    }
 
 
+    public float getY() {
+        return monsterY;
+    }
 
 
     public boolean isGrieverStunned() {
         return isGrieverStunned;
     }
+
     public boolean isGrieverNotStunned() {
         return !isGrieverStunned;
-    }
-
-    public Rectangle getGrieverRectangle() {
-        return grieverRectangle;
     }
 
     public void setMonsterX(float monsterX) {
@@ -237,7 +157,6 @@ public class Griever {
     public void revertToPrevious() {
         monsterX = previousX;
         monsterY = previousY;
-        grieverRectangle.setPosition(monsterX, monsterY);
     }
 
     public void dispose() {
@@ -250,7 +169,4 @@ public class Griever {
         grieverDown1.dispose();
         grieverDown2.dispose();
     }
-
-
 }
-
