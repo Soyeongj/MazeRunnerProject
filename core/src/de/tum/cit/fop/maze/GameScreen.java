@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -26,7 +27,6 @@ public class GameScreen implements Screen {
     private HUD hud;
     private SpriteBatch batch;
     private Griever griever;
-    private WallManager wallManager;
     private float LivesCoolDownTimer = 0f;
 
 
@@ -43,26 +43,21 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
         camera.zoom = 0.2f; // Zoom in to focus on the map's center
-        this.friends = new Friends();
 
         // Load Tiled map
         tiledMap = new TmxMapLoader().load("map1.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        // Center the camera on the map
         centerCameraOnMap();
-        hud = new HUD();
-        player = new Player(155,259);
-        griever = new Griever(118,283);
-        griever.setScale(0.2f);
-        batch = new SpriteBatch();
-        friends.setScale(0.2f);
-        wallManager = new WallManager();
-        int tileWidth = tiledMap.getProperties().get("tilewidth", Integer.class); // Pixel width per tile
-        int tileHeight = tiledMap.getProperties().get("tileheight", Integer.class); // Pixel height per tile
-        wallManager.addYWalls(177f,176,265,tileHeight,tileWidth,tileHeight, null);
-        wallManager.addXWalls(160,144,174,tileWidth,tileHeight,tileWidth,null);
 
+        hud = new HUD();
+        this.friends = new Friends();
+        player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
+        griever = new Griever(118, 283, (TiledMapTileLayer) tiledMap.getLayers().get(0));
+        batch = new SpriteBatch();
+
+        griever.setScale(0.2f);
+        friends.setScale(0.2f);
 
 
     }
@@ -81,20 +76,29 @@ public class GameScreen implements Screen {
         float centerX = (mapWidth * tileWidth) / 2f;
         float centerY = (mapHeight * tileHeight) / 2f;
 
-        // Debugging outputs
-        System.out.println("Map Properties:");
-        System.out.println("  Map Width (tiles): " + mapWidth);
-        System.out.println("  Map Height (tiles): " + mapHeight);
-        System.out.println("  Tile Width (pixels): " + tileWidth);
-        System.out.println("  Tile Height (pixels): " + tileHeight);
-        System.out.println("Calculated Center:");
-        System.out.println("  Center X: " + centerX);
-        System.out.println("  Center Y: " + centerY);
-
         // Set camera position to the center of the map
         camera.position.set(centerX, centerY, 0);
         camera.update(); // Apply the updated position
     }
+
+    private void updateCameraPosition() {
+
+        float playerX = player.getX();
+        float playerY = player.getY();
+
+
+        float cameraHalfWidth = camera.viewportWidth / 2f;
+        float cameraHalfHeight = camera.viewportHeight / 2f;
+
+        int mapWidth = tiledMap.getProperties().get("width", Integer.class) * tiledMap.getProperties().get("tilewidth", Integer.class);
+        int mapHeight = tiledMap.getProperties().get("height", Integer.class) * tiledMap.getProperties().get("tileheight", Integer.class);
+
+        float cameraX = Math.max(cameraHalfWidth, Math.min(playerX, mapWidth - cameraHalfWidth));
+        float cameraY = Math.max(cameraHalfHeight, Math.min(playerY, mapHeight - cameraHalfHeight));
+
+        camera.position.set(cameraX, cameraY, 0);
+    }
+
 
     @Override
     public void render(float delta) {
@@ -109,8 +113,6 @@ public class GameScreen implements Screen {
 
         batch.begin();
 
-
-
         // Render the Tiled map
         mapRenderer.setView(camera);
         mapRenderer.render();
@@ -122,13 +124,16 @@ public class GameScreen implements Screen {
 
 
 
-
         // Update and render the player
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
         player.render(batch);
-        friends.render(batch);
-        griever.render(batch);
+
         griever.update(delta, player.getX(), player.getY(), player.getDirection());
+        griever.render(batch);
+
+        friends.render(batch);
+        hud.render(batch);
+
 
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
         int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
@@ -137,26 +142,12 @@ public class GameScreen implements Screen {
             hud.incrementLives();
         }
 
-        wallManager.render(batch);
-
-        for (Wall wall : wallManager.getWalls()) {
-            if (player.getBoundingBox().overlaps(wall.getBrickRect())) {
-                player.revertToPrevious();
-                break;
-            }
-        }
-        for (Wall wall : wallManager.getWalls()) {
-            if (griever.getGrieverRectangle().overlaps(wall.getBrickRect())) {
-                griever.revertToPrevious();
-                break;
-            }
-        }
-
-
+        // Add collision detection(player-griever) and lives management logic
         int diffX = (int) (player.getX() - griever.getX());
         int diffY = (int) (player.getY() - griever.getY());
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
-        if (LivesCoolDownTimer <= 0 && distance < 10f && griever.isGrieverNotStunned() ) {
+
+        if (LivesCoolDownTimer <= 0 && distance < 10f && griever.isGrieverNotStunned()) {
             if (hud.getLives() > 1) {
                 hud.decrementLives();
                 LivesCoolDownTimer = 7;
@@ -166,13 +157,15 @@ public class GameScreen implements Screen {
                 player.setDead();
             }
         }
+
+        // Decrease cooldown timer
         if (LivesCoolDownTimer > 0) {
             LivesCoolDownTimer -= delta;
         }
 
-
         batch.end();
     }
+
 
     @Override
     public void resize(int width, int height) {
@@ -208,6 +201,5 @@ public class GameScreen implements Screen {
         hud.dispose();
         friends.dispose();
         griever.dispose();
-        wallManager.dispose();
     }
 }
