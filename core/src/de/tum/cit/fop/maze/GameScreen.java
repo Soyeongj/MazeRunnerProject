@@ -5,12 +5,16 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -21,6 +25,8 @@ public class GameScreen implements Screen {
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
     private final TiledMap tiledMap;
+    private TiledMapTileLayer movingWallsLayer;
+    private List<Wall> walls;
     private final OrthogonalTiledMapRenderer mapRenderer;
     private Player player;
     private Friends friends;
@@ -48,6 +54,7 @@ public class GameScreen implements Screen {
         tiledMap = new TmxMapLoader().load("map1.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
+
         centerCameraOnMap();
 
         hud = new HUD();
@@ -59,8 +66,28 @@ public class GameScreen implements Screen {
         griever.setScale(0.2f);
         friends.setScale(0.2f);
 
-
+        //load moving wall layer
+        movingWallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("moving walls");
+        initializeWalls();
     }
+    private void initializeWalls() {
+        walls = new ArrayList<>();
+
+        for (int x = 0; x < movingWallsLayer.getWidth(); x++) {
+            for (int y = 0; y < movingWallsLayer.getHeight(); y++) {
+                TiledMapTileLayer.Cell cell = movingWallsLayer.getCell(x, y);
+                if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
+                    String direction = cell.getTile().getProperties().get("direction", String.class);
+                    walls.add(new Wall(x, y, direction));
+                    System.out.println("Wall initialized at x=" + x + ", y=" + y + ", direction=" + direction);
+                }
+            }
+        }
+
+        System.out.println("Total walls initialized: " + walls.size());
+    }
+
+
 
     /**
      * Centers the camera on the map based on its dimensions and logs debug information.
@@ -107,7 +134,17 @@ public class GameScreen implements Screen {
             game.goToMenu();
         }
 
+        hud.updateTimer(delta);
+
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
+
+        float currentGlobalTime = hud.getGlobalTimer();
+
+        //update moving walls
+        for (Wall wall : walls) {
+            wall.update(currentGlobalTime, movingWallsLayer);
+        }
+
 
         camera.update(); // Update the camera
 
@@ -116,6 +153,17 @@ public class GameScreen implements Screen {
         // Render the Tiled map
         mapRenderer.setView(camera);
         mapRenderer.render();
+
+        //이동벽만 별도로 렌더링
+        mapRenderer.getBatch().begin();
+
+// 디버깅 코드 추가: movingWallsLayer 렌더링 전
+        System.out.println("Rendering movingWallsLayer...");
+        mapRenderer.renderTileLayer(movingWallsLayer); // "moving walls" 레이어만 렌더링
+        System.out.println("Finished rendering movingWallsLayer.");
+
+        mapRenderer.getBatch().end();
+
         boolean moveUp = Gdx.input.isKeyPressed(Input.Keys.W);
         boolean moveDown = Gdx.input.isKeyPressed(Input.Keys.S);
         boolean moveLeft = Gdx.input.isKeyPressed(Input.Keys.A);
@@ -164,6 +212,10 @@ public class GameScreen implements Screen {
         }
 
         batch.end();
+
+
+
+
     }
 
 

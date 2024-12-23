@@ -11,6 +11,7 @@ public class HUD {
     private int lives;
     private int score;
     private float scale = 0.2f;
+    private float globalTimer;
 
     public HUD() {
         this.HUDpanel = new Texture("sand.png");
@@ -19,7 +20,16 @@ public class HUD {
         this.lives = 3;
         this.score = 0;
         this.font.getData().setScale(0.3f);
+        this.globalTimer = 0f;
 
+    }
+    public void updateTimer(float delta) {
+        globalTimer += delta;
+        System.out.println("globalTimer: " + globalTimer);
+    }
+
+    public float getGlobalTimer() {
+        return globalTimer;
     }
 
     public void render(SpriteBatch batch) {
