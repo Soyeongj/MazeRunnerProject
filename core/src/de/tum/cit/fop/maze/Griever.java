@@ -13,13 +13,15 @@ public class Griever {
     private float grieverStateTime;
     private String fixedGrieverDirection;
     private float monsterX, monsterY;
-    private float monsterSpeed = 70.0f;
-    private float detectionRange = 200.0f;
+    private float monsterSpeed = 10.0f;
+    private float detectionRange = 37.0f;
     private boolean isGrieverwaiting = false;
     private boolean isGrieverFollowingPlayer = false;
     private float grieverChaseDelayTimer = 0.0f;
     private final float grieverAnimationTime = 0.1f;  // Time between animation frames
     private Rectangle grieverRectangle;
+    private float scale = 1.0f;
+    private float previousX, previousY;
 
 
     private boolean isGrieverStunned = false;
@@ -29,6 +31,8 @@ public class Griever {
     public Griever(float startX, float startY) {
         this.monsterX = startX;
         this.monsterY = startY;
+        this.previousX = startX;
+        this.previousY = startY;
 
 
         // Load griever textures
@@ -50,11 +54,14 @@ public class Griever {
 
 
     public void render(SpriteBatch batch) {
-        batch.draw(griever, monsterX, monsterY);
+        batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() *scale);
     }
 
 
     public void update(float delta, float playerX, float playerY, String playerDirection) {
+
+        grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
+
         int diffX = (int) (playerX - monsterX);
         int diffY = (int) (playerY - monsterY);
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
@@ -74,7 +81,7 @@ public class Griever {
 
 
         // Check if the griever should be stunned
-        if (distance < 30 && isOppositeDirection(playerDirection, fixedGrieverDirection) && !isGrieverStunned) {
+        if (distance < 3 && isOppositeDirection(playerDirection, fixedGrieverDirection) && !isGrieverStunned) {
             isGrieverStunned = true;
             stunTimer = 0f;
         }
@@ -120,7 +127,8 @@ public class Griever {
                         }
                         break;
                 }
-
+                previousX = monsterX;
+                previousY = monsterY;
 
                 // Griever starts moving towards player
                 Vector2 grieverPosition = new Vector2(monsterX, monsterY);
@@ -148,8 +156,6 @@ public class Griever {
 
                 monsterX += deltaX;
                 monsterY += deltaY;
-                grieverRectangle.setPosition(monsterX, monsterY);
-
 
 
                 if (fixedGrieverDirection != null) {
@@ -162,6 +168,8 @@ public class Griever {
                     }
                 }
             }
+            grieverRectangle.setPosition(monsterX, monsterY);
+
         }
     }
 
@@ -201,8 +209,13 @@ public class Griever {
 
 
 
+
+
     public boolean isGrieverStunned() {
         return isGrieverStunned;
+    }
+    public boolean isGrieverNotStunned() {
+        return !isGrieverStunned;
     }
 
     public Rectangle getGrieverRectangle() {
@@ -215,6 +228,16 @@ public class Griever {
 
     public void setMonsterY(float monsterY) {
         this.monsterY = monsterY;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
+
+    public void revertToPrevious() {
+        monsterX = previousX;
+        monsterY = previousY;
+        grieverRectangle.setPosition(monsterX, monsterY);
     }
 
     public void dispose() {

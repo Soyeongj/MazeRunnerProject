@@ -10,6 +10,7 @@ public class HUD {
     private BitmapFont font;
     private int lives;
     private int score;
+    private float scale = 0.2f;
 
     public HUD() {
         this.HUDpanel = new Texture("sand.png");
@@ -17,24 +18,25 @@ public class HUD {
         this.font = new BitmapFont();
         this.lives = 3;
         this.score = 0;
+        this.font.getData().setScale(0.3f);
 
     }
 
     public void render(SpriteBatch batch) {
         // Draw the HUD background
-        for (int x = 0; x <= 1560; x += HUDpanel.getWidth()) {
-            for (int y = 650; y <= 900; y += HUDpanel.getHeight()) {
+        for (int x = 0; x <= 420; x += HUDpanel.getWidth()) {
+            for (int y = 307; y <= 335; y += HUDpanel.getHeight()) {
                 batch.draw(HUDpanel, x, y);
             }
         }
 
-        font.draw(batch, "Score: " + score, 260, 730);
+        font.draw(batch, "Score: " + score, 100, 318);
 
-        font.draw(batch, "Friends: " + lives, 260, 690);
+        font.draw(batch, "Fri ends: " + lives, 100, 323);
 
         // Draw the friend HUD icons
         for (int i = 0; i < lives; i++) {
-            batch.draw(friendHUD, 340 + (i * 30), 677);
+            batch.draw(friendHUD, 119 + (i * 5), 314,friendHUD.getWidth() * scale, friendHUD.getHeight() * scale);
         }
     }
 

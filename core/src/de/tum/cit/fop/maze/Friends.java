@@ -10,21 +10,22 @@ public class Friends {
             new Texture("oldman_right_1.png"),
             new Texture("oldman_right_1.png")
     };
-    private float friend1x = 300, friend1y = 300;
-    private float friend2x = 500, friend2y = 400;
-    private float friend3x = 600, friend3y = 500;
+    private float friend1x = 132, friend1y = 183;
+    private float friend2x = 105, friend2y = 256;
+    private float friend3x = 206, friend3y = 283;
     private Vector2[] friendsPositions = {
             new Vector2(friend1x, friend1y),
             new Vector2(friend2x, friend2y),
             new Vector2(friend3x, friend3y),
     };
     private boolean[] isFriendSaved = {false, false, false};
+    private float scale = 1.0f;
     public Friends() {
     }
     public void render(SpriteBatch batch) {
         for (int i = 0; i < friendsPositions.length; i++) {
             if (!isFriendSaved[i]) {
-                batch.draw(friends[i], friendsPositions[i].x, friendsPositions[i].y);
+                batch.draw(friends[i], friendsPositions[i].x, friendsPositions[i].y,  friends[i].getWidth() * scale, friends[i].getHeight() * scale);
             }
         }
     }
@@ -47,6 +48,10 @@ public class Friends {
             }
         }
         return savedFriends;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;  // Set new scale
     }
 
     public void dispose() {

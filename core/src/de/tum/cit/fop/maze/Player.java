@@ -3,9 +3,17 @@ package de.tum.cit.fop.maze;
 
 
 
+
+
+
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+
+
+
+
 
 
 
@@ -20,6 +28,11 @@ public class Player {
     private float stateTime = 0f;
     private String direction = "right";
     private Rectangle boundingBox;
+    private float scale = 0.2f;
+    private boolean moved = false;
+    private float previousX, previousY;
+
+
 
 
     private final float runDuration = 4f;
@@ -27,7 +40,13 @@ public class Player {
     private final float walkAnimationTime = 0.1f;
 
 
+
+
     private boolean isDead;
+
+
+
+
 
 
 
@@ -35,8 +54,14 @@ public class Player {
     public Player(float startX, float startY) {
         this.x = startX;
         this.y = startY;
-        this.speed = 70.0f;
-        this.runningSpeed = 110.0f;
+        this.speed = 10.0f;
+        this.runningSpeed = 20.0f;
+        this.previousX = startX;
+        this.previousY = startY;
+
+
+
+
 
 
 
@@ -57,22 +82,26 @@ public class Player {
         this.boundingBox = new Rectangle(x, y, currentTexture.getWidth(), currentTexture.getHeight());
 
 
-
-
         this.isDead = false;
     }
 
 
 
 
+
+
+
+
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed) {
+        previousX = x;
+        previousY = y;
+        boundingBox.setSize(currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
         // Handle running logic
         if (canRun && runKeyPressed) {
             isRunning = true;
         } else {
             isRunning = false;
         }
-
 
         if (isRunning) {
             runTimer += delta;
@@ -89,35 +118,42 @@ public class Player {
             }
         }
 
-
         float currentSpeed = isRunning ? runningSpeed : speed;
 
 
-        if (moveUp && y < 700) {
+        if (moveUp) {
             y += currentSpeed * delta;
             direction = "up";
             animate(delta, up1, up2);
-        } else if (moveDown && y > 50) {
+            moved = true;
+        } else if (moveDown) {
             y -= currentSpeed * delta;
             direction = "down";
             animate(delta, down1, down2);
-        } else if (moveLeft && x > 200) {
+            moved = true;
+        } else if (moveLeft) {
             x -= currentSpeed * delta;
             direction = "left";
             animate(delta, left1, left2);
-        } else if (moveRight && x < 1330) {
+            moved = true;
+        } else if (moveRight ) {
             x += currentSpeed * delta;
             direction = "right";
             animate(delta, right1, right2);
+            moved = true;
         }
-
-
-
+        if (moved) {
+            System.out.println("X coordinate:" + x + " Y coordinate:" + y);
+        }
 
         boundingBox.setPosition(x, y);
     }
 
-
+    public void revertToPrevious() {
+        x = previousX;
+        y = previousY;
+        boundingBox.setPosition(x, y);
+    }
 
 
     private void animate(float delta, Texture texture1, Texture texture2) {
@@ -131,9 +167,19 @@ public class Player {
 
 
 
+
+
+
+
     public void render(SpriteBatch batch) {
-        batch.draw(currentTexture, x, y);
+        batch.draw(currentTexture, x, y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
     }
+
+
+
+
+
+
 
 
 
@@ -145,9 +191,15 @@ public class Player {
     }
 
 
+
+
     public float getX() {
         return x;
     }
+
+
+
+
 
 
 
@@ -159,6 +211,10 @@ public class Player {
 
 
 
+
+
+
+
     public void setX(float x) {
         this.x = x;
     }
@@ -166,9 +222,17 @@ public class Player {
 
 
 
+
+
+
+
     public void setY(float y) {
         this.y = y;
     }
+
+
+
+
 
 
 
@@ -185,9 +249,17 @@ public class Player {
 
 
 
+
+
+
+
+
+
     public boolean isDead() {
         return isDead;
     }
+
+
 
 
     public void setTexture(Texture texture) {
@@ -195,11 +267,17 @@ public class Player {
     }
 
 
+
+
     // This method marks the player as dead and sets the dead texture
     public void setDead() {
         this.isDead = true;
         setTexture(dead);  // Change the texture to the dead texture
     }
+
+
+
+
 
 
 
@@ -216,4 +294,6 @@ public class Player {
         dead.dispose();
     }
 }
+
+
 
