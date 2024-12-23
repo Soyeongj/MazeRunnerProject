@@ -142,7 +142,7 @@ public class GameScreen implements Screen {
 
         //update moving walls
         for (Wall wall : walls) {
-            wall.update(currentGlobalTime, movingWallsLayer);
+            wall.update(delta,currentGlobalTime, movingWallsLayer);
         }
 
 
@@ -253,5 +253,4 @@ public class GameScreen implements Screen {
         hud.dispose();
         friends.dispose();
         griever.dispose();
-    }
-}
+    }}
