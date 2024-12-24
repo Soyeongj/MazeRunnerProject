@@ -12,7 +12,7 @@ public class Friends {
     };
     private float friend1x = 132, friend1y = 183;
     private float friend2x = 105, friend2y = 256;
-    private float friend3x = 206, friend3y = 283;
+    private float friend3x = 210, friend3y = 283;
     private Vector2[] friendsPositions = {
             new Vector2(friend1x, friend1y),
             new Vector2(friend2x, friend2y),
