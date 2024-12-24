@@ -1,51 +1,53 @@
 package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 
 public class Wall {
     private int x, y; // 현재 위치
     private int originalX, originalY; // 원래 위치
+    private int targetX, targetY; // 목표 위치
     private String direction; // 이동 방향
     private float lastMoveTime = 0f; // 마지막 이동 시간
     private static final float MOVE_INTERVAL = 5.0f; // 이동 간격 (초 단위)
+    private static final float STAY_DURATION = 0.3f; // 목표 위치에서 대기하는 시간 (0.1초)
+    private float stayTimer = 0f; // 목표 위치 대기 시간 측정
+    private boolean isAtTarget = false; // 목표 위치에 도달했는지 여부
+    private TiledMapTileLayer layer;
 
-    private boolean isAnimating = false; // 애니메이션 중인지 여부
-    private float animationProgress = 0f; // 애니메이션 진행률
-    private float animationDuration = 0.5f; // 애니메이션 지속 시간
-    private int targetX, targetY; // 이동 목표 위치
-    private boolean returningToOriginal = false; // 원래 위치로 돌아가는지 여부
-
-    public Wall(int x, int y, String direction) {
+    public Wall(int x, int y, String direction, TiledMapTileLayer layer) {
         this.x = x;
         this.y = y;
         this.originalX = x;
         this.originalY = y;
         this.direction = direction;
+        this.layer = layer;
     }
 
-    public void update(float delta, float globalTimer, TiledMapTileLayer layer) {
+    public void update(float delta, float globalTimer) {
         float timeSinceLastMove = globalTimer - lastMoveTime;
 
-        if (isAnimating) {
-            animate(delta, layer); // 애니메이션 처리
+        if (isAtTarget) {
+            stayTimer += delta;
+            if (stayTimer >= STAY_DURATION) {
+                moveToOriginal();
+                isAtTarget = false;
+                stayTimer = 0f;
+            }
             return;
         }
 
-        if (timeSinceLastMove >= MOVE_INTERVAL) {
-            if (returningToOriginal) {
-                moveToOriginal(layer); // 원래 위치로 복귀
-            } else {
-                move(layer); // 목표 위치로 이동
-            }
+        if (timeSinceLastMove >= MOVE_INTERVAL && !isAtTarget) {
+            move();
             lastMoveTime = globalTimer;
         }
     }
 
-    private void move(TiledMapTileLayer layer) {
-        TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+    private void move() {
+        Cell cell = layer.getCell(x, y);
         if (cell == null) return;
 
-        layer.setCell(x, y, null); // 현재 위치 제거
+        layer.setCell(x, y, null); // 현재 위치에서 타일 제거
 
         targetX = x;
         targetY = y;
@@ -57,61 +59,43 @@ public class Wall {
             case "down": targetY = y - 1; break;
         }
 
-        // 이동 목표 타일에 설정
-        layer.setCell(targetX, targetY, cell);
-        isAnimating = true; // 애니메이션 시작
-        animationProgress = 0f; // 애니메이션 진행률 초기화
-        returningToOriginal = false; // 복귀 상태 초기화
+        if (layer.getCell(targetX, targetY) != null) {
+            System.err.println("Collision detected at target position: " + targetX + ", " + targetY);
+            return; // 충돌 발생 시 이동 취소
+        }
+
+        layer.setCell(targetX, targetY, cell); // 목표 위치에 타일 설정
+        x = targetX;
+        y = targetY;
+        isAtTarget = true;
+        stayTimer = 0f;
     }
 
-    private void moveToOriginal(TiledMapTileLayer layer) {
-        TiledMapTileLayer.Cell cell = layer.getCell(targetX, targetY);
+    private void moveToOriginal() {
+        Cell cell = layer.getCell(x, y);
         if (cell == null) return;
 
-        layer.setCell(targetX, targetY, null); // 현재 위치 제거
-        layer.setCell(originalX, originalY, cell); // 원래 위치 설정
+        layer.setCell(x, y, null); // 현재 위치에서 타일 제거
 
-        isAnimating = true; // 애니메이션 시작
-        animationProgress = 0f; // 애니메이션 진행률 초기화
-        returningToOriginal = true; // 복귀 중 상태 설정
-    }
-
-    private void animate(float delta, TiledMapTileLayer layer) {
-        animationProgress += delta / animationDuration;
-
-        if (animationProgress >= 1f) {
-            if (returningToOriginal) {
-                // 원래 위치로 돌아가는 애니메이션 완료
-                x = originalX;
-                y = originalY;
-                returningToOriginal = false; // 복귀 완료
-                isAnimating = false;
-            } else {
-                // 목표 위치로 이동하는 애니메이션 완료
-                x = targetX;
-                y = targetY;
-                isAnimating = false;
-                returningToOriginal = true; // 다음 이동은 복귀
-            }
-            animationProgress = 0f; // 진행률 초기화
-        } else {
-            float interpolatedX, interpolatedY;
-            if (returningToOriginal) {
-                // 원래 위치로 돌아가는 애니메이션 진행
-                interpolatedX = targetX + (originalX - targetX) * animationProgress;
-                interpolatedY = targetY + (originalY - targetY) * animationProgress;
-            } else {
-                // 목표 위치로 이동하는 애니메이션 진행
-                interpolatedX = x + (targetX - x) * animationProgress;
-                interpolatedY = y + (targetY - y) * animationProgress;
-            }
-
-            renderWall(interpolatedX, interpolatedY, layer);
+        if (layer.getCell(originalX, originalY) != null) {
+            System.err.println("Collision detected at original position: " + originalX + ", " + originalY);
+            return; // 충돌 발생 시 복귀 취소
         }
+
+        layer.setCell(originalX, originalY, cell); // 원래 위치에 타일 설정
+        x = originalX;
+        y = originalY;
     }
 
-    private void renderWall(float interpolatedX, float interpolatedY, TiledMapTileLayer layer) {
+    private void animateMove(float delta) {
+        // 애니메이션용 보간 처리 (가상 위치 계산 가능)
+        float interpolatedX = x + (targetX - x) * (delta / MOVE_INTERVAL);
+        float interpolatedY = y + (targetY - y) * (delta / MOVE_INTERVAL);
+        renderWall(interpolatedX, interpolatedY);
+    }
+
+    private void renderWall(float interpolatedX, float interpolatedY) {
+        // 애니메이션 렌더링 또는 디버깅 출력
         System.out.println("Animating wall at (" + interpolatedX + ", " + interpolatedY + ")");
-        // 실제 애니메이션 렌더링 코드 필요
     }
 }

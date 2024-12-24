@@ -48,7 +48,7 @@ public class GameScreen implements Screen {
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        camera.zoom = 0.2f; // Zoom in to focus on the map's center
+        camera.zoom = 0.5f; // Zoom in to focus on the map's center
 
         // Load Tiled map
         tiledMap = new TmxMapLoader().load("map1.tmx");
@@ -67,10 +67,16 @@ public class GameScreen implements Screen {
         friends.setScale(0.2f);
 
         //load moving wall layer
-        movingWallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("moving walls");
-        initializeWalls();
+        movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
+                ? (TiledMapTileLayer) tiledMap.getLayers().get("moving walls")
+                : null;
+        if (movingWallsLayer != null) {
+            initializeWalls(batch, movingWallsLayer);
+        } else {
+            System.err.println("Error: 'moving walls' layer is not a TiledMapTileLayer or does not exist.");
+        }
     }
-    private void initializeWalls() {
+    private void initializeWalls(SpriteBatch spriteBatch, TiledMapTileLayer movingWallsLayer) {
         walls = new ArrayList<>();
 
         for (int x = 0; x < movingWallsLayer.getWidth(); x++) {
@@ -78,7 +84,7 @@ public class GameScreen implements Screen {
                 TiledMapTileLayer.Cell cell = movingWallsLayer.getCell(x, y);
                 if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
                     String direction = cell.getTile().getProperties().get("direction", String.class);
-                    walls.add(new Wall(x, y, direction));
+                    walls.add(new Wall(x, y, direction, movingWallsLayer));
                     System.out.println("Wall initialized at x=" + x + ", y=" + y + ", direction=" + direction);
                 }
             }
@@ -142,7 +148,7 @@ public class GameScreen implements Screen {
 
         //update moving walls
         for (Wall wall : walls) {
-            wall.update(delta,currentGlobalTime, movingWallsLayer);
+            wall.update(delta,currentGlobalTime);
         }
 
 
