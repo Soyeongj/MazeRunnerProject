@@ -208,4 +208,17 @@ public class Griever {
         monsterY = i1;
     }
 
+    public float getWidth() {
+        return griever.getWidth(); // 텍스처의 실제 너비 반환
+    }
+
+    // Griever 텍스처의 높이 반환
+    public float getHeight() {
+        return griever.getHeight(); // 텍스처의 실제 높이 반환
+    }
+
+    // Griever의 스케일 반환
+    public float getScale() {
+        return scale;
+    }
 }
