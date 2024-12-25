@@ -26,9 +26,14 @@ public class Player {
     private TiledMapTileLayer collisionLayer;
     private String blockedKey = "blocked";
 
-    private Texture redup1,redup2,reddown1,reddown2,redleft1,redleft2,redright1,redright2;  // Texture that represents the reddish effect
-    private float redEffectTimer = 0f;  // Timer to manage the duration of the reddish effect
+    private Texture redup1,redup2,reddown1,reddown2,redleft1,redleft2,redright1,redright2;
+    private float redEffectTimer = 0f;
     private boolean isInRedEffect = false;
+
+    private float speedBoostDuration = 0f;
+    private float boostedSpeed = 100.0f;
+    private boolean isSpeedBoosted = false;
+
 
 
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
@@ -69,10 +74,17 @@ public class Player {
         previousY = y;
         moved = false;
 
-        // Handle the red effect (flashing the player character red when damaged)
+        if (isSpeedBoosted) {
+            speedBoostDuration -= delta;
+            speed = boostedSpeed;
+            if (speedBoostDuration <= 0) {
+                resetSpeedBoost();
+            }
+        }
+
         if (isInRedEffect) {
             redEffectTimer += delta;
-            if (redEffectTimer >= 3f) {  // Red effect lasts for 1 second
+            if (redEffectTimer >= 3f) {
                 isInRedEffect = false;
                 redEffectTimer = 0f;
             }
@@ -245,6 +257,16 @@ public class Player {
 
     public void triggerRedEffect() {
         isInRedEffect = true;
+    }
+
+    public void increaseSpeed(float duration) {
+        isSpeedBoosted = true;
+        speedBoostDuration = duration;
+    }
+
+    public void resetSpeedBoost() {
+        isSpeedBoosted = false;
+        speed = 10f;
     }
 
 

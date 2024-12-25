@@ -35,6 +35,7 @@ public class GameScreen implements Screen {
     private Griever griever;
     private float LivesCoolDownTimer = 0f;
     private Key key;
+    private Item item;
 
 
 
@@ -60,6 +61,7 @@ public class GameScreen implements Screen {
 
         hud = new HUD();
         this.friends = new Friends();
+        this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         griever = new Griever(118, 283, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         batch = new SpriteBatch();
@@ -187,16 +189,20 @@ public class GameScreen implements Screen {
 
         friends.render(batch);
         hud.render(batch);
-
+        item.render(batch);
 
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
         int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
+        int count = item.checkAndCollectAllItmes(playerPosition, 3f);
         hud.render(batch);
         for (int i = 0; i < savedFriends; i++) {
             hud.incrementLives();
         }
+        for (int i = 0; i < count; i++) {
+            player.increaseSpeed(3f);
+        }
 
-        // Add collision detection(player-griever) and lives management logic
+
         int diffX = (int) (player.getX() - griever.getMonsterX());
         int diffY = (int) (player.getY() - griever.getMonsterY());
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);

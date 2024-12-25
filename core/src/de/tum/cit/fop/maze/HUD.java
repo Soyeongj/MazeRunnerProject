@@ -64,6 +64,8 @@ public class HUD {
             batch.draw(keyIcon, 187, 319, keyIcon.getWidth() * scale, keyIcon.getHeight() * scale);
         }
 
+
+
     }
 
     public void setLives(int lives) {
@@ -73,6 +75,8 @@ public class HUD {
     public void incrementLives() {
         this.lives++;
     }
+
+
 
     public void decrementLives() {
         this.lives--;
@@ -104,6 +108,8 @@ public class HUD {
             keyCollected = true;
         }
     }
+
+
 
 
 
