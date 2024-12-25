@@ -67,6 +67,7 @@ public class MazeRunnerGame extends Game {
         }
     }
 
+
     /**
      * Switches to the game screen.
      */
@@ -77,6 +78,8 @@ public class MazeRunnerGame extends Game {
             menuScreen = null;
         }
     }
+
+
 
     /**
      * Loads the character animation from the character.png file.
