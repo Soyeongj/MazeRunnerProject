@@ -178,8 +178,6 @@ public class GameScreen implements Screen {
         boolean moveRight = Gdx.input.isKeyPressed(Input.Keys.D);
         boolean runKeyPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT);
 
-
-
         // Update and render the player
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
         player.render(batch);
