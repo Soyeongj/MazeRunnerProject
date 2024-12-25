@@ -1,74 +1,59 @@
 package de.tum.cit.fop.maze;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
 
-
 public class Wall {
-    private int x, y; // Current position
-    private int originalX, originalY; // Original position
-    private String direction; // Movement direction
-    private float lastMoveTime = 0f; // Last movement time
-    private static final float MOVE_INTERVAL = 3f; // Movement interval in seconds
-
-    private boolean isAnimating = false; // Animation status
-    private float animationProgress = 0f; // Animation progress
-    private float animationDuration = 0.5f; // Animation duration
-    private int targetX, targetY; // Target position
-    private boolean returningToOriginal = false; // Is moving back to original position
-
-    private Griever griever; // Reference to the Griever
+    private int x, y; // 현재 위치
+    private int originalX, originalY; // 원래 위치
+    private int targetX, targetY; // 목표 위치
+    private String direction; // 이동 방향
+    private float lastMoveTime = 0f; // 마지막 이동 시간
+    private static final float MOVE_INTERVAL = 5.0f; // 이동 간격 (초 단위)
+    private static final float STAY_DURATION = 0.3f; // 목표 위치에서 대기하는 시간 (0.1초)
+    private float stayTimer = 0f; // 목표 위치 대기 시간 측정
+    private boolean isAtTarget = false; // 목표 위치에 도달했는지 여부
+    private TiledMapTileLayer layer;
+    private Griever griever;
     private boolean isGrieverDead = false;
     private Vector2 keySpawnPosition = null;
-    private Player player;
-    private HUD hud;
-    private float lastLifeResetTime = 0f; // Timer for last life reset
-    private static final float LIFE_RESET_DELAY = 5f; // 5 seconds delay between life resets
-    private boolean isLifeResetting = false; // Flag to check if life is being reset
 
-
-    public Wall(int x, int y, String direction, Griever griever, Player player, HUD hud) {
+    public Wall(int x, int y, String direction, TiledMapTileLayer layer, Griever griever) {
         this.x = x;
         this.y = y;
         this.originalX = x;
         this.originalY = y;
         this.direction = direction;
+        this.layer = layer;
         this.griever = griever;
-        this.player = player;
-        this.hud = hud;
     }
 
-    public void update(float delta, float globalTimer, TiledMapTileLayer layer) {
+    public void update(float delta, float globalTimer) {
         float timeSinceLastMove = globalTimer - lastMoveTime;
 
-        if (isAnimating) {
-            animate(delta, layer); // Handle animation
+        if (isAtTarget) {
+            stayTimer += delta;
+            if (stayTimer >= STAY_DURATION) {
+                moveToOriginal();
+                isAtTarget = false;
+                stayTimer = 0f;
+            }
             return;
         }
 
-        if (timeSinceLastMove >= MOVE_INTERVAL) {
-            if (returningToOriginal) {
-                moveToOriginal(layer); // Move back to original position
-            } else {
-                move(layer); // Move to target position
-            }
+        if (timeSinceLastMove >= MOVE_INTERVAL && !isAtTarget) {
+            move();
             lastMoveTime = globalTimer;
         }
-
-        // Check if the player is trapped by the wall. This should occur whether or not animation is still happening.
-        checkAndMoveGriever();
-        reducePlayerLife(delta);
+        checkAndMoveGriever(griever);
     }
 
-
-
-    private void move(TiledMapTileLayer layer) {
-        TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+    private void move() {
+        Cell cell = layer.getCell(x, y);
         if (cell == null) return;
 
-        layer.setCell(x, y, null); // Remove from current position
+        layer.setCell(x, y, null); // 현재 위치에서 타일 제거
 
         targetX = x;
         targetY = y;
@@ -80,142 +65,85 @@ public class Wall {
             case "down": targetY = y - 1; break;
         }
 
+        if (layer.getCell(targetX, targetY) != null) {
+            System.err.println("Collision detected at target position: " + targetX + ", " + targetY);
+            return; // 충돌 발생 시 이동 취소
+        }
 
-
-        // Set wall at the target position
-        layer.setCell(targetX, targetY, cell);
-        isAnimating = true; // Start animation
-        animationProgress = 0f; // Reset animation progress
-        returningToOriginal = false; // Reset return status
+        layer.setCell(targetX, targetY, cell); // 목표 위치에 타일 설정
+        x = targetX;
+        y = targetY;
+        isAtTarget = true;
+        stayTimer = 0f;
     }
 
-    private void moveToOriginal(TiledMapTileLayer layer) {
-        TiledMapTileLayer.Cell cell = layer.getCell(targetX, targetY);
+    private void moveToOriginal() {
+        Cell cell = layer.getCell(x, y);
         if (cell == null) return;
 
-        layer.setCell(targetX, targetY, null); // Remove from target position
-        layer.setCell(originalX, originalY, cell); // Move back to original position
+        layer.setCell(x, y, null); // 현재 위치에서 타일 제거
 
-        isAnimating = true; // Start animation
-        animationProgress = 0f; // Reset animation progress
-        returningToOriginal = true; // Mark as returning
+        if (layer.getCell(originalX, originalY) != null) {
+            System.err.println("Collision detected at original position: " + originalX + ", " + originalY);
+            return; // 충돌 발생 시 복귀 취소
+        }
+
+        layer.setCell(originalX, originalY, cell); // 원래 위치에 타일 설정
+        x = originalX;
+        y = originalY;
     }
 
-    private void checkAndMoveGriever() {
-        boolean isWallMoved = (x != originalX || y != originalY || (isAnimating && (targetX != originalX || targetY != originalY)));
+    private void animateMove(float delta) {
+        // 애니메이션용 보간 처리 (가상 위치 계산 가능)
+        float interpolatedX = x + (targetX - x) * (delta / MOVE_INTERVAL);
+        float interpolatedY = y + (targetY - y) * (delta / MOVE_INTERVAL);
+        renderWall(interpolatedX, interpolatedY);
+    }
 
+    private void checkAndMoveGriever(Griever griever) {
+        // Get the Griever's current position
         float grieverX = griever.getMonsterX();
         float grieverY = griever.getMonsterY();
 
+        // Define the boundaries where the Griever should interact with the wall
         boolean isGrieverInBounds1 = (grieverX >= 174 && grieverX <= 206 && grieverY >= 272 && grieverY <= 300);
         boolean isGrieverInBounds2 = (grieverY >= 271 && grieverY <= 302 && grieverX >= 96 && grieverX <= 124);
 
-        if (isWallMoved && (isGrieverInBounds1 || isGrieverInBounds2)) {
-            if (isGrieverInBounds1 && !isGrieverDead) {
-                keySpawnPosition = new Vector2(189, 286);
-            } else if (isGrieverInBounds2 && !isGrieverDead) {
-                keySpawnPosition = new Vector2(110, 286);
-            }
+        // Check if the wall has moved and if the Griever is in the defined bounds
+        if (x != originalX || y != originalY || (isAtTarget && (targetX != originalX || targetY != originalY))) {
+            if (isGrieverInBounds1 || isGrieverInBounds2) {
+                // Handle when the Griever is within the bounds and interacts with the wall
 
-            if (!isGrieverDead) {
-                griever.setPosition(-1000, -1000);
-                isGrieverDead = true;
-            }
+                // If the Griever is in bounds and not already marked as dead, move it off-screen
+                if (!isGrieverDead) {
+                    if (isGrieverInBounds1) {
+                        // Set the spawn position for the key if the Griever is in the first bounds
+                        keySpawnPosition = new Vector2(189, 286); // Example spawn position for the key
+                    } else if (isGrieverInBounds2) {
+                        // Set the spawn position for the key if the Griever is in the second bounds
+                        keySpawnPosition = new Vector2(110, 286); // Example spawn position for the key
+                    }
 
-        }
-    }
-
-    public void reducePlayerLife(float delta) {
-        // Check if the player is in bounds and the wall has moved
-        boolean isWallMoved = (x != originalX || y != originalY || (isAnimating && (targetX != originalX || targetY != originalY)));
-        float playerX = player.getX();
-        float playerY = player.getY();
-
-        boolean isPlayerInBounds1 = (playerX >= 174 && playerX <= 206 && playerY >= 272 && playerY <= 300);
-        boolean isPlayerInBounds2 = (playerY >= 271 && playerY <= 302 && playerX >= 96 && playerX <= 124);
-        boolean isPlayerInBounds = isPlayerInBounds1 || isPlayerInBounds2;
-
-        // Only proceed if the player is in bounds, the wall has moved, and a reset is not already in progress
-        if (isPlayerInBounds && isWallMoved && !isLifeResetting) {
-            int currentLives = hud.getLives();
-
-            // Decrement the life after 5 seconds and prevent further resets during this period
-            if (lastLifeResetTime >= LIFE_RESET_DELAY) {
-                if (currentLives == 3) {
-                    hud.setLives(2); // Decrement life from 3 to 2
-                    isLifeResetting = true; // Block further resets during this period
-                } else if (currentLives == 2) {
-                    hud.setLives(1); // Decrement life from 2 to 1
-                    isLifeResetting = true; // Block further resets during this period
-                } else if (currentLives == 1) {
-                    hud.setLives(0); // Decrement life from 1 to 0
-                    isLifeResetting = true; // Block further resets during this period
+                    // Move the Griever off-screen and mark it as dead
+                    griever.setPosition(-1000, -1000);
+                    isGrieverDead = true;
                 }
-
-                // Reset the timer after decrementing life
-                lastLifeResetTime = 0f;
             }
         }
-
-        // Allow resets again after the 5-second delay
-        if (isLifeResetting && lastLifeResetTime >= LIFE_RESET_DELAY) {
-            isLifeResetting = false; // Allow life decrement again
-        }
-
-        // Update the timer with delta time
-        lastLifeResetTime += delta;
     }
 
 
-
-
-
-
-
-    private void animate(float delta, TiledMapTileLayer layer) {
-        animationProgress += delta / animationDuration;
-
-        if (animationProgress >= 1f) {
-            if (returningToOriginal) {
-                // Finish returning to original position animation
-                x = originalX;
-                y = originalY;
-                returningToOriginal = false; // Mark return complete
-                isAnimating = false;
-
-                // After returning, immediately update the state
-
-            } else {
-                // Finish moving to target position animation
-                x = targetX;
-                y = targetY;
-                isAnimating = false;
-                returningToOriginal = true; // Next move will be a return
-
-
-            }
-            animationProgress = 0f; // Reset progress
-        }
-    }
-
-
-    public int getX() {
-        return x;
-    }
-
-    public boolean isGrieverDead() {
-        return isGrieverDead;
-    }
-
-    public boolean isWallMoved() {
-        return (x != originalX || y != originalY || (isAnimating && (targetX != originalX || targetY != originalY)));
+    private void renderWall(float interpolatedX, float interpolatedY) {
+        // 애니메이션 렌더링 또는 디버깅 출력
+        System.out.println("Animating wall at (" + interpolatedX + ", " + interpolatedY + ")");
     }
 
     public Vector2 getKeySpawnPosition() {
         return keySpawnPosition;
     }
-
-
+    public boolean isGrieverDead() {
+        return isGrieverDead;
+    }
 
 
 }

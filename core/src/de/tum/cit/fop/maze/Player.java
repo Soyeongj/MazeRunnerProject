@@ -26,6 +26,10 @@ public class Player {
     private TiledMapTileLayer collisionLayer;
     private String blockedKey = "blocked";
 
+    private Texture redup1,redup2,reddown1,reddown2,redleft1,redleft2,redright1,redright2;  // Texture that represents the reddish effect
+    private float redEffectTimer = 0f;  // Timer to manage the duration of the reddish effect
+    private boolean isInRedEffect = false;
+
 
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
         this.x = startX;
@@ -49,12 +53,30 @@ public class Player {
 
         this.currentTexture = right1;
         this.isDead = false;
+
+        this.redup2 = new Texture("orc_up_2.png");
+        this.redup1 = new Texture("orc_up_1.png");
+        this.reddown2 = new Texture("orc_down_2.png");
+        this.redleft1 = new Texture("orc_left_1.png");
+        this.redleft2 = new Texture("orc_left_2.png");
+        this.redright1 = new Texture("orc_right_1.png");
+        this.redright2 = new Texture("orc_right_2.png");
+        this.reddown1 = new Texture("orc_down_1.png");
     }
 
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed) {
         previousX = x;
         previousY = y;
         moved = false;
+
+        // Handle the red effect (flashing the player character red when damaged)
+        if (isInRedEffect) {
+            redEffectTimer += delta;
+            if (redEffectTimer >= 3f) {  // Red effect lasts for 1 second
+                isInRedEffect = false;
+                redEffectTimer = 0f;
+            }
+        }
 
         if (canRun && runKeyPressed) {
             isRunning = true;
@@ -86,7 +108,7 @@ public class Player {
                 revertToPrevious();
             } else {
                 direction = "up";
-                animate(delta, up1, up2);
+                animate(delta, isInRedEffect ? redup1 : up1, isInRedEffect ? redup2 : up2);  // Use red textures if in red effect
                 moved = true;
             }
         } else if (moveDown) {
@@ -95,7 +117,7 @@ public class Player {
                 revertToPrevious();
             } else {
                 direction = "down";
-                animate(delta, down1, down2);
+                animate(delta, isInRedEffect ? reddown1 : down1, isInRedEffect ? reddown2 : down2);
                 moved = true;
             }
         }
@@ -105,7 +127,7 @@ public class Player {
                 revertToPrevious();
             } else {
                 direction = "left";
-                animate(delta, left1, left2);
+                animate(delta, isInRedEffect ? redleft1 : left1, isInRedEffect ? redleft2 : left2);
                 moved = true;
             }
         } else if (moveRight) {
@@ -114,7 +136,7 @@ public class Player {
                 revertToPrevious();
             } else {
                 direction = "right";
-                animate(delta, right1, right2);
+                animate(delta, isInRedEffect ? redright1 : right1, isInRedEffect ? redright2 : right2);
                 moved = true;
             }
         }
@@ -181,7 +203,10 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
+
         batch.draw(currentTexture, x, y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
+
+
     }
     public float getX() {
         return x;
@@ -218,6 +243,10 @@ public class Player {
         setTexture(dead);
     }
 
+    public void triggerRedEffect() {
+        isInRedEffect = true;
+    }
+
 
     public void dispose() {
         up1.dispose();
@@ -229,5 +258,13 @@ public class Player {
         right1.dispose();
         right2.dispose();
         dead.dispose();
+        redup1.dispose();
+        redup2.dispose();
+        reddown1.dispose();
+        reddown2.dispose();
+        redleft1.dispose();
+        redleft2.dispose();
+        redright1.dispose();
+        redright2.dispose();
     }
 }
