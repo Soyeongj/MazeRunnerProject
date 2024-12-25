@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
+import java.util.Random;
+
 public class Griever {
     private Texture grieverUp1, grieverUp2, grieverDown1, grieverDown2, grieverLeft1, grieverLeft2, grieverRight1, grieverRight2;
     private Texture griever;
@@ -23,6 +25,11 @@ public class Griever {
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
     private final float stunDuration = 3.0f; // 3 seconds stun duration
+
+    private Vector2 randomDirection; // To store the current random direction
+    private float randomMovementTimer = 0f; // Timer for random movement
+    private final float randomMovementInterval = 8.0f; // Change direction every 8 seconds
+    private Random random = new Random(); // Random object for generating directions
 
     private TiledMapTileLayer collisionLayer;
     private String blockedKey = "blocked";
@@ -47,6 +54,11 @@ public class Griever {
         fixedGrieverDirection = "right";
         grieverStateTime = 0f;
         grieverRectangle = new Rectangle(monsterX, monsterY, griever.getWidth(), griever.getHeight());
+        randomDirection = getRandomDirection();
+    }
+    private Vector2 getRandomDirection() {
+        float angle = random.nextFloat() * 360; // Random angle in degrees
+        return new Vector2((float) Math.cos(Math.toRadians(angle)), (float) Math.sin(Math.toRadians(angle))).nor();
     }
 
     public void update(float delta, float playerX, float playerY, String playerDirection) {
@@ -67,6 +79,8 @@ public class Griever {
 
         if (distance <= detectionRange) {
             isGrieverFollowingPlayer = true;
+        } else {
+            isGrieverFollowingPlayer = false;
         }
 
         if (isGrieverFollowingPlayer) {
@@ -98,7 +112,40 @@ public class Griever {
                 griever = getGrieverTextureForDirection(fixedGrieverDirection);
                 grieverStateTime = 0;
             }
+        } else {
+            randomMovementTimer += delta;
+            if (randomMovementTimer >= randomMovementInterval) {
+                randomMovementTimer = 0;
+                randomDirection = getRandomDirection(); // Change direction
+            }
+
+            previousX = monsterX;
+            previousY = monsterY;
+
+            float deltaX = randomDirection.x * monsterSpeed * delta;
+            float deltaY = randomDirection.y * monsterSpeed * delta;
+
+            if (Math.abs(randomDirection.x) > Math.abs(randomDirection.y)) {
+                fixedGrieverDirection = randomDirection.x > 0 ? "right" : "left";
+            } else {
+                fixedGrieverDirection = randomDirection.y > 0 ? "up" : "down";
+            }
+
+            monsterX += deltaX;
+            if (collidesHorizontal()) revertToPrevious();
+
+            monsterY += deltaY;
+            if (collidesVertical()) revertToPrevious();
+
+            grieverRectangle.setPosition(monsterX, monsterY);
+
+            grieverStateTime += delta;
+            if (grieverStateTime >= grieverAnimationTime) {
+                griever = getGrieverTextureForDirection(fixedGrieverDirection);
+                grieverStateTime = 0;
+            }
         }
+
 
         checkStunCondition(playerX, playerY, playerDirection);
     }

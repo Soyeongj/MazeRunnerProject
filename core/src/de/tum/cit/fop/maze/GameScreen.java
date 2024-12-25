@@ -63,7 +63,7 @@ public class GameScreen implements Screen {
         this.friends = new Friends();
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
-        griever = new Griever(118, 283, (TiledMapTileLayer) tiledMap.getLayers().get(0));
+        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         batch = new SpriteBatch();
 
         friends.setScale(0.2f);
@@ -201,7 +201,6 @@ public class GameScreen implements Screen {
         for (int i = 0; i < count; i++) {
             player.increaseSpeed(3f);
         }
-
 
         int diffX = (int) (player.getX() - griever.getMonsterX());
         int diffY = (int) (player.getY() - griever.getMonsterY());
