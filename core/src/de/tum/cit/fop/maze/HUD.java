@@ -108,6 +108,11 @@ public class HUD {
 
     }
 
+    public void stunMessage() {
+        message = "You stunned griever!";
+        messageTimer = MESSAGE_DISPLAY_DURATION;
+    }
+
     public void setScore(int score) {
         this.score = score;
     }

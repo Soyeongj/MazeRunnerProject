@@ -61,7 +61,7 @@ public class Griever {
         return new Vector2((float) Math.cos(Math.toRadians(angle)), (float) Math.sin(Math.toRadians(angle))).nor();
     }
 
-    public void update(float delta, float playerX, float playerY, String playerDirection) {
+    public void update(float delta, float playerX, float playerY, String playerDirection,HUD hud) {
         grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
 
         int diffX = (int) (playerX - monsterX);
@@ -112,7 +112,7 @@ public class Griever {
             }
         }
 
-        checkStunCondition(playerX, playerY, playerDirection);
+        checkStunCondition(playerX, playerY, playerDirection,hud);
     }
     private String getNewDirectionOnCollision(String currentDirection) {
         String[] possibleDirections = {"up", "down", "left", "right"};
@@ -126,13 +126,14 @@ public class Griever {
     }
 
 
-    private void checkStunCondition(float playerX, float playerY, String playerDirection) {
+    private void checkStunCondition(float playerX, float playerY, String playerDirection, HUD hud) {
         float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
-        if (distance <= 5f && !isGrieverStunned) {
+        if (distance <= 6.5f && !isGrieverStunned) {
             boolean isOppositeDirection = isGrieverInOppositeDirection(playerDirection);
             if (isOppositeDirection) {
                 isGrieverStunned = true;
                 stunTimer = 0;
+                hud.stunMessage();
             }
         }
     }

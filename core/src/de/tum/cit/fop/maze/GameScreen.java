@@ -180,7 +180,7 @@ public class GameScreen implements Screen {
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
         player.render(batch);
 
-        griever.update(delta, player.getX(), player.getY(), player.getDirection());
+        griever.update(delta, player.getX(), player.getY(), player.getDirection(),hud);
         griever.render(batch);
 
 
@@ -240,7 +240,7 @@ public class GameScreen implements Screen {
         int diffY = (int) (player.getY() - griever.getMonsterY());
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
 
-        if (LivesCoolDownTimer <= 0 && distance < 10f && griever.isGrieverNotStunned()) {
+        if (LivesCoolDownTimer <= 0 && distance < 5f && griever.isGrieverNotStunned()) {
             if (hud.getLives() > 1) {
                 hud.decrementLives();
                 player.triggerRedEffect();
