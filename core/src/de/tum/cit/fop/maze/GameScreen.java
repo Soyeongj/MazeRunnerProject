@@ -189,13 +189,13 @@ public class GameScreen implements Screen {
         griever.render(batch);
 
         friends.render(batch);
-        hud.render(batch);
+        hud.render(batch, player);
         item.render(batch);
 
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
         int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
         int count = item.checkAndCollectAllItmes(playerPosition, 3f);
-        hud.render(batch);
+        hud.render(batch, player);
         for (int i = 0; i < savedFriends; i++) {
             hud.incrementLives();
         }
@@ -298,4 +298,5 @@ public class GameScreen implements Screen {
         hud.dispose();
         friends.dispose();
         griever.dispose();
+        hud.dispose();
     }}

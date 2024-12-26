@@ -22,6 +22,7 @@ public class Wall {
     private boolean isPlayerRemoved = false;
     private float removalCooldown = 0f;
 
+
     public Wall(int x, int y, String direction, TiledMapTileLayer layer, Griever griever, HUD hud) {
         this.x = x;
         this.y = y;
