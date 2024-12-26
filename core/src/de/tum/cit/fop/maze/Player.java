@@ -39,8 +39,8 @@ public class Player {
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
         this.x = startX;
         this.y = startY;
-        this.speed = 30.0f;
-        this.runningSpeed = 50.0f;
+        this.speed = 50.0f;
+        this.runningSpeed = 70.0f;
         this.previousX = startX;
         this.previousY = startY;
         this.collisionLayer = collisionLayer;
@@ -114,7 +114,7 @@ public class Player {
         float currentSpeed = isRunning ? runningSpeed : speed;
 
         // Movement logic
-        if (moveUp) {
+        if (moveUp && y < 478) {
             y += currentSpeed * delta;
             if (collidesTop()) {
                 revertToPrevious();
@@ -123,7 +123,7 @@ public class Player {
                 animate(delta, isInRedEffect ? redup1 : up1, isInRedEffect ? redup2 : up2);  // Use red textures if in red effect
                 moved = true;
             }
-        } else if (moveDown) {
+        } else if (moveDown && y > 0) {
             y -= currentSpeed * delta;
             if (collidesBottom()) {
                 revertToPrevious();
@@ -133,7 +133,7 @@ public class Player {
                 moved = true;
             }
         }
-        if (moveLeft) {
+        if (moveLeft && x > 0) {
             x -= currentSpeed * delta;
             if (collidesLeft()) {
                 revertToPrevious();
@@ -142,7 +142,7 @@ public class Player {
                 animate(delta, isInRedEffect ? redleft1 : left1, isInRedEffect ? redleft2 : left2);
                 moved = true;
             }
-        } else if (moveRight) {
+        } else if (moveRight && x < 478.6) {
             x += currentSpeed * delta;
             if (collidesRight()) {
                 revertToPrevious();
@@ -151,6 +151,9 @@ public class Player {
                 animate(delta, isInRedEffect ? redright1 : right1, isInRedEffect ? redright2 : right2);
                 moved = true;
             }
+        }
+        if (moved) {
+            System.out.println("X: " + x + " Y: " + y);
         }
     }
 

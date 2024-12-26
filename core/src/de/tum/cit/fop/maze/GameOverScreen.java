@@ -3,10 +3,10 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Color;
 
 public class GameOverScreen implements Screen {
 
@@ -21,21 +21,32 @@ public class GameOverScreen implements Screen {
     private final float textOffsetX = 370f;
     private final float textOffsetY = 150f;
 
+    private float fadeAlpha; // Alpha value for fade effect
+    private static final float FADE_SPEED = 0.5f; // Speed of the fade effect
+
     public GameOverScreen(MazeRunnerGame game) {
         this.game = game;
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
         this.gameOverTexture = new Texture("gameover.jpg");
+        this.fadeAlpha = 0f; // Start fully transparent
         font.setColor(Color.WHITE);
     }
 
     @Override
     public void show() {
-        // Perform any setup needed
+        // Reset alpha when the screen is shown
+        fadeAlpha = 0f;
     }
 
     @Override
     public void render(float delta) {
+        // Gradually increase the fadeAlpha up to 1
+        if (fadeAlpha < 1f) {
+            fadeAlpha += FADE_SPEED * delta;
+            fadeAlpha = Math.min(fadeAlpha, 1f); // Clamp alpha to 1
+        }
+
         batch.begin();
 
         float screenWidth = Gdx.graphics.getWidth();
@@ -46,20 +57,29 @@ public class GameOverScreen implements Screen {
         float scaledTextureWidth = textureWidth * textureWidthScale;
         float scaledTextureHeight = textureHeight * textureHeightScale;
 
+        // Set batch color with alpha for fade effect
+        batch.setColor(1f, 1f, 1f, fadeAlpha);
+
+        // Draw the game over texture
         batch.draw(gameOverTexture, (screenWidth - scaledTextureWidth) / 2, (screenHeight - scaledTextureHeight) / 2,
                 scaledTextureWidth, scaledTextureHeight);
 
-        font.getData().setScale(2.5f);  // Further increase text size for the options
+        // Reset the batch color to draw text without transparency
+        batch.setColor(1f, 1f, 1f, 1f);
+        font.getData().setScale(2.5f); // Further increase text size for the options
         font.draw(batch, "Press ENTER to Restart or ESC to Quit", screenWidth / 2 - textOffsetX, screenHeight / 2 - textOffsetY);
 
         batch.end();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            game.setScreen(new GameScreen(game)); // Restart the game
-        }
+        // Handle input
+        if (fadeAlpha >= 1f) { // Allow input only after fade-in is complete
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+                game.setScreen(new GameScreen(game)); // Restart the game
+            }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                Gdx.app.exit();
+            }
         }
     }
 

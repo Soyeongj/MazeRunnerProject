@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+
 public class HUD {
     private Texture HUDpanel;
     private Texture friendHUD;
@@ -23,7 +24,8 @@ public class HUD {
     private static final float MESSAGE_DISPLAY_DURATION = 4f;
     private OrthographicCamera hudCamera;
 
-
+    private float screenWidth;
+    private float screenHeight;
 
     public HUD() {
         this.HUDpanel = new Texture("sand.png");
@@ -50,11 +52,17 @@ public class HUD {
         this.keyCollected = false;
 
         hudCamera = new OrthographicCamera();
-        hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        hudCamera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
-        hudCamera.update();
-
+        setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
+
+    public void setScreenDimensions(float width, float height) {
+        this.screenWidth = width;
+        this.screenHeight = height;
+        hudCamera.setToOrtho(false, screenWidth, screenHeight);
+        hudCamera.position.set(screenWidth / 2f, screenHeight / 2f, 0);
+        hudCamera.update();
+    }
+
     public void updateTimer(float delta) {
         globalTimer += delta;
     }
@@ -64,31 +72,18 @@ public class HUD {
     }
 
     public void render(SpriteBatch batch, Player player) {
-        // Set HUD camera
         batch.setProjectionMatrix(hudCamera.combined);
 
-        // Render the HUD text
-        font.draw(batch, "Score: " + score, 80, Gdx.graphics.getHeight() - 100);
-        font.draw(batch, "Remaining Friends: " + lives, 80, Gdx.graphics.getHeight() - 30);
-        font.draw(batch, "Key Collected: " + (keyCollected ? "Yes" : "No"), 800, Gdx.graphics.getHeight() - 40);
+        font.draw(batch, "Score: " + score, screenWidth * 0.07f, screenHeight - 100);
+        font.draw(batch, "Remaining Friends: " + lives, screenWidth * 0.07f, screenHeight - 30);
+        font.draw(batch, "Key Collected: " + (keyCollected ? "Yes" : "No"), screenWidth * 0.6f, screenHeight - 39);
 
         if (messageTimer > 0) {
             font.draw(batch, message, player.getX(), player.getY() + player.getHeight() + 10);
             messageTimer -= Gdx.graphics.getDeltaTime();
         }
 
-        // Draw the friend HUD icons
-        for (int i = 0; i < lives; i++) {
-            batch.draw(friendHUD, 120 + (i * 30), Gdx.graphics.getHeight() - 60, friendHUD.getWidth() * scale, friendHUD.getHeight() * scale);
-        }
-
-        if (keyCollected) {
-            batch.draw(keyIcon, 20, Gdx.graphics.getHeight() - 90, keyIcon.getWidth() * scale, keyIcon.getHeight() * scale);
-        }
     }
-
-
-
 
     public void setLives(int lives) {
         this.lives = lives;
@@ -98,14 +93,10 @@ public class HUD {
         this.lives++;
     }
 
-
-
     public void decrementLives() {
         this.lives--;
-
         message = "You lost a friend.";
         messageTimer = MESSAGE_DISPLAY_DURATION;
-
     }
 
     public void stunMessage() {
@@ -124,7 +115,6 @@ public class HUD {
     public void decrementScore(int amount) {
         if (score - amount >= 0) {
             this.score -= amount;
-
         }
     }
 
@@ -132,14 +122,12 @@ public class HUD {
         return lives;
     }
 
-
     public void collectKey() {
         // Mark the key as collected
         if (!keyCollected) {
             keyCollected = true;
         }
     }
-
 
     public void dispose() {
         HUDpanel.dispose();
