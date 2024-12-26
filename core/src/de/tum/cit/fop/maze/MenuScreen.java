@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -47,6 +48,33 @@ public class MenuScreen implements Screen {
                 game.goToGame();
             }
         });
+        TextButton exitButton = new TextButton("Exit", game.getSkin());
+        table.add(exitButton).width(300).row();
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
+        TextButton resumeButton = new TextButton("Resume", game.getSkin());
+        table.add(resumeButton).width(300).row();
+        resumeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Screen currentScreen = game.getScreen();
+
+                if (currentScreen instanceof GameScreen) {
+                    GameScreen gameScreen = (GameScreen) currentScreen;
+                    gameScreen.loadPlayerState();
+                } else {
+                    GameScreen gameScreen = new GameScreen(game);
+                    gameScreen.loadPlayerState();
+                    game.setScreen(gameScreen);
+                }
+            }
+
+        });
+
     }
 
 

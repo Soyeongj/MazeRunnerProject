@@ -74,7 +74,7 @@ public class Griever {
                 isGrieverStunned = false;
                 stunTimer = 0;
             }
-            return; // Skip updates while stunned
+            return;
         }
 
         if (distance <= detectionRange) {
@@ -253,4 +253,11 @@ public class Griever {
         return scale;
     }
 
+    public boolean isGrieverStunned() {
+        return isGrieverStunned;
+    }
+
+    public void setGrieverStunned(boolean grieverStunned) {
+        isGrieverStunned = grieverStunned;
+    }
 }

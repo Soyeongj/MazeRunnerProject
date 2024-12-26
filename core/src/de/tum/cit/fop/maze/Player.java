@@ -17,8 +17,8 @@ public class Player {
     private boolean moved = false;
     private float previousX, previousY;
 
-    private final float runDuration = 4f;
-    private final float cooldownDuration = 6f;
+    private final float runDuration = 2f;
+    private final float cooldownDuration = 4f;
     private final float walkAnimationTime = 0.1f;
 
     private boolean isDead;
@@ -39,7 +39,7 @@ public class Player {
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
         this.x = startX;
         this.y = startY;
-        this.speed = 50.0f;
+        this.speed = 30.0f;
         this.runningSpeed = 70.0f;
         this.previousX = startX;
         this.previousY = startY;

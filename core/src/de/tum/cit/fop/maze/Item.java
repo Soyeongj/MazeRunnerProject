@@ -52,4 +52,20 @@ public class Item {
             item.dispose();
         }
     }
+
+    public Vector2[] getItemPositions() {
+        return itemPositions;
+    }
+
+    public void setItemPositions(Vector2[] itemPositions) {
+        this.itemPositions = itemPositions;
+    }
+
+    public boolean[] getIsItemCollected() {
+        return isItemCollected;
+    }
+
+    public void setIsItemCollected(boolean[] isItemCollected) {
+        this.isItemCollected = isItemCollected;
+    }
 }

@@ -68,6 +68,7 @@ public class MazeRunnerGame extends Game {
     }
 
 
+
     /**
      * Switches to the game screen.
      */

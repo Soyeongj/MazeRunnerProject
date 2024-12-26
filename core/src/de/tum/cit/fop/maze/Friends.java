@@ -1,7 +1,11 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 
 public class Friends {
@@ -18,16 +22,39 @@ public class Friends {
             new Vector2(friend2x, friend2y),
             new Vector2(friend3x, friend3y),
     };
+
+
     private boolean[] isFriendSaved = {false, false, false};
     private float scale = 1.0f;
+    private BitmapFont font;
+
     public Friends() {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        parameter.size = 10;
+        parameter.color = Color.WHITE;
+        parameter.borderWidth = 1;
+        parameter.borderColor = Color.BLACK;
+
+        // Generate the font
+        this.font = generator.generateFont(parameter);
+        generator.dispose();
+
+        font.getData().setScale(0.8f);
     }
-    public void render(SpriteBatch batch) {
+    public void render(SpriteBatch batch, Player player) {
         for (int i = 0; i < friendsPositions.length; i++) {
             if (!isFriendSaved[i]) {
                 batch.draw(friends[i], friendsPositions[i].x, friendsPositions[i].y,  friends[i].getWidth() * scale, friends[i].getHeight() * scale);
+                Vector2 playerPosition = new Vector2(player.getX(), player.getY());
+                float distance = playerPosition.dst(friendsPositions[i]);
+                if (distance <= 50) {
+                    font.draw(batch,"help me!", friendsPositions[i].x-9, friendsPositions[i].y+10);
+                }
             }
         }
+
     }
     public boolean checkAndSaveFriend(Vector2 playerPosition, float proximity, int index) {
         if (!isFriendSaved[index]) {
@@ -59,7 +86,22 @@ public class Friends {
             friend.dispose();
         }
     }
-}
 
+    public Vector2[] getFriendsPositions() {
+        return friendsPositions;
+    }
+
+    public void setFriendsPositions(Vector2[] friendsPositions) {
+        this.friendsPositions = friendsPositions;
+    }
+
+    public boolean[] getIsFriendSaved() {
+        return isFriendSaved;
+    }
+
+    public void setIsFriendSaved(boolean[] isFriendSaved) {
+        this.isFriendSaved = isFriendSaved;
+    }
+}
 
 

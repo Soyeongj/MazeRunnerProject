@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.Color;
+
 
 
 public class HUD {
@@ -123,10 +126,17 @@ public class HUD {
     }
 
     public void collectKey() {
-        // Mark the key as collected
         if (!keyCollected) {
             keyCollected = true;
         }
+    }
+
+    public boolean isKeyCollected() {
+        return keyCollected;
+    }
+
+    public void setKeyCollected(boolean keyCollected) {
+        this.keyCollected = keyCollected;
     }
 
     public void dispose() {

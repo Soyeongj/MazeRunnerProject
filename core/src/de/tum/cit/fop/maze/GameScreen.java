@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -14,6 +13,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.Preferences;
+
 
 import java.util.List;
 import java.util.ArrayList;
@@ -141,6 +142,7 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         // Check for escape key press to go back to the menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            savePlayerState();
             game.goToMenu();
         }
 
@@ -150,7 +152,6 @@ public class GameScreen implements Screen {
 
         float currentGlobalTime = hud.getGlobalTimer();
 
-        //update moving walls
         for (Wall wall : walls) {
             wall.update(delta,currentGlobalTime);
             wall.checkAndMovePlayer(player, currentGlobalTime);
@@ -219,7 +220,7 @@ public class GameScreen implements Screen {
             game.setScreen(new GameOverScreen(game)); // Transition to Game Over screen
         }
 
-        friends.render(batch);
+        friends.render(batch,player);
         item.render(batch);
         hud.render(batch, player);
 
@@ -252,21 +253,76 @@ public class GameScreen implements Screen {
             }
         }
 
-
         if (LivesCoolDownTimer > 0) {
             LivesCoolDownTimer -= delta;
         }
 
-
-
-
-
-
-
         batch.end();
-
-
     }
+
+    public void savePlayerState() {
+        Preferences prefs = Gdx.app.getPreferences("PlayerState");
+        prefs.putFloat("playerX", player.getX());
+        prefs.putFloat("playerY", player.getY());
+        prefs.putInteger("playerLives",hud.getLives());
+        prefs.putFloat("grieverX", griever.getMonsterX());
+        prefs.putFloat("grieverY", griever.getMonsterY());
+        for (int i = 0; i < friends.getIsFriendSaved().length; i++) {
+            prefs.putBoolean("friendSaved" + i, friends.getIsFriendSaved()[i]);
+            prefs.putFloat("friend" + i + "X", friends.getFriendsPositions()[i].x);
+            prefs.putFloat("friend" + i + "Y", friends.getFriendsPositions()[i].y);
+        }
+        for (int i =0; i <item.getIsItemCollected().length; i++) {
+            prefs.putBoolean("itemCollected" + i, item.getIsItemCollected()[i]);
+            prefs.putFloat("item" + i + "X", item.getItemPositions()[i].x);
+            prefs.putFloat("item" + i + "Y", item.getItemPositions()[i].y);
+        }
+        prefs.putFloat("keyX", key.getX());
+        prefs.putFloat("keyY", key.getY());
+        prefs.putBoolean("keyCollected", hud.isKeyCollected());
+        for (Wall wall : walls) {
+            prefs.putBoolean("grieverDead",wall.isGrieverDead());
+        }
+        prefs.flush();
+    }
+    public void loadPlayerState() {
+        Preferences prefs = Gdx.app.getPreferences("PlayerState");
+        if (prefs.contains("playerX") && prefs.contains("playerY")) {
+            float x = prefs.getFloat("playerX");
+            player.setX(x);
+            float y = prefs.getFloat("playerY");
+            player.setY(y);
+            int lives = prefs.getInteger("playerLives");
+            hud.setLives(lives);
+            float monsterX = prefs.getFloat("grieverX");
+            float monsterY = prefs.getFloat("grieverY");
+            griever.setPosition((int) monsterX, (int) monsterY);
+            for (int i = 0; i < friends.getIsFriendSaved().length; i++) {
+                friends.getIsFriendSaved()[i] = prefs.getBoolean("friendSaved" + i, false); // Default to false if not saved
+                float friendX = prefs.getFloat("friend" + i + "X", -1000);  // Default to an invalid position if not saved
+                float friendY = prefs.getFloat("friend" + i + "Y", -1000);
+                friends.getFriendsPositions()[i] = new Vector2(friendX, friendY);
+            }
+            for (int i = 0;i <item.getIsItemCollected().length; i++) {
+                item.getIsItemCollected()[i] = prefs.getBoolean("itemCollected" + i, false);
+                float itemX = prefs.getFloat("item" + i + "X", -1000);
+                float itemY = prefs.getFloat("item" + i + "Y", -1000);
+                item.getItemPositions()[i] = new Vector2(itemX, itemY);
+            }
+            boolean isKeyCollected = prefs.getBoolean("keyCollected", false);
+            hud.setKeyCollected(isKeyCollected);
+            float keyX = prefs.getFloat("keyX", -1000);
+            float keyY = prefs.getFloat("keyY", -1000);
+            key.setX(keyX);
+            key.setY(keyY);
+            boolean isGrieverDead = prefs.getBoolean("grieverDead", false);
+            for (Wall wall : walls) {
+                wall.setGrieverDead(isGrieverDead);
+            }
+
+        }
+    }
+
 
 
     @Override
@@ -291,6 +347,7 @@ public class GameScreen implements Screen {
     @Override
     public void hide() {
     }
+
 
     @Override
     public void dispose() {

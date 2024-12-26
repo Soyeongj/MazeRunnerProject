@@ -48,5 +48,25 @@ public class Key {
         this.y = y;
     }
 
+    public void setCollected(boolean collected) {
+        isCollected = collected;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
 
 }

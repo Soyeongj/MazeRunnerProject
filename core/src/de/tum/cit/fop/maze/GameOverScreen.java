@@ -67,14 +67,14 @@ public class GameOverScreen implements Screen {
         // Reset the batch color to draw text without transparency
         batch.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(2.5f); // Further increase text size for the options
-        font.draw(batch, "Press ENTER to Restart or ESC to Quit", screenWidth / 2 - textOffsetX, screenHeight / 2 - textOffsetY);
+        font.draw(batch, "Press ENTER to Go to Menu or ESC to Quit", screenWidth / 2 - textOffsetX, screenHeight / 2 - textOffsetY);
 
         batch.end();
 
         // Handle input
         if (fadeAlpha >= 1f) { // Allow input only after fade-in is complete
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                game.setScreen(new GameScreen(game)); // Restart the game
+                game.goToMenu();
             }
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

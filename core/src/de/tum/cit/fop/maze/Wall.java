@@ -191,4 +191,11 @@ public class Wall {
         return isGrieverDead;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setGrieverDead(boolean grieverDead) {
+        isGrieverDead = grieverDead;
+    }
 }
