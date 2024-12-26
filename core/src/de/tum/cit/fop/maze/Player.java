@@ -39,8 +39,8 @@ public class Player {
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
         this.x = startX;
         this.y = startY;
-        this.speed = 10.0f;
-        this.runningSpeed = 20.0f;
+        this.speed = 30.0f;
+        this.runningSpeed = 50.0f;
         this.previousX = startX;
         this.previousY = startY;
         this.collisionLayer = collisionLayer;
@@ -152,9 +152,6 @@ public class Player {
                 moved = true;
             }
         }
-        if (moved) {
-            System.out.println("X: " + x + " Y: " + y);
-        }
     }
 
     public void revertToPrevious() {
@@ -234,6 +231,15 @@ public class Player {
 
     public void setY(float y) {
         this.y = y;
+    }
+    public float getWidth() {
+        return currentTexture.getWidth();
+    }
+    public float getHeight() {
+        return currentTexture.getHeight();
+    }
+    public float getScale() {
+        return scale;
     }
 
     public String getDirection() {

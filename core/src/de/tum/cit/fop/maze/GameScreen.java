@@ -12,6 +12,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
+    private Viewport viewport;
     private final TiledMap tiledMap;
     private TiledMapTileLayer movingWallsLayer;
     private List<Wall> walls;
@@ -47,13 +50,16 @@ public class GameScreen implements Screen {
     public GameScreen(MazeRunnerGame game) {
         this.game = game;
 
-        // Create and configure the camera for the game view
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false);
-        camera.zoom = 0.5f; // Zoom in to focus on the map's center
 
-        // Load Tiled map
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(800, 480, camera);
+        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+
+        camera.zoom = 0.2f; // Zoom in to focus on the map's center
+
+
         tiledMap = new TmxMapLoader().load("map1.tmx");
+        TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 
@@ -70,14 +76,12 @@ public class GameScreen implements Screen {
 
         this.key = new Key(189,286);
 
-        //load moving wall layer
+
         movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
                 ? (TiledMapTileLayer) tiledMap.getLayers().get("moving walls")
                 : null;
         if (movingWallsLayer != null) {
             initializeWalls(batch, movingWallsLayer);
-        } else {
-            System.err.println("Error: 'moving walls' layer is not a TiledMapTileLayer or does not exist.");
         }
     }
     private void initializeWalls(SpriteBatch spriteBatch, TiledMapTileLayer movingWallsLayer) {
@@ -88,15 +92,11 @@ public class GameScreen implements Screen {
                 TiledMapTileLayer.Cell cell = movingWallsLayer.getCell(x, y);
                 if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
                     String direction = cell.getTile().getProperties().get("direction", String.class);
-                    walls.add(new Wall(x, y, direction, movingWallsLayer, griever));
-                    System.out.println("Wall initialized at x=" + x + ", y=" + y + ", direction=" + direction);
+                    walls.add(new Wall(x, y, direction, movingWallsLayer, griever, hud));
                 }
             }
         }
-
-        System.out.println("Total walls initialized: " + walls.size());
     }
-
 
 
     /**
@@ -109,13 +109,13 @@ public class GameScreen implements Screen {
         int mapWidth = tiledMap.getProperties().get("width", Integer.class); // Tile count width
         int mapHeight = tiledMap.getProperties().get("height", Integer.class); // Tile count height
 
-        // Calculate map center in pixels
+
         float centerX = (mapWidth * tileWidth) / 2f;
         float centerY = (mapHeight * tileHeight) / 2f;
 
-        // Set camera position to the center of the map
+
         camera.position.set(centerX, centerY, 0);
-        camera.update(); // Apply the updated position
+        camera.update();
     }
 
     private void updateCameraPosition() {
@@ -153,25 +153,21 @@ public class GameScreen implements Screen {
         //update moving walls
         for (Wall wall : walls) {
             wall.update(delta,currentGlobalTime);
+            wall.checkAndMovePlayer(player, currentGlobalTime);
         }
 
+        camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
+        camera.update();
 
-        camera.update(); // Update the camera
+        batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
 
-        // Render the Tiled map
+
         mapRenderer.setView(camera);
         mapRenderer.render();
-
-        //이동벽만 별도로 렌더링
         mapRenderer.getBatch().begin();
-
-// 디버깅 코드 추가: movingWallsLayer 렌더링 전
-        System.out.println("Rendering movingWallsLayer...");
-        mapRenderer.renderTileLayer(movingWallsLayer); // "moving walls" 레이어만 렌더링
-        System.out.println("Finished rendering movingWallsLayer.");
-
+        mapRenderer.renderTileLayer(movingWallsLayer);
         mapRenderer.getBatch().end();
 
         boolean moveUp = Gdx.input.isKeyPressed(Input.Keys.W);
@@ -180,21 +176,59 @@ public class GameScreen implements Screen {
         boolean moveRight = Gdx.input.isKeyPressed(Input.Keys.D);
         boolean runKeyPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT);
 
-        // Update and render the player
+
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
         player.render(batch);
 
         griever.update(delta, player.getX(), player.getY(), player.getDirection());
         griever.render(batch);
 
+
+        boolean isGrieverDead = false;
+
+        if (key == null) {
+            key = new Key(189, 286);
+        }
+
+        for (Wall wall : walls) {
+            if (wall.isGrieverDead()) {
+                isGrieverDead = true;
+                key.setPosition(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y);
+                break;
+            }
+        }
+
+
+        if (isGrieverDead && key != null) {
+            key.render(batch);
+        }
+
+
+        if (key != null && isGrieverDead) {
+            key.checkProximityToPlayer(player);
+            if (key.isCollected()) {
+                hud.collectKey();
+                key.setPosition(-1000, -1000);
+            }
+
+
+        }
+
+
+        if (hud.getLives() <= 0) {
+            game.setScreen(new GameOverScreen(game)); // Transition to Game Over screen
+        }
+
         friends.render(batch);
-        hud.render(batch);
         item.render(batch);
+        hud.render(batch, player);
+
+
 
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
         int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
         int count = item.checkAndCollectAllItmes(playerPosition, 3f);
-        hud.render(batch);
+        hud.render(batch, player);
         for (int i = 0; i < savedFriends; i++) {
             hud.incrementLives();
         }
@@ -218,48 +252,18 @@ public class GameScreen implements Screen {
             }
         }
 
-        // Decrease cooldown timer
+
         if (LivesCoolDownTimer > 0) {
             LivesCoolDownTimer -= delta;
         }
 
-        boolean isGrieverDead = false;
-
-        if (key == null) {
-            key = new Key(189, 286);  // Initial position of the key, if necessary
-        }
-
-
-        for (Wall wall : walls) {
-            if (wall.isGrieverDead()) {
-                isGrieverDead = true;
-                key.setPosition(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y);
-                break;
-            }
-        }
-
-
-        if (isGrieverDead && key != null) {
-            key.render(batch);
-        }
 
 
 
 
-        if (key != null && isGrieverDead) {
-            key.checkProximityToPlayer(player);
-            if (key.isCollected()) {
-                hud.collectKey();
-                key.setPosition(-1000, -1000);
-            }
-
-
-        }
 
 
         batch.end();
-
-
 
 
     }
@@ -267,10 +271,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        camera.setToOrtho(false);
-        centerCameraOnMap();
+        viewport.update(width, height);
     }
 
     @Override
@@ -299,4 +300,5 @@ public class GameScreen implements Screen {
         hud.dispose();
         friends.dispose();
         griever.dispose();
+        hud.dispose();
     }}

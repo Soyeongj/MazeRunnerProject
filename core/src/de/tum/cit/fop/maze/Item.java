@@ -10,9 +10,9 @@ public class Item {
             new Texture("potion_red.png"),
     };
     private Vector2[] itemPositions = {
-            new Vector2(155, 219),
-            new Vector2(200, 200),
-            new Vector2(226, 286),
+            new Vector2(120, 183),
+            new Vector2(110, 256),
+            new Vector2(220, 283),
     };
     private boolean[] isItemCollected = {false,false,false};
     private float scale = 0.2f;
