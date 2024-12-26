@@ -101,35 +101,32 @@ public class Wall {
     }
 
     private void checkAndMoveGriever(Griever griever) {
-        // Get the Griever's current position
+
         float grieverX = griever.getMonsterX();
         float grieverY = griever.getMonsterY();
 
-        // Define the boundaries where the Griever should interact with the wall
-        boolean isGrieverInBounds1 = (grieverX >= 174 && grieverX <= 206 && grieverY >= 272 && grieverY <= 300);
-        boolean isGrieverInBounds2 = (grieverY >= 271 && grieverY <= 302 && grieverX >= 96 && grieverX <= 124);
 
-        // Check if the wall has moved and if the Griever is in the defined bounds
-        if (x != originalX || y != originalY || (isAtTarget && (targetX != originalX || targetY != originalY))) {
-            if (isGrieverInBounds1 || isGrieverInBounds2) {
-                // Handle when the Griever is within the bounds and interacts with the wall
+        float wallX = targetX * layer.getTileWidth();
+        float wallY = targetY * layer.getTileHeight();
+        float wallWidth = layer.getTileWidth();
+        float wallHeight = layer.getTileHeight();
 
-                // If the Griever is in bounds and not already marked as dead, move it off-screen
-                if (!isGrieverDead) {
-                    if (isGrieverInBounds1) {
-                        // Set the spawn position for the key if the Griever is in the first bounds
-                        keySpawnPosition = new Vector2(189, 286); // Example spawn position for the key
-                    } else if (isGrieverInBounds2) {
-                        // Set the spawn position for the key if the Griever is in the second bounds
-                        keySpawnPosition = new Vector2(110, 286); // Example spawn position for the key
-                    }
 
-                    // Move the Griever off-screen and mark it as dead
-                    griever.setPosition(-1000, -1000);
-                    isGrieverDead = true;
-                }
+        if (x != originalX || y != originalY || isAtTarget) {
+            if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
+                    wallX, wallY, wallWidth, wallHeight)) {
+
+                griever.setPosition(-1000, -1000);
+                keySpawnPosition = new Vector2(grieverX, grieverY);
+                isGrieverDead = true;
+
             }
         }
+    }
+    private boolean checkCollision(float x1, float y1, float width1, float height1,
+                                   float x2, float y2, float width2, float height2) {
+        return x1 < x2 + width2 && x1 + width1 > x2 &&
+                y1 < y2 + height2 && y1 + height1 > y2;
     }
 
 
