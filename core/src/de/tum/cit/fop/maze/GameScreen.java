@@ -12,6 +12,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
+    private Viewport viewport;
     private final TiledMap tiledMap;
     private TiledMapTileLayer movingWallsLayer;
     private List<Wall> walls;
@@ -47,13 +50,16 @@ public class GameScreen implements Screen {
     public GameScreen(MazeRunnerGame game) {
         this.game = game;
 
-        // Create and configure the camera for the game view
+
         camera = new OrthographicCamera();
-        camera.setToOrtho(false);
+        viewport = new FitViewport(800, 480, camera);
+        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+
         camera.zoom = 0.2f; // Zoom in to focus on the map's center
 
-        // Load Tiled map
+
         tiledMap = new TmxMapLoader().load("map1.tmx");
+        TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 
@@ -70,14 +76,12 @@ public class GameScreen implements Screen {
 
         this.key = new Key(189,286);
 
-        //load moving wall layer
+
         movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
                 ? (TiledMapTileLayer) tiledMap.getLayers().get("moving walls")
                 : null;
         if (movingWallsLayer != null) {
             initializeWalls(batch, movingWallsLayer);
-        } else {
-            System.err.println("Error: 'moving walls' layer is not a TiledMapTileLayer or does not exist.");
         }
     }
     private void initializeWalls(SpriteBatch spriteBatch, TiledMapTileLayer movingWallsLayer) {
@@ -89,14 +93,10 @@ public class GameScreen implements Screen {
                 if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
                     String direction = cell.getTile().getProperties().get("direction", String.class);
                     walls.add(new Wall(x, y, direction, movingWallsLayer, griever, hud));
-                    System.out.println("Wall initialized at x=" + x + ", y=" + y + ", direction=" + direction);
                 }
             }
         }
-
-        System.out.println("Total walls initialized: " + walls.size());
     }
-
 
 
     /**
@@ -109,13 +109,13 @@ public class GameScreen implements Screen {
         int mapWidth = tiledMap.getProperties().get("width", Integer.class); // Tile count width
         int mapHeight = tiledMap.getProperties().get("height", Integer.class); // Tile count height
 
-        // Calculate map center in pixels
+
         float centerX = (mapWidth * tileWidth) / 2f;
         float centerY = (mapHeight * tileHeight) / 2f;
 
-        // Set camera position to the center of the map
+
         camera.position.set(centerX, centerY, 0);
-        camera.update(); // Apply the updated position
+        camera.update();
     }
 
     private void updateCameraPosition() {
@@ -156,23 +156,18 @@ public class GameScreen implements Screen {
             wall.checkAndMovePlayer(player, currentGlobalTime);
         }
 
+        camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
+        camera.update();
 
-        camera.update(); // Update the camera
+        batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
 
-        // Render the Tiled map
+
         mapRenderer.setView(camera);
         mapRenderer.render();
-
-        //이동벽만 별도로 렌더링
         mapRenderer.getBatch().begin();
-
-// 디버깅 코드 추가: movingWallsLayer 렌더링 전
-        System.out.println("Rendering movingWallsLayer...");
-        mapRenderer.renderTileLayer(movingWallsLayer); // "moving walls" 레이어만 렌더링
-        System.out.println("Finished rendering movingWallsLayer.");
-
+        mapRenderer.renderTileLayer(movingWallsLayer);
         mapRenderer.getBatch().end();
 
         boolean moveUp = Gdx.input.isKeyPressed(Input.Keys.W);
@@ -181,7 +176,7 @@ public class GameScreen implements Screen {
         boolean moveRight = Gdx.input.isKeyPressed(Input.Keys.D);
         boolean runKeyPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT);
 
-        // Update and render the player
+
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
         player.render(batch);
 
@@ -219,7 +214,7 @@ public class GameScreen implements Screen {
             }
         }
 
-        // Decrease cooldown timer
+
         if (LivesCoolDownTimer > 0) {
             LivesCoolDownTimer -= delta;
         }
@@ -227,7 +222,7 @@ public class GameScreen implements Screen {
         boolean isGrieverDead = false;
 
         if (key == null) {
-            key = new Key(189, 286);  // Initial position of the key, if necessary
+            key = new Key(189, 286);
         }
 
 
@@ -266,10 +261,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        camera.setToOrtho(false);
-        centerCameraOnMap();
+        viewport.update(width, height);
     }
 
     @Override

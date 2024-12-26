@@ -171,6 +171,7 @@ public class Wall {
 
             isPlayerRemoved = false;
         }
+
     }
 
     private boolean checkCollision(float x1, float y1, float width1, float height1,

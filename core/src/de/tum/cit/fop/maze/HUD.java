@@ -21,6 +21,7 @@ public class HUD {
     private String message = "";
     private float messageTimer = 0f;
     private static final float MESSAGE_DISPLAY_DURATION = 4f;
+    private OrthographicCamera hudCamera;
 
 
 
@@ -31,10 +32,8 @@ public class HUD {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        OrthographicCamera hudCamera = new OrthographicCamera();
-        hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        parameter.size = 15;
+        parameter.size = 40;
         parameter.color = Color.WHITE;
         parameter.borderWidth = 1;
         parameter.borderColor = Color.BLACK;
@@ -43,13 +42,17 @@ public class HUD {
         parameter.magFilter = Texture.TextureFilter.Linear;
         generator.dispose();
 
-        font.getData().setScale(0.5f);
+        font.getData().setScale(2f);
 
         this.lives = 3;
         this.score = 0;
         this.globalTimer = 0f;
         this.keyCollected = false;
 
+        hudCamera = new OrthographicCamera();
+        hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        hudCamera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
+        hudCamera.update();
 
     }
     public void updateTimer(float delta) {
@@ -60,37 +63,30 @@ public class HUD {
         return globalTimer;
     }
 
-    public void render(SpriteBatch batch, Player player)  {
-        // Draw the HUD background
-        for (int x = 0; x <= 420; x += HUDpanel.getWidth()) {
-            for (int y = 307; y <= 335; y += HUDpanel.getHeight()) {
-                batch.draw(HUDpanel, x, y);
-            }
-        }
+    public void render(SpriteBatch batch, Player player) {
+    // Set HUD camera
+        batch.setProjectionMatrix(hudCamera.combined);
 
-        font.draw(batch, "Score: " + score, 120, 313);
-
-        font.draw(batch, "Remaining Friends: " + lives, 120, 323);
-
-        font.draw(batch, "Key Collected: ", 250, 323);
+    // Render the HUD text
+        font.draw(batch, "Score: " + score, 80, Gdx.graphics.getHeight() - 100);
+        font.draw(batch, "Remaining Friends: " + lives, 80, Gdx.graphics.getHeight() - 30);
+        font.draw(batch, "Key Collected: " + (keyCollected ? "Yes" : "No"), 800, Gdx.graphics.getHeight() - 40);
 
         if (messageTimer > 0) {
-            font.draw(batch, message, player.getX(), player.getY() + player.getHeight() + 10);
-            messageTimer -= Gdx.graphics.getDeltaTime();
-        }
+        font.draw(batch, message, player.getX(), player.getY() + player.getHeight() + 10);
+        messageTimer -= Gdx.graphics.getDeltaTime();
+    }
 
-        // Draw the friend HUD icons
+    // Draw the friend HUD icons
         for (int i = 0; i < lives; i++) {
-            batch.draw(friendHUD, 190 + (i * 5), 320,friendHUD.getWidth() * scale, friendHUD.getHeight() * scale);
-        }
+        batch.draw(friendHUD, 120 + (i * 30), Gdx.graphics.getHeight() - 60, friendHUD.getWidth() * scale, friendHUD.getHeight() * scale);
+    }
 
         if (keyCollected) {
-            batch.draw(keyIcon, 187, 319, keyIcon.getWidth() * scale, keyIcon.getHeight() * scale);
-        }
-
-
-
+        batch.draw(keyIcon, 20, Gdx.graphics.getHeight() - 90, keyIcon.getWidth() * scale, keyIcon.getHeight() * scale);
     }
+}
+
 
 
 
