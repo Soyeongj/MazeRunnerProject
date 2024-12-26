@@ -50,7 +50,7 @@ public class GameScreen implements Screen {
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        camera.zoom = 0.5f; // Zoom in to focus on the map's center
+        camera.zoom = 0.2f; // Zoom in to focus on the map's center
 
         // Load Tiled map
         tiledMap = new TmxMapLoader().load("map1.tmx");
@@ -88,7 +88,7 @@ public class GameScreen implements Screen {
                 TiledMapTileLayer.Cell cell = movingWallsLayer.getCell(x, y);
                 if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
                     String direction = cell.getTile().getProperties().get("direction", String.class);
-                    walls.add(new Wall(x, y, direction, movingWallsLayer, griever));
+                    walls.add(new Wall(x, y, direction, movingWallsLayer, griever, hud));
                     System.out.println("Wall initialized at x=" + x + ", y=" + y + ", direction=" + direction);
                 }
             }
@@ -153,6 +153,7 @@ public class GameScreen implements Screen {
         //update moving walls
         for (Wall wall : walls) {
             wall.update(delta,currentGlobalTime);
+            wall.checkAndMovePlayer(player, currentGlobalTime);
         }
 
 
@@ -258,8 +259,6 @@ public class GameScreen implements Screen {
 
 
         batch.end();
-
-
 
 
     }

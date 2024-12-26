@@ -5,21 +5,24 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
 
 public class Wall {
-    private int x, y; // 현재 위치
-    private int originalX, originalY; // 원래 위치
-    private int targetX, targetY; // 목표 위치
-    private String direction; // 이동 방향
-    private float lastMoveTime = 0f; // 마지막 이동 시간
-    private static final float MOVE_INTERVAL = 5.0f; // 이동 간격 (초 단위)
-    private static final float STAY_DURATION = 0.3f; // 목표 위치에서 대기하는 시간 (0.1초)
-    private float stayTimer = 0f; // 목표 위치 대기 시간 측정
-    private boolean isAtTarget = false; // 목표 위치에 도달했는지 여부
+    private int x, y;
+    private int originalX, originalY;
+    private int targetX, targetY;
+    private String direction;
+    private float lastMoveTime = 0f;
+    private static final float MOVE_INTERVAL = 5.0f;
+    private static final float STAY_DURATION = 0.3f;
+    private float stayTimer = 0f;
+    private boolean isAtTarget = false;
     private TiledMapTileLayer layer;
     private Griever griever;
     private boolean isGrieverDead = false;
     private Vector2 keySpawnPosition = null;
+    private HUD hud;
+    private boolean isPlayerRemoved = false;
+    private float removalCooldown = 0f;
 
-    public Wall(int x, int y, String direction, TiledMapTileLayer layer, Griever griever) {
+    public Wall(int x, int y, String direction, TiledMapTileLayer layer, Griever griever, HUD hud) {
         this.x = x;
         this.y = y;
         this.originalX = x;
@@ -27,6 +30,7 @@ public class Wall {
         this.direction = direction;
         this.layer = layer;
         this.griever = griever;
+        this.hud = hud;
     }
 
     public void update(float delta, float globalTimer) {
@@ -66,11 +70,10 @@ public class Wall {
         }
 
         if (layer.getCell(targetX, targetY) != null) {
-            System.err.println("Collision detected at target position: " + targetX + ", " + targetY);
-            return; // 충돌 발생 시 이동 취소
+            return;
         }
 
-        layer.setCell(targetX, targetY, cell); // 목표 위치에 타일 설정
+        layer.setCell(targetX, targetY, cell);
         x = targetX;
         y = targetY;
         isAtTarget = true;
@@ -81,20 +84,18 @@ public class Wall {
         Cell cell = layer.getCell(x, y);
         if (cell == null) return;
 
-        layer.setCell(x, y, null); // 현재 위치에서 타일 제거
+        layer.setCell(x, y, null);
 
         if (layer.getCell(originalX, originalY) != null) {
-            System.err.println("Collision detected at original position: " + originalX + ", " + originalY);
-            return; // 충돌 발생 시 복귀 취소
+            return;
         }
 
-        layer.setCell(originalX, originalY, cell); // 원래 위치에 타일 설정
+        layer.setCell(originalX, originalY, cell);
         x = originalX;
         y = originalY;
     }
 
     private void animateMove(float delta) {
-        // 애니메이션용 보간 처리 (가상 위치 계산 가능)
         float interpolatedX = x + (targetX - x) * (delta / MOVE_INTERVAL);
         float interpolatedY = y + (targetY - y) * (delta / MOVE_INTERVAL);
         renderWall(interpolatedX, interpolatedY);
@@ -123,6 +124,54 @@ public class Wall {
             }
         }
     }
+
+
+    public void checkAndMovePlayer(Player player, float globalTimer) {
+
+        float playerX = player.getX();
+        float playerY = player.getY();
+
+
+        float wallX = targetX * layer.getTileWidth();
+        float wallY = targetY * layer.getTileHeight();
+        float wallWidth = layer.getTileWidth();
+        float wallHeight = layer.getTileHeight();
+
+
+        if ((x != originalX || y != originalY || isAtTarget) && !isPlayerRemoved) {
+            if (checkCollision(playerX, playerY, player.getWidth() * player.getScale(), player.getHeight() * player.getScale(),
+                    wallX, wallY, wallWidth, wallHeight)) {
+
+
+                if (hud != null) {
+                    if (hud.getLives() > 1) {
+                        hud.decrementLives();
+                        player.triggerRedEffect();
+                    } else {
+                        hud.setLives(0);
+                        player.setDead();
+                    }
+                }
+
+
+                player.setX(-1000);
+                player.setY(-1000);
+                isPlayerRemoved = true;
+            }
+        }
+
+
+        if (isPlayerRemoved && !isAtTarget && x == originalX && y == originalY) {
+            float safeX = (x + 2) * layer.getTileWidth();
+            float safeY = (y +1)* layer.getTileHeight();
+
+            player.setX(safeX);
+            player.setY(safeY);
+
+            isPlayerRemoved = false;
+        }
+    }
+
     private boolean checkCollision(float x1, float y1, float width1, float height1,
                                    float x2, float y2, float width2, float height2) {
         return x1 < x2 + width2 && x1 + width1 > x2 &&
@@ -131,8 +180,6 @@ public class Wall {
 
 
     private void renderWall(float interpolatedX, float interpolatedY) {
-        // 애니메이션 렌더링 또는 디버깅 출력
-        System.out.println("Animating wall at (" + interpolatedX + ", " + interpolatedY + ")");
     }
 
     public Vector2 getKeySpawnPosition() {
@@ -141,6 +188,5 @@ public class Wall {
     public boolean isGrieverDead() {
         return isGrieverDead;
     }
-
 
 }
