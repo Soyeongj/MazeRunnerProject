@@ -158,7 +158,6 @@ public class Player {
         x = previousX;
         y = previousY;
     }
-
     private boolean isCellBlocked(float x, float y) {
         TiledMapTileLayer.Cell cell = collisionLayer.getCell(
                 (int) (x / collisionLayer.getTileWidth()),

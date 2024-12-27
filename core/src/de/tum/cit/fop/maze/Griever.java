@@ -111,9 +111,47 @@ public class Griever {
                 grieverStateTime = 0;
             }
         }
+        else {
+            randomMovementTimer += delta;
+            if (randomMovementTimer >= randomMovementInterval) {
+                randomDirection = getRandomDirection(); // 새 랜덤 방향 설정
+                randomMovementTimer = 0f; // 타이머 리셋
+            }
 
+            // 랜덤 방향으로 이동
+            previousX = monsterX;
+            previousY = monsterY;
+
+            float deltaX = randomDirection.x * monsterSpeed * delta;
+            float deltaY = randomDirection.y * monsterSpeed * delta;
+
+            monsterX += deltaX;
+            if (collidesHorizontal()) revertToPrevious(delta);
+
+            monsterY += deltaY;
+            if (collidesVertical()) revertToPrevious(delta);
+
+            grieverRectangle.setPosition(monsterX, monsterY);
+
+            // 방향 설정
+            if (Math.abs(randomDirection.x) > Math.abs(randomDirection.y)) {
+                fixedGrieverDirection = randomDirection.x > 0 ? "right" : "left";
+            } else {
+                fixedGrieverDirection = randomDirection.y > 0 ? "up" : "down";
+            }
+
+            // 애니메이션 업데이트
+            grieverStateTime += delta;
+            if (grieverStateTime >= grieverAnimationTime) {
+                griever = getGrieverTextureForDirection(fixedGrieverDirection);
+                grieverStateTime = 0;
+            }
+        }
+
+        // 스턴 조건 확인
         checkStunCondition(playerX, playerY, playerDirection);
     }
+
     private String getNewDirectionOnCollision(String currentDirection) {
         String[] possibleDirections = {"up", "down", "left", "right"};
         String newDirection;
