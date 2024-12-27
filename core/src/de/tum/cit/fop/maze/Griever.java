@@ -32,14 +32,14 @@ public class Griever {
     private final float randomMovementInterval = 8.0f;
     private final Random random = new Random();
 
-    private final TiledMapTileLayer collisionLayer;
     private final TiledMapTileLayer pathLayer;
+    private final TiledMapTileLayer path2Layer;
 
-    public Griever(float startX, float startY, TiledMapTileLayer collisionLayer, TiledMapTileLayer pathLayer) {
+    public Griever(float startX, float startY, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
         this.monsterX = startX;
         this.monsterY = startY;
-        this.collisionLayer = collisionLayer;
         this.pathLayer = pathLayer;
+        this.path2Layer = path2Layer;
 
         grieverTextures = new HashMap<>();
         grieverTextures.put("up", new Texture[]{new Texture("grieverup.png"), new Texture("grieverup2.png")});
@@ -54,13 +54,18 @@ public class Griever {
         randomDirection = getRandomDirection();
     }
 
-    private boolean isPathTile(float x, float y) {
+    private boolean isPathTile(float x, float y, TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell = pathLayer.getCell(
                 (int) (x / pathLayer.getTileWidth()),
                 (int) (y / pathLayer.getTileHeight())
         );
         return cell != null && cell.getTile() != null;
     }
+
+    private boolean isPathTile(float x, float y) {
+        return isPathTile(x, y, pathLayer);
+    }
+
 
     private Vector2 getRandomDirection() {
         float angle = random.nextFloat() * 360; // Random angle in degrees
@@ -126,7 +131,7 @@ public class Griever {
             deltaX = randomDirection.x * monsterSpeed * delta;
             deltaY = randomDirection.y * monsterSpeed * delta;
 
-            if (!isPathTile(monsterX + deltaX, monsterY + deltaY)) {
+            if (!isPathTile(monsterX + deltaX, monsterY + deltaY, path2Layer)) {
                 randomDirection = getRandomDirection();
                 return;
             }

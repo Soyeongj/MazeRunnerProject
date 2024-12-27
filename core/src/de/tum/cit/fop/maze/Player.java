@@ -154,9 +154,6 @@ public class Player {
                 moved = true;
             }
         }
-        if (moved) {
-            System.out.println("X: " + x + " Y: " + y);
-        }
     }
 
     public void revertToPrevious() {

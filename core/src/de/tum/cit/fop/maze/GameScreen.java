@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
         this.friends = new Friends();
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
-        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("walls"), (TiledMapTileLayer) tiledMap.getLayers().get("path"));
+        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("path"),(TiledMapTileLayer) tiledMap.getLayers().get("path2")    );
         batch = new SpriteBatch();
 
         friends.setScale(0.2f);
@@ -202,6 +202,7 @@ public class GameScreen implements Screen {
         player.render(batch);
 
         griever.update(delta, player.getX(), player.getY(), player.getDirection(),hud);
+        updateGrieverMovement(delta);
         griever.render(batch);
 
         boolean isGrieverDead = false;
@@ -277,6 +278,33 @@ public class GameScreen implements Screen {
         }
 
         batch.end();
+    }
+
+    public void updateGrieverMovement(float delta) {
+        float currentX = griever.getMonsterX();
+        float currentY = griever.getMonsterY();
+        float speed = 10 * delta;
+
+        float moveX = 0;
+        float moveY = 0;
+
+        if (currentY < 478 && griever.isGrieverNotStunned()) {
+            moveY += speed; // Move up
+        }
+        if (currentY > 0 && griever.isGrieverNotStunned()) {
+            moveY -= speed;
+        }
+
+        if (currentX < 478.86f && griever.isGrieverNotStunned()) {
+            moveX += speed;
+        }
+        if (currentX > 0 && griever.isGrieverNotStunned()) {
+            moveX -= speed;
+        }
+
+        if (moveX != 0 || moveY != 0) {
+            griever.setPosition((int)(currentX + moveX), (int)(currentY + moveY));
+        }
     }
 
 
