@@ -3,6 +3,7 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
     private Texture currentTexture;
@@ -67,6 +68,7 @@ public class Player {
         this.redright1 = new Texture("orc_right_1.png");
         this.redright2 = new Texture("orc_right_2.png");
         this.reddown1 = new Texture("orc_down_1.png");
+
     }
 
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed) {

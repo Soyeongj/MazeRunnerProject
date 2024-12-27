@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -18,6 +19,8 @@ import com.badlogic.gdx.Preferences;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import static java.lang.Math.exp;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -40,9 +43,7 @@ public class GameScreen implements Screen {
     private float LivesCoolDownTimer = 0f;
     private Key key;
     private Item item;
-
-
-
+    private Array<Door> doors;
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
      *
@@ -59,7 +60,7 @@ public class GameScreen implements Screen {
         camera.zoom = 0.2f; // Zoom in to focus on the map's center
 
 
-        tiledMap = new TmxMapLoader().load("map1.tmx");
+        tiledMap = new TmxMapLoader().load("finalmap.tmx");
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
@@ -70,7 +71,7 @@ public class GameScreen implements Screen {
         this.friends = new Friends();
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
-        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get(0));
+        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("walls"), (TiledMapTileLayer) tiledMap.getLayers().get("path"));
         batch = new SpriteBatch();
 
         friends.setScale(0.2f);
@@ -84,6 +85,8 @@ public class GameScreen implements Screen {
         if (movingWallsLayer != null) {
             initializeWalls(batch, movingWallsLayer);
         }
+        TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
+        doors = createDoorsFromLayer(doorsLayer);
     }
     private void initializeWalls(SpriteBatch spriteBatch, TiledMapTileLayer movingWallsLayer) {
         walls = new ArrayList<>();
@@ -99,6 +102,25 @@ public class GameScreen implements Screen {
         }
     }
 
+    private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
+        Array<Door> doors = new Array<>();
+
+        for (int x = 0; x < layer.getWidth(); x++) {
+            for (int y = 0; y < layer.getHeight(); y++) {
+                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+                if (cell != null && cell.getTile() != null) {
+                    float worldX = x * layer.getTileWidth();
+                    float worldY = y * layer.getTileHeight();
+
+                    doors.add(new Door(worldX, worldY,
+                            layer.getTileWidth(),
+                            layer.getTileHeight()));
+                }
+            }
+        }
+
+        return doors;
+    }
 
     /**
      * Centers the camera on the map based on its dimensions and logs debug information.
@@ -163,8 +185,6 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-
-
         mapRenderer.setView(camera);
         mapRenderer.render();
         mapRenderer.getBatch().begin();
@@ -184,13 +204,10 @@ public class GameScreen implements Screen {
         griever.update(delta, player.getX(), player.getY(), player.getDirection(),hud);
         griever.render(batch);
 
-
         boolean isGrieverDead = false;
-
         if (key == null) {
             key = new Key(189, 286);
         }
-
         for (Wall wall : walls) {
             if (wall.isGrieverDead()) {
                 isGrieverDead = true;
@@ -198,35 +215,39 @@ public class GameScreen implements Screen {
                 break;
             }
         }
-
-
         if (isGrieverDead && key != null) {
             key.render(batch);
         }
-
-
         if (key != null && isGrieverDead) {
             key.checkProximityToPlayer(player);
             if (key.isCollected()) {
                 hud.collectKey();
                 key.setPosition(-1000, -1000);
             }
-
-
         }
-
-
         if (hud.getLives() <= 0) {
-            game.setScreen(new GameOverScreen(game)); // Transition to Game Over screen
+            hud.stopTimer();
+            float finalTime = 0;
+            game.setScreen(new GameOverScreen(game,finalTime));
+            return;
         }
-
+        hud.updateScoreTimer(delta);
         friends.render(batch,player);
         item.render(batch);
         hud.render(batch, player);
-
-
-
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
+        for (Door door : doors) {
+            if (door.isPlayerNear(playerPosition) && hud.isKeyCollected() ) {
+                hud.pressE();
+                if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                    hud.stopTimer();
+                    float finalTime = 1000 + (hud.getFinalTime()* 5);
+                    game.setScreen(new GameClearScreen(game, finalTime));
+                }
+            } else if (door.isPlayerNear(playerPosition) && !(hud.isKeyCollected())) {
+                hud.needKey();
+            }
+        }
         int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
         int count = item.checkAndCollectAllItmes(playerPosition, 3f);
         hud.render(batch, player);
@@ -236,11 +257,9 @@ public class GameScreen implements Screen {
         for (int i = 0; i < count; i++) {
             player.increaseSpeed(3f);
         }
-
         int diffX = (int) (player.getX() - griever.getMonsterX());
         int diffY = (int) (player.getY() - griever.getMonsterY());
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
-
         if (LivesCoolDownTimer <= 0 && distance < 5f && griever.isGrieverNotStunned()) {
             if (hud.getLives() > 1) {
                 hud.decrementLives();
@@ -260,19 +279,22 @@ public class GameScreen implements Screen {
         batch.end();
     }
 
+
     public void savePlayerState() {
         Preferences prefs = Gdx.app.getPreferences("PlayerState");
         prefs.putFloat("playerX", player.getX());
         prefs.putFloat("playerY", player.getY());
-        prefs.putInteger("playerLives",hud.getLives());
+        prefs.putInteger("playerLives", hud.getLives());
         prefs.putFloat("grieverX", griever.getMonsterX());
         prefs.putFloat("grieverY", griever.getMonsterY());
+        prefs.putFloat("scoreTimer", hud.getScoreTimer()); // Save current timer value
+
         for (int i = 0; i < friends.getIsFriendSaved().length; i++) {
             prefs.putBoolean("friendSaved" + i, friends.getIsFriendSaved()[i]);
             prefs.putFloat("friend" + i + "X", friends.getFriendsPositions()[i].x);
             prefs.putFloat("friend" + i + "Y", friends.getFriendsPositions()[i].y);
         }
-        for (int i =0; i <item.getIsItemCollected().length; i++) {
+        for (int i = 0; i < item.getIsItemCollected().length; i++) {
             prefs.putBoolean("itemCollected" + i, item.getIsItemCollected()[i]);
             prefs.putFloat("item" + i + "X", item.getItemPositions()[i].x);
             prefs.putFloat("item" + i + "Y", item.getItemPositions()[i].y);
@@ -280,11 +302,14 @@ public class GameScreen implements Screen {
         prefs.putFloat("keyX", key.getX());
         prefs.putFloat("keyY", key.getY());
         prefs.putBoolean("keyCollected", hud.isKeyCollected());
+
         for (Wall wall : walls) {
-            prefs.putBoolean("grieverDead",wall.isGrieverDead());
+            prefs.putBoolean("grieverDead", wall.isGrieverDead());
         }
+
         prefs.flush();
     }
+
     public void loadPlayerState() {
         Preferences prefs = Gdx.app.getPreferences("PlayerState");
         if (prefs.contains("playerX") && prefs.contains("playerY")) {
@@ -319,6 +344,11 @@ public class GameScreen implements Screen {
             for (Wall wall : walls) {
                 wall.setGrieverDead(isGrieverDead);
             }
+            if (prefs.contains("scoreTimer")) {
+                float savedScoreTimer = prefs.getFloat("scoreTimer");
+                hud.setScoreTimer(savedScoreTimer); // Restore countdown
+                hud.startTimer();
+            }
 
         }
     }
@@ -341,6 +371,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+
 
     }
 

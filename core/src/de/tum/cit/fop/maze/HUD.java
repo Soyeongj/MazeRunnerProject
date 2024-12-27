@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.Color;
-
+import de.tum.cit.fop.maze.Player;
 
 
 public class HUD {
@@ -29,6 +29,10 @@ public class HUD {
 
     private float screenWidth;
     private float screenHeight;
+    private float scoreTimer;
+    private boolean isGameRunning = true;
+    private float finalTime;
+
 
     public HUD() {
         this.HUDpanel = new Texture("sand.png");
@@ -53,6 +57,7 @@ public class HUD {
         this.score = 0;
         this.globalTimer = 0f;
         this.keyCollected = false;
+        scoreTimer = 300;
 
         hudCamera = new OrthographicCamera();
         setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -74,12 +79,35 @@ public class HUD {
         return globalTimer;
     }
 
+    public void updateScoreTimer(float delta) {
+        if (isGameRunning) {
+            scoreTimer -= delta;
+        }
+    }
+
+
+    public void stopTimer() {
+        isGameRunning = false;
+        finalTime = scoreTimer;
+
+    }
+
+    public float getFinalTime() {
+        return finalTime;
+    }
+
+
+    public void startTimer() {
+        isGameRunning = true;
+    }
+
     public void render(SpriteBatch batch, Player player) {
         batch.setProjectionMatrix(hudCamera.combined);
 
-        font.draw(batch, "Score: " + score, screenWidth * 0.07f, screenHeight - 100);
         font.draw(batch, "Remaining Friends: " + lives, screenWidth * 0.07f, screenHeight - 30);
         font.draw(batch, "Key Collected: " + (keyCollected ? "Yes" : "No"), screenWidth * 0.6f, screenHeight - 39);
+        font.draw(batch, "Time: " +  (int) scoreTimer, screenWidth * 0.6f, screenHeight - 105); // Display timer
+
 
         if (messageTimer > 0) {
             font.draw(batch, message, player.getX(), player.getY() + player.getHeight() + 10);
@@ -96,6 +124,7 @@ public class HUD {
         this.lives++;
     }
 
+
     public void decrementLives() {
         this.lives--;
         message = "You lost a friend.";
@@ -107,19 +136,16 @@ public class HUD {
         messageTimer = MESSAGE_DISPLAY_DURATION;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void needKey() {
+        message = "You need a key!";
+        messageTimer = 1f;
     }
 
-    public void incrementScore(int amount) {
-        this.score += amount;
+    public void pressE() {
+        message = "Press E to open!";
+        messageTimer = 1f;
     }
 
-    public void decrementScore(int amount) {
-        if (score - amount >= 0) {
-            this.score -= amount;
-        }
-    }
 
     public int getLives() {
         return lives;
@@ -137,6 +163,14 @@ public class HUD {
 
     public void setKeyCollected(boolean keyCollected) {
         this.keyCollected = keyCollected;
+    }
+
+    public void setScoreTimer(float scoreTimer) {
+        this.scoreTimer = scoreTimer;
+    }
+
+    public float getScoreTimer() {
+        return scoreTimer;
     }
 
     public void dispose() {
