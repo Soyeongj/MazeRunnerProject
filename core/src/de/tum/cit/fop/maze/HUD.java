@@ -13,8 +13,7 @@ import de.tum.cit.fop.maze.Player;
 
 
 public class HUD {
-    private Texture HUDpanel;
-    private Texture friendHUD;
+
     private BitmapFont font;
     private int lives;
     private int score;
@@ -35,8 +34,7 @@ public class HUD {
 
 
     public HUD() {
-        this.HUDpanel = new Texture("sand.png");
-        this.friendHUD = new Texture("oldman_right_1.png");
+
         this.keyIcon = new Texture("key.png");
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
@@ -174,8 +172,7 @@ public class HUD {
     }
 
     public void dispose() {
-        HUDpanel.dispose();
-        friendHUD.dispose();
+
         font.dispose();
     }
 }
