@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.Color;
 import de.tum.cit.fop.maze.Player;
 
-
 public class HUD {
 
     private BitmapFont font;
