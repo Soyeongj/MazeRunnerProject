@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
         this.friends = new Friends();
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
-        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("walls"), (TiledMapTileLayer) tiledMap.getLayers().get("path"));
+        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("path"),(TiledMapTileLayer) tiledMap.getLayers().get("path2")    );
         batch = new SpriteBatch();
 
         friends.setScale(0.2f);
