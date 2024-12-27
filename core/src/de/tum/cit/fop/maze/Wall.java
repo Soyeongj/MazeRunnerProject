@@ -115,17 +115,20 @@ public class Wall {
 
 
         if (x != originalX || y != originalY || isAtTarget) {
+            if (griever.isRandomMovement()) {
+                // Griever가 랜덤 움직임 중일 경우 죽음을 방지
+                System.out.println("Griever death prevented during random movement by Wall.");
+                return;
+            }
+
             if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
-
                 griever.setPosition(-1000, -1000);
                 keySpawnPosition = new Vector2(grieverX, grieverY);
                 isGrieverDead = true;
-
             }
         }
     }
-
 
     public void checkAndMovePlayer(Player player, float globalTimer) {
 
