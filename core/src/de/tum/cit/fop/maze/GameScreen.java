@@ -60,7 +60,7 @@ public class GameScreen implements Screen {
         camera.zoom = 0.2f; // Zoom in to focus on the map's center
 
 
-        tiledMap = new TmxMapLoader().load("finalmap.tmx");
+        tiledMap = new TmxMapLoader().load("map1.tmx");
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
