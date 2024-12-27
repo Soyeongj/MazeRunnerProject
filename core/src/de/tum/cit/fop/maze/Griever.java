@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -17,36 +16,31 @@ public class Griever {
     private float grieverStateTime;
     private String fixedGrieverDirection;
     private float monsterX, monsterY;
-    private float monsterSpeed = 10.0f;
-    private float detectionRange = 37.0f;
+    private final float monsterSpeed = 10.0f;
+    private final float detectionRange = 37.0f;
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f; // Time between animation frames
     private Rectangle grieverRectangle;
-    private float scale = 0.2f;
-    private float previousX, previousY;
+    private final float scale = 0.2f;
 
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
     private final float stunDuration = 3.0f; // 3 seconds stun duration
 
-    private Vector2 randomDirection; // To store the current random direction
-    private float randomMovementTimer = 0f; // Timer for random movement
-    private final float randomMovementInterval = 8.0f; // Change direction every 8 seconds
-    private Random random = new Random(); // Random object for generating directions
+    private Vector2 randomDirection;
+    private float randomMovementTimer = 0f;
+    private final float randomMovementInterval = 8.0f;
+    private final Random random = new Random();
 
-    private TiledMapTileLayer collisionLayer;
-    private String blockedKey = "blocked";
-    private TiledMapTileLayer pathLayer;
+    private final TiledMapTileLayer collisionLayer;
+    private final TiledMapTileLayer pathLayer;
 
     public Griever(float startX, float startY, TiledMapTileLayer collisionLayer, TiledMapTileLayer pathLayer) {
         this.monsterX = startX;
         this.monsterY = startY;
-        this.previousX = startX;
-        this.previousY = startY;
         this.collisionLayer = collisionLayer;
         this.pathLayer = pathLayer;
 
-        // Load griever textures
         grieverTextures = new HashMap<>();
         grieverTextures.put("up", new Texture[]{new Texture("grieverup.png"), new Texture("grieverup2.png")});
         grieverTextures.put("down", new Texture[]{new Texture("grieverdown.png"), new Texture("grieverdown2.png")});
@@ -59,6 +53,7 @@ public class Griever {
         grieverRectangle = new Rectangle(monsterX, monsterY, griever.getWidth(), griever.getHeight());
         randomDirection = getRandomDirection();
     }
+
     private boolean isPathTile(float x, float y) {
         TiledMapTileLayer.Cell cell = pathLayer.getCell(
                 (int) (x / pathLayer.getTileWidth()),
@@ -71,11 +66,28 @@ public class Griever {
         float angle = random.nextFloat() * 360; // Random angle in degrees
         return new Vector2((float) Math.cos(Math.toRadians(angle)), (float) Math.sin(Math.toRadians(angle))).nor();
     }
+
+    private Vector2 findAlternativeDirection(float delta) {
+        Vector2[] possibleDirections = {
+                new Vector2(1, 0), // Right
+                new Vector2(-1, 0), // Left
+                new Vector2(0, 1), // Up
+                new Vector2(0, -1) // Down
+        };
+
+        for (Vector2 direction : possibleDirections) {
+            float tempDeltaX = direction.x * monsterSpeed * delta;
+            float tempDeltaY = direction.y * monsterSpeed * delta;
+            if (isPathTile(monsterX + tempDeltaX, monsterY + tempDeltaY)) {
+                return new Vector2(tempDeltaX, tempDeltaY);
+            }
+        }
+        return null;
+    }
+
     public void update(float delta, float playerX, float playerY, String playerDirection) {
-        // Adjust griever size
         grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
 
-        // Handle stun logic
         if (isGrieverStunned) {
             stunTimer += delta;
             if (stunTimer >= stunDuration) {
@@ -85,46 +97,25 @@ public class Griever {
             return;
         }
 
-        // Save previous position
-        previousX = monsterX;
-        previousY = monsterY;
-
         float deltaX = 0, deltaY = 0;
-
-        // Calculate distance to player
         float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
-
-        // Determine following state
         isGrieverFollowingPlayer = distance <= detectionRange;
 
         if (isGrieverFollowingPlayer) {
-            // Calculate direction towards player
             Vector2 directionToPlayer = new Vector2(playerX - monsterX, playerY - monsterY).nor();
             deltaX = directionToPlayer.x * monsterSpeed * delta;
             deltaY = directionToPlayer.y * monsterSpeed * delta;
 
-            // Check if the target position is a path tile
             if (!isPathTile(monsterX + deltaX, monsterY + deltaY)) {
-                // Try alternative directions if the target is blocked
-                Vector2[] possibleDirections = {
-                        new Vector2(1, 0), // Right
-                        new Vector2(-1, 0), // Left
-                        new Vector2(0, 1), // Up
-                        new Vector2(0, -1) // Down
-                };
-
-                for (Vector2 alternativeDirection : possibleDirections) {
-                    float tempDeltaX = alternativeDirection.x * monsterSpeed * delta;
-                    float tempDeltaY = alternativeDirection.y * monsterSpeed * delta;
-                    if (isPathTile(monsterX + tempDeltaX, monsterY + tempDeltaY)) {
-                        deltaX = tempDeltaX;
-                        deltaY = tempDeltaY;
-                        break;
-                    }
+                Vector2 alternative = findAlternativeDirection(delta);
+                if (alternative != null) {
+                    deltaX = alternative.x;
+                    deltaY = alternative.y;
+                } else {
+                    return;
                 }
             }
         } else {
-            // Handle random movement when not following the player
             randomMovementTimer += delta;
             if (randomMovementTimer >= randomMovementInterval) {
                 randomDirection = getRandomDirection();
@@ -134,18 +125,15 @@ public class Griever {
             deltaX = randomDirection.x * monsterSpeed * delta;
             deltaY = randomDirection.y * monsterSpeed * delta;
 
-            // Check if random movement target is valid
             if (!isPathTile(monsterX + deltaX, monsterY + deltaY)) {
                 randomDirection = getRandomDirection();
                 return;
             }
         }
 
-
         monsterX += deltaX;
         monsterY += deltaY;
         grieverRectangle.setPosition(monsterX, monsterY);
-
 
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
             fixedGrieverDirection = deltaX > 0 ? "right" : "left";
@@ -153,30 +141,29 @@ public class Griever {
             fixedGrieverDirection = deltaY > 0 ? "up" : "down";
         }
 
+        updateAnimation(delta);
+        checkStunCondition(playerX, playerY, playerDirection);
+    }
 
+    private void updateAnimation(float delta) {
         grieverStateTime += delta;
         if (grieverStateTime >= grieverAnimationTime) {
             griever = getGrieverTextureForDirection(fixedGrieverDirection);
             grieverStateTime = 0;
         }
-
-
-        checkStunCondition(playerX, playerY, playerDirection);
     }
-
-
 
     private void checkStunCondition(float playerX, float playerY, String playerDirection) {
         float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
         if (distance <= 5f && !isGrieverStunned) {
-            boolean isOppositeDirection = isGrieverInOppositeDirection(playerDirection);
-            if (isOppositeDirection) {
+            if (isGrieverInOppositeDirection(playerDirection)) {
                 isGrieverStunned = true;
                 stunTimer = 0;
             }
         }
     }
-    public boolean isGrieverInOppositeDirection(String playerDirection) {
+
+    private boolean isGrieverInOppositeDirection(String playerDirection) {
         return (fixedGrieverDirection.equals("left") && playerDirection.equals("right")) ||
                 (fixedGrieverDirection.equals("right") && playerDirection.equals("left")) ||
                 (fixedGrieverDirection.equals("up") && playerDirection.equals("down")) ||
@@ -192,31 +179,30 @@ public class Griever {
         batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() * scale);
     }
 
-
-    public float getMonsterX() {
-        return monsterX;
-    }
-    public float getMonsterY() {
-        return monsterY;
-    }
-    public boolean isGrieverNotStunned() {
-        return !isGrieverStunned;
-    }
-
-    public void killGriever() {
-        setPosition(-1000, -1000);
-    }
-
     public void dispose() {
-
+        for (Texture[] textures : grieverTextures.values()) {
+            for (Texture texture : textures) {
+                texture.dispose();
+            }
+        }
     }
-
 
     public void setPosition(float x, float y) {
         this.monsterX = x;
         this.monsterY = y;
     }
 
+    public float getMonsterX() {
+        return monsterX;
+    }
+
+    public float getMonsterY() {
+        return monsterY;
+    }
+
+    public boolean isGrieverNotStunned() {
+        return !isGrieverStunned;
+    }
     public float getWidth() {
         return griever.getWidth();
     }
@@ -230,5 +216,4 @@ public class Griever {
     public float getScale() {
         return scale;
     }
-
 }
