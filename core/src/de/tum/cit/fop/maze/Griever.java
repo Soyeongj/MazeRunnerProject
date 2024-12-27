@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -35,15 +36,17 @@ public class Griever {
 
     private TiledMapTileLayer collisionLayer;
     private String blockedKey = "blocked";
-    public Griever(float startX, float startY, TiledMapTileLayer collisionLayer) {
+    private TiledMapTileLayer pathLayer;
+
+    public Griever(float startX, float startY, TiledMapTileLayer collisionLayer, TiledMapTileLayer pathLayer) {
         this.monsterX = startX;
         this.monsterY = startY;
         this.previousX = startX;
         this.previousY = startY;
         this.collisionLayer = collisionLayer;
+        this.pathLayer = pathLayer;
 
         // Load griever textures
-        // 초기화 시 맵에 텍스처 배열 저장
         grieverTextures = new HashMap<>();
         grieverTextures.put("up", new Texture[]{new Texture("grieverup.png"), new Texture("grieverup2.png")});
         grieverTextures.put("down", new Texture[]{new Texture("grieverdown.png"), new Texture("grieverdown2.png")});
@@ -56,17 +59,21 @@ public class Griever {
         grieverRectangle = new Rectangle(monsterX, monsterY, griever.getWidth(), griever.getHeight());
         randomDirection = getRandomDirection();
     }
+    private boolean isPathTile(float x, float y) {
+        TiledMapTileLayer.Cell cell = pathLayer.getCell(
+                (int) (x / pathLayer.getTileWidth()),
+                (int) (y / pathLayer.getTileHeight())
+        );
+        return cell != null && cell.getTile() != null;
+    }
+
     private Vector2 getRandomDirection() {
         float angle = random.nextFloat() * 360; // Random angle in degrees
         return new Vector2((float) Math.cos(Math.toRadians(angle)), (float) Math.sin(Math.toRadians(angle))).nor();
     }
-
     public void update(float delta, float playerX, float playerY, String playerDirection) {
         grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
 
-        int diffX = (int) (playerX - monsterX);
-        int diffY = (int) (playerY - monsterY);
-        float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
 
         if (isGrieverStunned) {
             stunTimer += delta;
@@ -74,83 +81,77 @@ public class Griever {
                 isGrieverStunned = false;
                 stunTimer = 0;
             }
-            return; // Skip updates while stunned
+            return;
         }
+
+        previousX = monsterX;
+        previousY = monsterY;
+
+        float deltaX = 0, deltaY = 0;
+
+
+        float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
+
 
         if (distance <= detectionRange) {
             isGrieverFollowingPlayer = true;
+        } else {
+            isGrieverFollowingPlayer = false;
         }
 
         if (isGrieverFollowingPlayer) {
-            previousX = monsterX;
-            previousY = monsterY;
 
-            Vector2 grieverPosition = new Vector2(monsterX, monsterY);
-            Vector2 playerPosition = new Vector2(playerX, playerY);
-            Vector2 direction = playerPosition.sub(grieverPosition).nor();
-            float deltaX = direction.x * monsterSpeed * delta;
-            float deltaY = direction.y * monsterSpeed * delta;
+            Vector2 direction = new Vector2(playerX - monsterX, playerY - monsterY).nor();
+            deltaX = direction.x * monsterSpeed * delta;
+            deltaY = direction.y * monsterSpeed * delta;
 
-            if (Math.abs(direction.x) > Math.abs(direction.y)) {
-                fixedGrieverDirection = direction.x > 0 ? "right" : "left";
-            } else {
-                fixedGrieverDirection = direction.y > 0 ? "up" : "down";
+
+            if (!isPathTile(monsterX + deltaX, monsterY + deltaY)) {
+                return;
             }
+        } else {
 
-            monsterX += deltaX;
-            if (collidesHorizontal()) revertToPrevious(delta);
-
-            monsterY += deltaY;
-            if (collidesVertical()) revertToPrevious(delta);
-
-            grieverRectangle.setPosition(monsterX, monsterY);
-
-            grieverStateTime += delta;
-            if (grieverStateTime >= grieverAnimationTime) {
-                griever = getGrieverTextureForDirection(fixedGrieverDirection);
-                grieverStateTime = 0;
-            }
-        }
-        else {
             randomMovementTimer += delta;
             if (randomMovementTimer >= randomMovementInterval) {
-                randomDirection = getRandomDirection(); // 새 랜덤 방향 설정
-                randomMovementTimer = 0f; // 타이머 리셋
+                randomDirection = getRandomDirection();
+                randomMovementTimer = 0f;
             }
 
-            // 랜덤 방향으로 이동
-            previousX = monsterX;
-            previousY = monsterY;
+            deltaX = randomDirection.x * monsterSpeed * delta;
+            deltaY = randomDirection.y * monsterSpeed * delta;
 
-            float deltaX = randomDirection.x * monsterSpeed * delta;
-            float deltaY = randomDirection.y * monsterSpeed * delta;
 
-            monsterX += deltaX;
-            if (collidesHorizontal()) revertToPrevious(delta);
-
-            monsterY += deltaY;
-            if (collidesVertical()) revertToPrevious(delta);
-
-            grieverRectangle.setPosition(monsterX, monsterY);
-
-            // 방향 설정
-            if (Math.abs(randomDirection.x) > Math.abs(randomDirection.y)) {
-                fixedGrieverDirection = randomDirection.x > 0 ? "right" : "left";
-            } else {
-                fixedGrieverDirection = randomDirection.y > 0 ? "up" : "down";
-            }
-
-            // 애니메이션 업데이트
-            grieverStateTime += delta;
-            if (grieverStateTime >= grieverAnimationTime) {
-                griever = getGrieverTextureForDirection(fixedGrieverDirection);
-                grieverStateTime = 0;
+            if (!isPathTile(monsterX + deltaX, monsterY + deltaY)) {
+                randomDirection = getRandomDirection();
+                return;
             }
         }
 
-        // 스턴 조건 확인
+
+        monsterX += deltaX;
+        monsterY += deltaY;
+        grieverRectangle.setPosition(monsterX, monsterY);
+
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            fixedGrieverDirection = deltaX > 0 ? "right" : "left";
+        } else {
+            fixedGrieverDirection = deltaY > 0 ? "up" : "down";
+        }
+
+
+        grieverStateTime += delta;
+        if (grieverStateTime >= grieverAnimationTime) {
+            griever = getGrieverTextureForDirection(fixedGrieverDirection);
+            grieverStateTime = 0;
+        }
+
+
         checkStunCondition(playerX, playerY, playerDirection);
     }
+
+
+
 
     private String getNewDirectionOnCollision(String currentDirection) {
         String[] possibleDirections = {"up", "down", "left", "right"};
@@ -277,15 +278,15 @@ public class Griever {
     }
 
     public float getWidth() {
-        return griever.getWidth(); // 텍스처의 실제 너비 반환
+        return griever.getWidth();
     }
 
-    // Griever 텍스처의 높이 반환
+
     public float getHeight() {
-        return griever.getHeight(); // 텍스처의 실제 높이 반환
+        return griever.getHeight();
     }
 
-    // Griever의 스케일 반환
+
     public float getScale() {
         return scale;
     }

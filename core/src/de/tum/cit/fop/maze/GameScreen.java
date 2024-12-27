@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -29,6 +30,7 @@ public class GameScreen implements Screen {
     private Viewport viewport;
     private final TiledMap tiledMap;
     private TiledMapTileLayer movingWallsLayer;
+    private TiledMapTileLayer pathLayer;
     private List<Wall> walls;
     private final OrthogonalTiledMapRenderer mapRenderer;
     private Player player;
@@ -69,7 +71,7 @@ public class GameScreen implements Screen {
         this.friends = new Friends();
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
-        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get(0));
+        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("walls"), (TiledMapTileLayer) tiledMap.getLayers().get("path"));
         batch = new SpriteBatch();
 
         friends.setScale(0.2f);
