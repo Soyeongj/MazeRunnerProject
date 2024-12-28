@@ -1,0 +1,34 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "/Users/jeongsoyeong/Desktop/map1.tmx",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "": {
+            "scaleInEditor": 1
+        },
+        "/Users/jeongsoyeong/Desktop/map1.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 228.5,
+                "y": 254
+            }
+        },
+        "/Users/jeongsoyeong/Desktop/map1.tmx#test tile": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "/Users/jeongsoyeong/IdeaProjects/fophn2425projectfop-kleague/assets/maps",
+    "map.lastUsedExportFilter": "Tiled map files (*.tmx *.xml)",
+    "openFiles": [
+        "/Users/jeongsoyeong/Desktop/map1.tmx"
+    ],
+    "project": "tile1.tiled-project",
+    "recentFiles": [
+        "/Users/jeongsoyeong/Desktop/map1.tmx"
+    ]
+}

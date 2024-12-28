@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -27,29 +28,55 @@ public class MenuScreen implements Screen {
      * @param game The main game class, used to access global resources and methods.
      */
     public MenuScreen(MazeRunnerGame game) {
-        var camera = new OrthographicCamera();
-        camera.zoom = 1.5f; // Set camera zoom for a closer view
+        OrthographicCamera camera = new OrthographicCamera();
+        camera.setToOrtho(false); // Reset the camera to default orthographic view
+        camera.zoom = 1.0f; // Use default zoom level
 
-        Viewport viewport = new ScreenViewport(camera); // Create a viewport with the camera
-        stage = new Stage(viewport, game.getSpriteBatch()); // Create a stage for UI elements
+        Viewport viewport = new ScreenViewport(camera);
+        stage = new Stage(viewport, game.getSpriteBatch());
 
-        Table table = new Table(); // Create a table for layout
-        table.setFillParent(true); // Make the table fill the stage
-        stage.addActor(table); // Add the table to the stage
+        Table table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
 
-        // Add a label as a title
-        table.add(new Label("Hello World from the Menu!", game.getSkin(), "title")).padBottom(80).row();
-
-        // Create and add a button to go to the game screen
+        table.add(new Label("Menu Screen", game.getSkin(), "title")).padBottom(80).row();
         TextButton goToGameButton = new TextButton("Go To Game", game.getSkin());
         table.add(goToGameButton).width(300).row();
         goToGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.goToGame(); // Change to the game screen when button is pressed
+                game.goToGame();
             }
         });
+        TextButton exitButton = new TextButton("Exit", game.getSkin());
+        table.add(exitButton).width(300).row();
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
+        TextButton resumeButton = new TextButton("Resume", game.getSkin());
+        table.add(resumeButton).width(300).row();
+        resumeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Screen currentScreen = game.getScreen();
+
+                if (currentScreen instanceof GameScreen) {
+                    GameScreen gameScreen = (GameScreen) currentScreen;
+                    gameScreen.loadPlayerState();
+                } else {
+                    GameScreen gameScreen = new GameScreen(game);
+                    gameScreen.loadPlayerState();
+                    game.setScreen(gameScreen);
+                }
+            }
+
+        });
+
     }
+
 
     @Override
     public void render(float delta) {
