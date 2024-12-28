@@ -15,7 +15,7 @@ public class Griever {
     private String fixedGrieverDirection;
     private float monsterX, monsterY;
     private final float monsterSpeed = 10.0f;
-    private final float detectionRange = 80.0f;
+    private final float detectionRange = 37.0f;
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f; // Time between animation frames
     private Rectangle grieverRectangle;
@@ -197,7 +197,9 @@ public class Griever {
                 new Vector2(0, -1)  // Down
         };
 
-        // 현재 위치에서 플레이어 방향으로 타일 검사
+        Vector2 closestTarget = null;
+        float closestDistance = Float.MAX_VALUE;
+
         for (Vector2 direction : directions) {
             float nextX = monsterX + direction.x * pathLayer.getTileWidth();
             float nextY = monsterY + direction.y * pathLayer.getTileHeight();
@@ -205,15 +207,18 @@ public class Griever {
             if (isPathTile(nextX, nextY, pathLayer)) {
                 Vector2 directionToPlayer = new Vector2(playerX - nextX, playerY - nextY).nor();
                 if (direction.dot(directionToPlayer) > 0) { // 플레이어 방향으로 타일 확인
-                    return new Vector2(nextX, nextY);
+                    float distanceToPlayer = Vector2.dst(nextX, nextY, playerX, playerY);
+                    if (distanceToPlayer < closestDistance) {
+                        closestTarget = new Vector2(nextX, nextY);
+                        closestDistance = distanceToPlayer;
+                    }
                 }
             }
         }
 
-        // 유효한 타일이 없으면 null 반환
-        return null;
+        // 가장 가까운 타겟 반환 (없으면 null)
+        return closestTarget != null ? closestTarget : new Vector2(playerX, playerY);
     }
-
 
     // 목표에 도달했는지 확인
     private boolean reachedTarget() {
@@ -253,19 +258,25 @@ public class Griever {
 
     private void checkStunCondition(float playerX, float playerY, String playerDirection) {
         float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
-        if (distance <= 5f && !isGrieverStunned) {
-            if (isGrieverInOppositeDirection(playerDirection)) {
+        if (distance <= 5f) {
+            // 방향 조건 확인
+            if (isGrieverInOppositeDirection(playerDirection) && !isGrieverStunned) {
                 isGrieverStunned = true;
                 stunTimer = 0;
+                System.out.println("Griever is stunned!");
+            } else {
+                System.out.println("Griever is not stunned: Directions are not opposite.");
             }
         }
     }
 
     private boolean isGrieverInOppositeDirection(String playerDirection) {
-        return (fixedGrieverDirection.equals("left") && playerDirection.equals("right")) ||
+        boolean result = (fixedGrieverDirection.equals("left") && playerDirection.equals("right")) ||
                 (fixedGrieverDirection.equals("right") && playerDirection.equals("left")) ||
                 (fixedGrieverDirection.equals("up") && playerDirection.equals("down")) ||
                 (fixedGrieverDirection.equals("down") && playerDirection.equals("up"));
+        System.out.println("Player Direction: " + playerDirection + ", Griever Direction: " + fixedGrieverDirection + ", Opposite: " + result);
+        return result;
     }
 
     private Texture getGrieverTextureForDirection(String direction) {
