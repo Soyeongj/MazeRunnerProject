@@ -100,7 +100,10 @@ public class GameScreen implements Screen {
         doors = createDoorsFromLayer(doorsLayer);
         TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
         String needleTexture = "assets/spike.png";
-        traps = createTrapsFromLayer(trapLayer,needleTexture);
+        String higherNeedleTexture = "assets/spike.png";
+        String highestNeedleTexture = "assets/spike.png";
+        float higherNeedleYOffset = 5;
+        traps = createTrapsFromLayer(trapLayer, needleTexture, higherNeedleTexture, highestNeedleTexture, higherNeedleYOffset);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
     }
@@ -125,7 +128,7 @@ public class GameScreen implements Screen {
         return doors;
     }
 
-    private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer, String needleTexture) {
+    private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer, String needleTexture, String higherNeedleTexture, String highestNeedleTexture, float higherNeedleYOffset) {
         Array<Trap> traps = new Array<>();
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -134,12 +137,13 @@ public class GameScreen implements Screen {
                     float worldX = x * layer.getTileWidth();
                     float worldY = y * layer.getTileHeight();
 
-                    traps.add(new Trap(worldX, worldY, layer.getTileWidth(), layer.getTileHeight(),needleTexture));
+                    traps.add(new Trap(worldX, worldY, layer.getTileWidth(), layer.getTileHeight(), needleTexture, higherNeedleTexture, highestNeedleTexture,higherNeedleYOffset));
                 }
             }
         }
         return traps;
     }
+
 
 
     /**
