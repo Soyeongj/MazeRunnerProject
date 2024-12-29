@@ -15,7 +15,7 @@ public class Griever {
     private String fixedGrieverDirection;
     private float monsterX, monsterY;
     private final float monsterSpeed = 10.0f;
-    private final float detectionRange = 37.0f;
+    private final float detectionRange = 100.0f;
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f; // Time between animation frames
     private Rectangle grieverRectangle;
@@ -34,6 +34,9 @@ public class Griever {
     private final TiledMapTileLayer pathLayer;
     private final TiledMapTileLayer path2Layer;
     private Vector2 currentTarget;
+    private float LivesCoolDownTimer = 0;
+
+
 
     public Griever(float startX, float startY, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
         this.monsterX = startX;
@@ -76,7 +79,7 @@ public class Griever {
     }
 
 
-    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud) {
+    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player) {
         grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
 
         if (isGrieverStunned) {
@@ -166,6 +169,7 @@ public class Griever {
 
         updateAnimation(delta);
         checkStunCondition(playerX, playerY, playerDirection);
+        checkPlayerCollision(player,hud,delta);
     }
 
     // 플레이어 방향으로 목표 찾기 실패 시 임시 랜덤 이동으로 전환
@@ -283,6 +287,56 @@ public class Griever {
         Texture[] textures = grieverTextures.get(direction);
         return (griever == textures[0]) ? textures[1] : textures[0];
     }
+    public void checkPlayerCollision(Player player, HUD hud, float delta) {
+        int diffX = (int) (player.getX() - this.getMonsterX());
+        int diffY = (int) (player.getY() - this.getMonsterY());
+        float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
+
+        if (LivesCoolDownTimer <= 0 && distance < 5f && this.isGrieverNotStunned()) {
+            if (hud.getLives() > 1) {
+                hud.decrementLives();
+                player.triggerRedEffect();
+                LivesCoolDownTimer = 7; // Reset cooldown timer
+            } else {
+                hud.setLives(0);
+                player.revertToPrevious();
+                player.setDead();
+            }
+        }
+
+        if (LivesCoolDownTimer > 0) {
+            LivesCoolDownTimer -= delta;
+        }
+    }
+
+    public void updateMovement(float delta) {
+        float currentX = getMonsterX();
+        float currentY = getMonsterY();
+        float speed = 10 * delta;
+        float moveX = 0;
+        float moveY = 0;
+
+        if (currentY < 478 && isGrieverNotStunned()) {
+            moveY += speed;
+        }
+        if (currentY > 0 && isGrieverNotStunned()) {
+            moveY -= speed;
+        }
+
+        if (currentX < 478.86f && isGrieverNotStunned()) {
+            moveX += speed;
+        }
+        if (currentX > 0 && isGrieverNotStunned()) {
+            moveX -= speed;
+        }
+
+        if (moveX != 0 || moveY != 0) {
+            setPosition((int) (currentX + moveX), (int) (currentY + moveY));
+        }
+    }
+
+
+
 
     public void render(SpriteBatch batch) {
         batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() * scale);

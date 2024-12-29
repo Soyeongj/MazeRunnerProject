@@ -47,7 +47,6 @@ public class GameScreen implements Screen {
     private HUD hud;
     private SpriteBatch batch;
     private Griever griever;
-    private float LivesCoolDownTimer = 0f;
     private Key key;
     private Item item;
     private Array<Door> doors;
@@ -88,27 +87,16 @@ public class GameScreen implements Screen {
         movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
                 ? (TiledMapTileLayer) tiledMap.getLayers().get("moving walls")
                 : null;
+
         if (movingWallsLayer != null) {
-            initializeWalls(batch, movingWallsLayer);
+            walls = Wall.createWallsFromLayer(movingWallsLayer, griever, hud);
         }
+
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
         doors = createDoorsFromLayer(doorsLayer);
 
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
-    }
-    private void initializeWalls(SpriteBatch spriteBatch, TiledMapTileLayer movingWallsLayer) {
-        walls = new ArrayList<>();
-
-        for (int x = 0; x < movingWallsLayer.getWidth(); x++) {
-            for (int y = 0; y < movingWallsLayer.getHeight(); y++) {
-                TiledMapTileLayer.Cell cell = movingWallsLayer.getCell(x, y);
-                if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
-                    String direction = cell.getTile().getProperties().get("direction", String.class);
-                    walls.add(new Wall(x, y, direction, movingWallsLayer, griever, hud));
-                }
-            }
-        }
     }
 
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
@@ -192,10 +180,10 @@ public class GameScreen implements Screen {
 
         float currentGlobalTime = hud.getGlobalTimer();
 
-        for (Wall wall : walls) {
-            wall.update(delta,currentGlobalTime);
-            wall.checkAndMovePlayer(player, currentGlobalTime);
-        }
+        walls.forEach(wall -> {
+            wall.update(delta, hud.getGlobalTimer());
+            wall.checkAndMovePlayer(player, hud.getGlobalTimer());
+        });
 
         camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
         camera.update();
@@ -219,8 +207,8 @@ public class GameScreen implements Screen {
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
         player.render(batch);
 
-        griever.update(delta, player.getX(), player.getY(), player.getDirection(),hud);
-        updateGrieverMovement(delta);
+        griever.update(delta, player.getX(), player.getY(), player.getDirection(),hud,player);
+        griever.updateMovement(delta);
         griever.render(batch);
 
         boolean isGrieverDead = false;
@@ -237,66 +225,39 @@ public class GameScreen implements Screen {
         if (isGrieverDead && key != null) {
             key.render(batch);
         }
-        if (key != null && isGrieverDead) {
-            key.checkProximityToPlayer(player);
-            if (key.isCollected()) {
-                hud.collectKey();
-                key.setPosition(-1000, -1000);
-            }
+
+        if (key != null) {
+            key.update(player, hud); // Key의 상태와 HUD 동기화
         }
+
+
         if (hud.getLives() <= 0) {
             hud.stopTimer();
             float finalTime = 0;
             game.setScreen(new GameOverScreen(game,finalTime));
             return;
         }
+
         hud.updateScoreTimer(delta);
         friends.render(batch,player);
         item.render(batch);
         hud.render(batch, player);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
+
+
         for (Door door : doors) {
-            if (door.isPlayerNear(playerPosition) && hud.isKeyCollected() ) {
-                hud.pressE();
-                if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    hud.stopTimer();
-                    float finalTime = 1000 + (hud.getFinalTime()* 5);
-                    game.setScreen(new GameClearScreen(game, finalTime));
-                }
-            } else if (door.isPlayerNear(playerPosition) && !(hud.isKeyCollected())) {
-                hud.needKey();
-            }
-        }
-        int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
-        int count = item.checkAndCollectAllItmes(playerPosition, 3f);
-        hud.render(batch, player);
-        for (int i = 0; i < savedFriends; i++) {
-            hud.incrementLives();
-        }
-        for (int i = 0; i < count; i++) {
-            player.increaseSpeed(3f);
-        }
-        int diffX = (int) (player.getX() - griever.getMonsterX());
-        int diffY = (int) (player.getY() - griever.getMonsterY());
-        float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
-        if (LivesCoolDownTimer <= 0 && distance < 5f && griever.isGrieverNotStunned()) {
-            if (hud.getLives() > 1) {
-                hud.decrementLives();
-                player.triggerRedEffect();
-                LivesCoolDownTimer = 7;
-            } else {
-                hud.setLives(0);
-                player.revertToPrevious();
-                player.setDead();
-            }
+            door.tryToOpen(playerPosition, hud, game);
         }
 
-        if (LivesCoolDownTimer > 0) {
-            LivesCoolDownTimer -= delta;
-        }
+        friends.update(player, hud, 3f);
+        item.update(player, hud, 3f);
+
+
 
         batch.end();
     }
+
+
     private void zoomCamera(float amount) {
         Vector3 beforeZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(beforeZoom);
@@ -315,32 +276,7 @@ public class GameScreen implements Screen {
 
         lastPosition.set(camera.position);
     }
-    public void updateGrieverMovement(float delta) {
-        float currentX = griever.getMonsterX();
-        float currentY = griever.getMonsterY();
-        float speed = 10 * delta;
 
-        float moveX = 0;
-        float moveY = 0;
-
-        if (currentY < 478 && griever.isGrieverNotStunned()) {
-            moveY += speed; // Move up
-        }
-        if (currentY > 0 && griever.isGrieverNotStunned()) {
-            moveY -= speed;
-        }
-
-        if (currentX < 478.86f && griever.isGrieverNotStunned()) {
-            moveX += speed;
-        }
-        if (currentX > 0 && griever.isGrieverNotStunned()) {
-            moveX -= speed;
-        }
-
-        if (moveX != 0 || moveY != 0) {
-            griever.setPosition((int)(currentX + moveX), (int)(currentY + moveY));
-        }
-    }
 
 
     public void savePlayerState() {
