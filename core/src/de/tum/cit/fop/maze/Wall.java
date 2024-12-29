@@ -1,8 +1,15 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.badlogic.gdx.scenes.scene2d.ui.Table.Debug.cell;
 
 public class Wall {
     private int x, y;
@@ -22,6 +29,9 @@ public class Wall {
     private boolean isPlayerRemoved = false;
     private float removalCooldown = 0f;
 
+    private TiledMapTileLayer.Cell cell; // 타일 정보를 저장
+    private TextureRegion texture; // 타일 텍스처
+
 
     public Wall(int x, int y, String direction, TiledMapTileLayer layer, Griever griever, HUD hud) {
         this.x = x;
@@ -32,6 +42,33 @@ public class Wall {
         this.layer = layer;
         this.griever = griever;
         this.hud = hud;
+
+        this.cell = layer.getCell(x, y);
+        if (cell != null && cell.getTile() != null) {
+            this.texture = cell.getTile().getTextureRegion();
+        }
+    }
+
+    public static List<Wall> createWallsFromLayer(TiledMapTileLayer movingWallsLayer, Griever griever, HUD hud) {
+        List<Wall> walls = new ArrayList<>();
+        for (int x = 0; x < movingWallsLayer.getWidth(); x++) {
+            for (int y = 0; y < movingWallsLayer.getHeight(); y++) {
+                TiledMapTileLayer.Cell cell = movingWallsLayer.getCell(x, y);
+                if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
+                    String direction = cell.getTile().getProperties().get("direction", String.class);
+                    walls.add(new Wall(x, y, direction, movingWallsLayer, griever, hud));
+                }
+            }
+        }
+        return walls;
+    }
+
+    public void render(SpriteBatch batch) {
+        if (texture != null) {
+            float worldX = x * layer.getTileWidth();
+            float worldY = y * layer.getTileHeight();
+            batch.draw(texture, worldX, worldY, layer.getTileWidth(), layer.getTileHeight());
+        }
     }
 
     public void update(float delta, float globalTimer) {
@@ -201,4 +238,5 @@ public class Wall {
     public void setGrieverDead(boolean grieverDead) {
         isGrieverDead = grieverDead;
     }
+
 }
