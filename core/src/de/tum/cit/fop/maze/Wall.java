@@ -203,8 +203,8 @@ public class Wall {
 
 
         if (isPlayerRemoved && !isAtTarget && x == originalX && y == originalY) {
-            float safeX = (x + 2) * layer.getTileWidth();
-            float safeY = (y +1)* layer.getTileHeight();
+            float safeX = 230;
+            float safeY = 250;
 
             player.setX(safeX);
             player.setY(safeY);

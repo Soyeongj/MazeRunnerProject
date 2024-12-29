@@ -15,7 +15,7 @@ public class Griever {
     private String fixedGrieverDirection;
     private float monsterX, monsterY;
     private final float monsterSpeed = 10.0f;
-    private final float detectionRange = 37.0f;
+    private final float detectionRange = 100.0f;
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f; // Time between animation frames
     private Rectangle grieverRectangle;
@@ -93,6 +93,10 @@ public class Griever {
         boolean wasFollowingPlayer = isGrieverFollowingPlayer;
         isGrieverFollowingPlayer = distance <= detectionRange;
 
+        System.out.println("Griever position: (" + monsterX + ", " + monsterY + ")");
+        System.out.println("Player position: (" + playerX + ", " + playerY + ")");
+        System.out.println("Distance to player: " + distance);
+        System.out.println("Following player: " + isGrieverFollowingPlayer);
 
         // 추적 모드 전환 시 랜덤 상태 초기화
         if (isGrieverFollowingPlayer && !wasFollowingPlayer) {
@@ -107,9 +111,11 @@ public class Griever {
             if (currentTarget == null || reachedTarget()) {
                 currentTarget = findNextTargetTowardsPlayer(playerX, playerY);
                 if (currentTarget == null) {
+                    System.out.println("No valid target found while following the player. Switching to random movement temporarily.");
                     switchToTemporaryRandomMovement(delta); // 임시 랜덤 이동으로 전환
                     return;
                 }
+                System.out.println("New target set for following player: " + currentTarget);
             }
 
             // 목표 방향으로 이동
@@ -122,6 +128,7 @@ public class Griever {
                 monsterY += deltaY;
                 grieverRectangle.setPosition(monsterX, monsterY);
             } else {
+                System.out.println("Collision detected while following the player. Recalculating target.");
                 currentTarget = findNextTargetTowardsPlayer(playerX, playerY);
             }
         } else {
@@ -131,8 +138,10 @@ public class Griever {
             if (currentTarget == null || reachedTarget()) {
                 currentTarget = findNextTargetWithMinDistance(10f);
                 if (currentTarget == null) {
+                    System.out.println("No valid target found. Griever is stuck.");
                     return;
                 }
+                System.out.println("New target set: " + currentTarget);
             }
 
             Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY).nor();
@@ -144,6 +153,7 @@ public class Griever {
                 monsterY += deltaY;
                 grieverRectangle.setPosition(monsterX, monsterY);
             } else {
+                System.out.println("Collision detected! Recalculating target.");
                 currentTarget = findNextTargetWithMinDistance(10f);
             }
         }
@@ -162,7 +172,9 @@ public class Griever {
     private void switchToTemporaryRandomMovement(float delta) {
         currentTarget = findNextTargetWithMinDistance(10f); // 임시 랜덤 목표 설정
         if (currentTarget != null) {
+            System.out.println("Temporarily switched to random movement. New target: " + currentTarget);
         } else {
+            System.out.println("Failed to switch to temporary random movement. Griever is stuck.");
         }
     }
 
@@ -170,7 +182,9 @@ public class Griever {
         isGrieverFollowingPlayer = false;
         currentTarget = findNextTargetWithMinDistance(10f); // 랜덤 목표 즉시 설정
         if (currentTarget != null) {
+            System.out.println("Switched to random movement. New target: " + currentTarget);
         } else {
+            System.out.println("Failed to switch to random movement. Griever is stuck.");
         }
     }
 
@@ -249,7 +263,9 @@ public class Griever {
             if (isGrieverInOppositeDirection(playerDirection) && !isGrieverStunned) {
                 isGrieverStunned = true;
                 stunTimer = 0;
+                System.out.println("Griever is stunned!");
             } else {
+                System.out.println("Griever is not stunned: Directions are not opposite.");
             }
         }
     }
@@ -259,19 +275,13 @@ public class Griever {
                 (fixedGrieverDirection.equals("right") && playerDirection.equals("left")) ||
                 (fixedGrieverDirection.equals("up") && playerDirection.equals("down")) ||
                 (fixedGrieverDirection.equals("down") && playerDirection.equals("up"));
+        System.out.println("Player Direction: " + playerDirection + ", Griever Direction: " + fixedGrieverDirection + ", Opposite: " + result);
         return result;
     }
 
     private Texture getGrieverTextureForDirection(String direction) {
         Texture[] textures = grieverTextures.get(direction);
         return (griever == textures[0]) ? textures[1] : textures[0];
-    }
-
-    public boolean isNearPlayer(Player player) {
-        float playerX = player.getX();
-        float playerY = player.getY();
-        float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
-        return distance < 50.0f; // 50.0f는 플레이어와의 거리 기준
     }
 
     public void render(SpriteBatch batch) {

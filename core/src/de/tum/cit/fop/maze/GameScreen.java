@@ -9,7 +9,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -30,6 +32,11 @@ public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
+    private float currentZoom = 0.1f;
+    private final float MIN_ZOOM = 0.08f;
+    private final float MAX_ZOOM = 0.4f;
+    private final float ZOOM_SPEED = 0.01f;
+    private Vector3 lastPosition;
     private Viewport viewport;
     private final TiledMap tiledMap;
     private TiledMapTileLayer movingWallsLayer;
@@ -57,8 +64,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(800, 480, camera);
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
 
-        camera.zoom = 0.2f; // Zoom in to focus on the map's center
-
+        camera.zoom = 0.1f;
 
         tiledMap = new TmxMapLoader().load("map1.tmx");
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
@@ -71,7 +77,7 @@ public class GameScreen implements Screen {
         this.friends = new Friends();
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
-        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("path"),(TiledMapTileLayer) tiledMap.getLayers().get("path2")    );
+        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("path"),(TiledMapTileLayer) tiledMap.getLayers().get("path2"));
         batch = new SpriteBatch();
 
         friends.setScale(0.2f);
@@ -82,13 +88,16 @@ public class GameScreen implements Screen {
         movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
                 ? (TiledMapTileLayer) tiledMap.getLayers().get("moving walls")
                 : null;
+
         if (movingWallsLayer != null) {
             walls = Wall.createWallsFromLayer(movingWallsLayer, griever, hud);
         }
 
-
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
         doors = createDoorsFromLayer(doorsLayer);
+
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
     }
 
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
@@ -161,6 +170,15 @@ public class GameScreen implements Screen {
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
 
+        if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
+            // Zoom in
+            zoomCamera(-ZOOM_SPEED);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
+            // Zoom out
+            zoomCamera(ZOOM_SPEED);
+        }
+
         float currentGlobalTime = hud.getGlobalTimer();
 
         walls.forEach(wall -> {
@@ -226,18 +244,12 @@ public class GameScreen implements Screen {
         item.render(batch);
         hud.render(batch, player);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
+
+
         for (Door door : doors) {
-            if (door.isPlayerNear(playerPosition) && hud.isKeyCollected() ) {
-                hud.pressE();
-                if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    hud.stopTimer();
-                    float finalTime = 1000 + (hud.getFinalTime()* 5);
-                    game.setScreen(new GameClearScreen(game, finalTime));
-                }
-            } else if (door.isPlayerNear(playerPosition) && !(hud.isKeyCollected())) {
-                hud.needKey();
-            }
+            door.tryToOpen(playerPosition, hud, game);
         }
+
         int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
         int count = item.checkAndCollectAllItmes(playerPosition, 3f);
         hud.render(batch, player);
@@ -268,7 +280,24 @@ public class GameScreen implements Screen {
 
         batch.end();
     }
+    private void zoomCamera(float amount) {
+        Vector3 beforeZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(beforeZoom);
 
+        currentZoom = MathUtils.clamp(currentZoom + amount, MIN_ZOOM, MAX_ZOOM);
+        camera.zoom = currentZoom;
+
+        Vector3 afterZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(afterZoom);
+
+        camera.position.add(
+                beforeZoom.x - afterZoom.x,
+                beforeZoom.y - afterZoom.y,
+                0
+        );
+
+        lastPosition.set(camera.position);
+    }
     public void updateGrieverMovement(float delta) {
         float currentX = griever.getMonsterX();
         float currentY = griever.getMonsterY();
@@ -376,6 +405,10 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
         viewport.update(width, height);
         hud.setScreenDimensions(width, height);
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.position.set(lastPosition);
+        camera.update();
     }
 
     @Override
