@@ -35,6 +35,8 @@ public class Player {
     private float boostedSpeed = 100.0f;
     private boolean isSpeedBoosted = false;
 
+    private Rectangle bound;
+
 
 
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
@@ -68,6 +70,8 @@ public class Player {
         this.redright1 = new Texture("orc_right_1.png");
         this.redright2 = new Texture("orc_right_2.png");
         this.reddown1 = new Texture("orc_down_1.png");
+
+        this.bound = new Rectangle();
 
     }
 
@@ -277,6 +281,13 @@ public class Player {
         speed = 10f;
     }
 
+    public Rectangle getBound() {
+        return bound;
+    }
+
+    public void setBound(Rectangle bound) {
+        this.bound = bound;
+    }
 
     public void dispose() {
         up1.dispose();
@@ -297,4 +308,6 @@ public class Player {
         redright1.dispose();
         redright2.dispose();
     }
+
+
 }

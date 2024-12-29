@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -98,7 +99,8 @@ public class GameScreen implements Screen {
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
         doors = createDoorsFromLayer(doorsLayer);
         TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
-        traps = createTrapsFromLayer(trapLayer);
+        String needleTexture = "assets/spike.png";
+        traps = createTrapsFromLayer(trapLayer,needleTexture);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
     }
@@ -123,7 +125,7 @@ public class GameScreen implements Screen {
         return doors;
     }
 
-    private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer) {
+    private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer, String needleTexture) {
         Array<Trap> traps = new Array<>();
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -132,7 +134,7 @@ public class GameScreen implements Screen {
                     float worldX = x * layer.getTileWidth();
                     float worldY = y * layer.getTileHeight();
 
-                    traps.add(new Trap(worldX, worldY, layer.getTileWidth(), layer.getTileHeight()));
+                    traps.add(new Trap(worldX, worldY, layer.getTileWidth(), layer.getTileHeight(),needleTexture));
                 }
             }
         }
@@ -272,6 +274,7 @@ public class GameScreen implements Screen {
 
         for (Trap trap : traps) {
             trap.test(playerPosition,hud,player,delta);
+            trap.renderNeedles(batch);
 
         }
         friends.update(player, hud, 3f);
