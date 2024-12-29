@@ -283,6 +283,23 @@ public class Griever {
         Texture[] textures = grieverTextures.get(direction);
         return (griever == textures[0]) ? textures[1] : textures[0];
     }
+    public void handleCollisionWithPlayer(Player player, HUD hud, float delta) {
+        int diffX = (int) (player.getX() - getMonsterX());
+        int diffY = (int) (player.getY() - getMonsterY());
+        float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
+
+        if (distance < 5f && isGrieverNotStunned()) {
+            if (hud.getLives() > 1) {
+                hud.decrementLives();
+                player.triggerRedEffect();
+            } else {
+                hud.setLives(0);
+                player.setDead();
+            }
+        }
+    }
+
+
 
     public void render(SpriteBatch batch) {
         batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() * scale);

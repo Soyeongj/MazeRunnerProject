@@ -2,7 +2,6 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 
 public class Key {
     private Texture keyTexture;
@@ -33,20 +32,26 @@ public class Key {
     }
 
     // Check if the player is close enough to the key to collect it
-    public void checkProximityToPlayer(Player player) {
+    public boolean checkProximityToPlayer(Player player) {
         // Calculate distance between the key and the player
         float distance = (float) Math.sqrt(Math.pow(player.getX() - x, 2) + Math.pow(player.getY() - y, 2));
-
-        if (distance < proximityRange && !isCollected) {
-            isCollected = true;  // Collect the key
+        return distance < proximityRange;
         }
-    }
 
     // Set the key position
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
     }
+
+    public void update(Player player, HUD hud) {
+        if (checkProximityToPlayer(player)&& !isCollected) {
+            isCollected = true;
+            hud.collectKey();
+            setPosition(-1000, -1000);
+            }
+        }
+
 
     public void setCollected(boolean collected) {
         isCollected = collected;

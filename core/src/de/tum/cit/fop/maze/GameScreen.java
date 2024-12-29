@@ -226,19 +226,19 @@ public class GameScreen implements Screen {
         if (isGrieverDead && key != null) {
             key.render(batch);
         }
-        if (key != null && isGrieverDead) {
-            key.checkProximityToPlayer(player);
-            if (key.isCollected()) {
-                hud.collectKey();
-                key.setPosition(-1000, -1000);
-            }
+
+        if (key != null) {
+            key.update(player, hud); // Key의 상태와 HUD 동기화
         }
+
+
         if (hud.getLives() <= 0) {
             hud.stopTimer();
             float finalTime = 0;
             game.setScreen(new GameOverScreen(game,finalTime));
             return;
         }
+
         hud.updateScoreTimer(delta);
         friends.render(batch,player);
         item.render(batch);
@@ -250,29 +250,10 @@ public class GameScreen implements Screen {
             door.tryToOpen(playerPosition, hud, game);
         }
 
-        int savedFriends = friends.checkAndSaveAllFriends(playerPosition, 3f);
-        int count = item.checkAndCollectAllItmes(playerPosition, 3f);
-        hud.render(batch, player);
-        for (int i = 0; i < savedFriends; i++) {
-            hud.incrementLives();
-        }
-        for (int i = 0; i < count; i++) {
-            player.increaseSpeed(3f);
-        }
-        int diffX = (int) (player.getX() - griever.getMonsterX());
-        int diffY = (int) (player.getY() - griever.getMonsterY());
-        float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
-        if (LivesCoolDownTimer <= 0 && distance < 5f && griever.isGrieverNotStunned()) {
-            if (hud.getLives() > 1) {
-                hud.decrementLives();
-                player.triggerRedEffect();
-                LivesCoolDownTimer = 7;
-            } else {
-                hud.setLives(0);
-                player.revertToPrevious();
-                player.setDead();
-            }
-        }
+        friends.update(player, hud, 3f);
+        item.update(player, hud, 3f);
+
+        griever.handleCollisionWithPlayer(player, hud, delta);
 
         if (LivesCoolDownTimer > 0) {
             LivesCoolDownTimer -= delta;
@@ -280,6 +261,8 @@ public class GameScreen implements Screen {
 
         batch.end();
     }
+
+
     private void zoomCamera(float amount) {
         Vector3 beforeZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(beforeZoom);

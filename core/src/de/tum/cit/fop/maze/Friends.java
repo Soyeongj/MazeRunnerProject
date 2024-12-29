@@ -77,6 +77,14 @@ public class Friends {
         return savedFriends;
     }
 
+    public void update(Player player, HUD hud, float interactionRadius) {
+        int savedFriends = checkAndSaveAllFriends(new Vector2(player.getX(), player.getY()), interactionRadius);
+        for (int i = 0; i < savedFriends; i++) {
+            hud.incrementLives();
+        }
+    }
+
+
     public void setScale(float scale) {
         this.scale = scale;  // Set new scale
     }
