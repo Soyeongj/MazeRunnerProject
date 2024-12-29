@@ -30,6 +30,9 @@ public class Wall {
     private TiledMapTileLayer.Cell cell;
     private TextureRegion texture;
 
+    private boolean keySpawned = false;
+
+
     public Wall(int x, int y, String direction, TiledMapTileLayer layer, Array<Griever> grievers, HUD hud) {
         this.x = x;
         this.y = y;
@@ -212,5 +215,13 @@ public class Wall {
 
     public void setGrieverDead(boolean grieverDead) {
         isGrieverDead = grieverDead;
+    }
+
+    public boolean hasKeySpawned() {
+        return keySpawned;
+    }
+
+    public void setKeySpawned(boolean keySpawned) {
+        this.keySpawned = keySpawned;
     }
 }

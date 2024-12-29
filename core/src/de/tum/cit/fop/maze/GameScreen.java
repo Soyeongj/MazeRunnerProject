@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
 
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -47,7 +48,7 @@ public class GameScreen implements Screen {
     private HUD hud;
     private SpriteBatch batch;
     private Array<Griever> grievers;
-    private Key key;
+    private Array<Key> keys;
     private Item item;
     private Array<Door> doors;
     /**
@@ -82,8 +83,7 @@ public class GameScreen implements Screen {
 
         friends.setScale(0.2f);
 
-        this.key = new Key(189,286);
-
+        keys = new Array<>();
 
         movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
                 ? (TiledMapTileLayer) tiledMap.getLayers().get("moving walls")
@@ -213,26 +213,24 @@ public class GameScreen implements Screen {
             griever.updateMovement(delta);
             griever.render(batch);
         }
-        boolean isGrieverDead = false;
-        if (key == null) {
-            key = new Key(189, 286);
-        }
         for (Wall wall : walls) {
-            if (wall.isGrieverDead()) {
-                isGrieverDead = true;
-                key.setPosition(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y);
-                break;
+            if (wall.isGrieverDead() && !wall.hasKeySpawned()) { // Ensure a key spawns only once per wall
+                keys.add(new Key(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y));
+                wall.setKeySpawned(true); // Track the key spawn status for the wall
             }
         }
-        if (isGrieverDead && key != null) {
+
+// Use an iterator to safely modify the keys list while iterating
+        Iterator<Key> keyIterator = keys.iterator();
+        while (keyIterator.hasNext()) {
+            Key key = keyIterator.next();
             key.render(batch);
+            key.update(player, hud);
+
+            if (key.isCollected()) {
+                keyIterator.remove(); // Remove the key if it is collected
+            }
         }
-
-        if (key != null) {
-            key.update(player, hud); // Key의 상태와 HUD 동기화
-        }
-
-
 
 
         if (hud.getLives() <= 0) {
@@ -305,8 +303,10 @@ public class GameScreen implements Screen {
             prefs.putFloat("item" + i + "X", item.getItemPositions()[i].x);
             prefs.putFloat("item" + i + "Y", item.getItemPositions()[i].y);
         }
-        prefs.putFloat("keyX", key.getX());
-        prefs.putFloat("keyY", key.getY());
+        for (Key key : keys) {
+            prefs.putFloat("keyX", key.getX());
+            prefs.putFloat("keyY", key.getY());
+        }
         prefs.putBoolean("keyCollected", hud.isKeyCollected());
 
         for (Wall wall : walls) {
@@ -346,8 +346,10 @@ public class GameScreen implements Screen {
             hud.setKeyCollected(isKeyCollected);
             float keyX = prefs.getFloat("keyX", -1000);
             float keyY = prefs.getFloat("keyY", -1000);
-            key.setX(keyX);
-            key.setY(keyY);
+            for (Key key : keys) {
+                key.setX(keyX);
+                key.setY(keyY);
+            }
             boolean isGrieverDead = prefs.getBoolean("grieverDead", false);
             for (Wall wall : walls) {
                 wall.setGrieverDead(isGrieverDead);
