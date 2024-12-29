@@ -51,6 +51,7 @@ public class GameScreen implements Screen {
     private Array<Key> keys;
     private Item item;
     private Array<Door> doors;
+    private Array<Trap> traps;
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
      *
@@ -78,8 +79,9 @@ public class GameScreen implements Screen {
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         grievers = new Array<>();
-        grievers.add(new Griever(87, 180, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
-        grievers.add(new Griever(100, 270, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));        batch = new SpriteBatch();
+        grievers.add(new Griever(400, 275, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        grievers.add(new Griever(380, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        batch = new SpriteBatch();
 
         friends.setScale(0.2f);
 
@@ -95,7 +97,8 @@ public class GameScreen implements Screen {
 
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
         doors = createDoorsFromLayer(doorsLayer);
-
+        TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
+        traps = createTrapsFromLayer(trapLayer);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
     }
@@ -119,6 +122,23 @@ public class GameScreen implements Screen {
 
         return doors;
     }
+
+    private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer) {
+        Array<Trap> traps = new Array<>();
+        for (int x = 0; x < layer.getWidth(); x++) {
+            for (int y = 0; y < layer.getHeight(); y++) {
+                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+                if (cell != null && cell.getTile() != null) {
+                    float worldX = x * layer.getTileWidth();
+                    float worldY = y * layer.getTileHeight();
+
+                    traps.add(new Trap(worldX, worldY, layer.getTileWidth(), layer.getTileHeight()));
+                }
+            }
+        }
+        return traps;
+    }
+
 
     /**
      * Centers the camera on the map based on its dimensions and logs debug information.
@@ -250,6 +270,10 @@ public class GameScreen implements Screen {
             door.tryToOpen(playerPosition, hud, game);
         }
 
+        for (Trap trap : traps) {
+            trap.test(playerPosition,hud,player,delta);
+
+        }
         friends.update(player, hud, 3f);
         item.update(player, hud, 3f);
 
@@ -405,5 +429,4 @@ public class GameScreen implements Screen {
         for (Griever griever : grievers) {
             griever.dispose();
         }
-        hud.dispose();
     }}

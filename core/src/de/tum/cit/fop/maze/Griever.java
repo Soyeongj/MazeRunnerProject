@@ -96,10 +96,7 @@ public class Griever {
         boolean wasFollowingPlayer = isGrieverFollowingPlayer;
         isGrieverFollowingPlayer = distance <= detectionRange;
 
-        System.out.println("Griever position: (" + monsterX + ", " + monsterY + ")");
-        System.out.println("Player position: (" + playerX + ", " + playerY + ")");
-        System.out.println("Distance to player: " + distance);
-        System.out.println("Following player: " + isGrieverFollowingPlayer);
+
 
         // 추적 모드 전환 시 랜덤 상태 초기화
         if (isGrieverFollowingPlayer && !wasFollowingPlayer) {
