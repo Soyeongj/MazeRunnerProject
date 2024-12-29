@@ -10,6 +10,7 @@ public class Key {
     private float scale = 0.2f;
     private float proximityRange = 5f;  // Range within which the player can collect the key
 
+
     public Key(float x, float y) {
         this.x = x;
         this.y = y;

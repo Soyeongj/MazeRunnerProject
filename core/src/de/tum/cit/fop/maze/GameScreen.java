@@ -46,7 +46,7 @@ public class GameScreen implements Screen {
     private Friends friends;
     private HUD hud;
     private SpriteBatch batch;
-    private Griever griever;
+    private Array<Griever> grievers;
     private Key key;
     private Item item;
     private Array<Door> doors;
@@ -76,8 +76,9 @@ public class GameScreen implements Screen {
         this.friends = new Friends();
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
-        griever = new Griever(87, 160, (TiledMapTileLayer) tiledMap.getLayers().get("path"),(TiledMapTileLayer) tiledMap.getLayers().get("path2"));
-        batch = new SpriteBatch();
+        grievers = new Array<>();
+        grievers.add(new Griever(87, 180, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        grievers.add(new Griever(100, 270, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));        batch = new SpriteBatch();
 
         friends.setScale(0.2f);
 
@@ -89,7 +90,7 @@ public class GameScreen implements Screen {
                 : null;
 
         if (movingWallsLayer != null) {
-            walls = Wall.createWallsFromLayer(movingWallsLayer, griever, hud);
+            walls = Wall.createWallsFromLayer(movingWallsLayer, grievers, hud);
         }
 
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
@@ -207,10 +208,11 @@ public class GameScreen implements Screen {
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
         player.render(batch);
 
-        griever.update(delta, player.getX(), player.getY(), player.getDirection(),hud,player);
-        griever.updateMovement(delta);
-        griever.render(batch);
-
+        for (Griever griever : grievers) {
+            griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player);
+            griever.updateMovement(delta);
+            griever.render(batch);
+        }
         boolean isGrieverDead = false;
         if (key == null) {
             key = new Key(189, 286);
@@ -231,6 +233,8 @@ public class GameScreen implements Screen {
         }
 
 
+
+
         if (hud.getLives() <= 0) {
             hud.stopTimer();
             float finalTime = 0;
@@ -241,7 +245,6 @@ public class GameScreen implements Screen {
         hud.updateScoreTimer(delta);
         friends.render(batch,player);
         item.render(batch);
-        hud.render(batch, player);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
 
 
@@ -253,9 +256,11 @@ public class GameScreen implements Screen {
         item.update(player, hud, 3f);
 
 
+        hud.render(batch, player);
 
         batch.end();
     }
+
 
 
     private void zoomCamera(float amount) {
@@ -284,8 +289,10 @@ public class GameScreen implements Screen {
         prefs.putFloat("playerX", player.getX());
         prefs.putFloat("playerY", player.getY());
         prefs.putInteger("playerLives", hud.getLives());
-        prefs.putFloat("grieverX", griever.getMonsterX());
-        prefs.putFloat("grieverY", griever.getMonsterY());
+        for (Griever griever : grievers) {
+            prefs.putFloat("grieverX", griever.getMonsterX());
+            prefs.putFloat("grieverY", griever.getMonsterY());
+        }
         prefs.putFloat("scoreTimer", hud.getScoreTimer()); // Save current timer value
 
         for (int i = 0; i < friends.getIsFriendSaved().length; i++) {
@@ -320,7 +327,9 @@ public class GameScreen implements Screen {
             hud.setLives(lives);
             float monsterX = prefs.getFloat("grieverX");
             float monsterY = prefs.getFloat("grieverY");
-            griever.setPosition((int) monsterX, (int) monsterY);
+            for (Griever griever : grievers) {
+                griever.setPosition((int) monsterX, (int) monsterY);
+            }
             for (int i = 0; i < friends.getIsFriendSaved().length; i++) {
                 friends.getIsFriendSaved()[i] = prefs.getBoolean("friendSaved" + i, false); // Default to false if not saved
                 float friendX = prefs.getFloat("friend" + i + "X", -1000);  // Default to an invalid position if not saved
@@ -391,6 +400,8 @@ public class GameScreen implements Screen {
         player.dispose();
         hud.dispose();
         friends.dispose();
-        griever.dispose();
+        for (Griever griever : grievers) {
+            griever.dispose();
+        }
         hud.dispose();
     }}

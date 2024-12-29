@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,25 +21,23 @@ public class Wall {
     private float stayTimer = 0f;
     private boolean isAtTarget = false;
     private TiledMapTileLayer layer;
-    private Griever griever;
+    private Array<Griever> grievers; // Support for multiple Grievers
     private boolean isGrieverDead = false;
     private Vector2 keySpawnPosition = null;
     private HUD hud;
     private boolean isPlayerRemoved = false;
-    private float removalCooldown = 0f;
 
-    private TiledMapTileLayer.Cell cell; // 타일 정보를 저장
-    private TextureRegion texture; // 타일 텍스처
+    private TiledMapTileLayer.Cell cell;
+    private TextureRegion texture;
 
-
-    public Wall(int x, int y, String direction, TiledMapTileLayer layer, Griever griever, HUD hud) {
+    public Wall(int x, int y, String direction, TiledMapTileLayer layer, Array<Griever> grievers, HUD hud) {
         this.x = x;
         this.y = y;
         this.originalX = x;
         this.originalY = y;
         this.direction = direction;
         this.layer = layer;
-        this.griever = griever;
+        this.grievers = grievers;
         this.hud = hud;
 
         this.cell = layer.getCell(x, y);
@@ -47,14 +46,14 @@ public class Wall {
         }
     }
 
-    public static List<Wall> createWallsFromLayer(TiledMapTileLayer movingWallsLayer, Griever griever, HUD hud) {
+    public static List<Wall> createWallsFromLayer(TiledMapTileLayer movingWallsLayer, Array<Griever> grievers, HUD hud) {
         List<Wall> walls = new ArrayList<>();
         for (int x = 0; x < movingWallsLayer.getWidth(); x++) {
             for (int y = 0; y < movingWallsLayer.getHeight(); y++) {
                 TiledMapTileLayer.Cell cell = movingWallsLayer.getCell(x, y);
                 if (cell != null && cell.getTile().getProperties().containsKey("direction")) {
                     String direction = cell.getTile().getProperties().get("direction", String.class);
-                    walls.add(new Wall(x, y, direction, movingWallsLayer, griever, hud));
+                    walls.add(new Wall(x, y, direction, movingWallsLayer, grievers, hud));
                 }
             }
         }
@@ -86,14 +85,17 @@ public class Wall {
             move();
             lastMoveTime = globalTimer;
         }
-        checkAndMoveGriever(griever);
+
+        for (Griever griever : grievers) {
+            checkAndMoveGriever(griever);
+        }
     }
 
     private void move() {
         Cell cell = layer.getCell(x, y);
         if (cell == null) return;
 
-        layer.setCell(x, y, null); // 현재 위치에서 타일 제거
+        layer.setCell(x, y, null);
 
         targetX = x;
         targetY = y;
@@ -131,28 +133,17 @@ public class Wall {
         y = originalY;
     }
 
-    private void animateMove(float delta) {
-        float interpolatedX = x + (targetX - x) * (delta / MOVE_INTERVAL);
-        float interpolatedY = y + (targetY - y) * (delta / MOVE_INTERVAL);
-        renderWall(interpolatedX, interpolatedY);
-    }
-
     private void checkAndMoveGriever(Griever griever) {
-
         float grieverX = griever.getMonsterX();
         float grieverY = griever.getMonsterY();
-
 
         float wallX = targetX * layer.getTileWidth();
         float wallY = targetY * layer.getTileHeight();
         float wallWidth = layer.getTileWidth();
         float wallHeight = layer.getTileHeight();
 
-
         if (x != originalX || y != originalY || isAtTarget) {
             if (griever.isRandomMovement()) {
-                // Griever가 랜덤 움직임 중일 경우 죽음을 방지
-                System.out.println("Griever death prevented during random movement by Wall.");
                 return;
             }
 
@@ -166,21 +157,17 @@ public class Wall {
     }
 
     public void checkAndMovePlayer(Player player, float globalTimer) {
-
         float playerX = player.getX();
         float playerY = player.getY();
-
 
         float wallX = targetX * layer.getTileWidth();
         float wallY = targetY * layer.getTileHeight();
         float wallWidth = layer.getTileWidth();
         float wallHeight = layer.getTileHeight();
 
-
         if ((x != originalX || y != originalY || isAtTarget) && !isPlayerRemoved) {
             if (checkCollision(playerX, playerY, player.getWidth() * player.getScale(), player.getHeight() * player.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
-
 
                 if (hud != null) {
                     if (hud.getLives() > 1) {
@@ -192,13 +179,11 @@ public class Wall {
                     }
                 }
 
-
                 player.setX(-1000);
                 player.setY(-1000);
                 isPlayerRemoved = true;
             }
         }
-
 
         if (isPlayerRemoved && !isAtTarget && x == originalX && y == originalY) {
             float safeX = 230;
@@ -209,7 +194,6 @@ public class Wall {
 
             isPlayerRemoved = false;
         }
-
     }
 
     private boolean checkCollision(float x1, float y1, float width1, float height1,
@@ -218,23 +202,15 @@ public class Wall {
                 y1 < y2 + height2 && y1 + height1 > y2;
     }
 
-
-    private void renderWall(float interpolatedX, float interpolatedY) {
-    }
-
     public Vector2 getKeySpawnPosition() {
         return keySpawnPosition;
     }
+
     public boolean isGrieverDead() {
         return isGrieverDead;
-    }
-
-    public void setX(int x) {
-        this.x = x;
     }
 
     public void setGrieverDead(boolean grieverDead) {
         isGrieverDead = grieverDead;
     }
-
 }
