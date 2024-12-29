@@ -298,6 +298,32 @@ public class Griever {
             }
         }
     }
+    public void updateMovement(float delta) {
+        float currentX = getMonsterX();
+        float currentY = getMonsterY();
+        float speed = 10 * delta;
+        float moveX = 0;
+        float moveY = 0;
+
+        if (currentY < 478 && isGrieverNotStunned()) {
+            moveY += speed;
+        }
+        if (currentY > 0 && isGrieverNotStunned()) {
+            moveY -= speed;
+        }
+
+        if (currentX < 478.86f && isGrieverNotStunned()) {
+            moveX += speed;
+        }
+        if (currentX > 0 && isGrieverNotStunned()) {
+            moveX -= speed;
+        }
+
+        if (moveX != 0 || moveY != 0) {
+            setPosition((int) (currentX + moveX), (int) (currentY + moveY));
+        }
+    }
+
 
 
 

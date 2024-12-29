@@ -209,7 +209,7 @@ public class GameScreen implements Screen {
         player.render(batch);
 
         griever.update(delta, player.getX(), player.getY(), player.getDirection(),hud);
-        updateGrieverMovement(delta);
+        griever.updateMovement(delta);
         griever.render(batch);
 
         boolean isGrieverDead = false;
@@ -281,32 +281,7 @@ public class GameScreen implements Screen {
 
         lastPosition.set(camera.position);
     }
-    public void updateGrieverMovement(float delta) {
-        float currentX = griever.getMonsterX();
-        float currentY = griever.getMonsterY();
-        float speed = 10 * delta;
 
-        float moveX = 0;
-        float moveY = 0;
-
-        if (currentY < 478 && griever.isGrieverNotStunned()) {
-            moveY += speed; // Move up
-        }
-        if (currentY > 0 && griever.isGrieverNotStunned()) {
-            moveY -= speed;
-        }
-
-        if (currentX < 478.86f && griever.isGrieverNotStunned()) {
-            moveX += speed;
-        }
-        if (currentX > 0 && griever.isGrieverNotStunned()) {
-            moveX -= speed;
-        }
-
-        if (moveX != 0 || moveY != 0) {
-            griever.setPosition((int)(currentX + moveX), (int)(currentY + moveY));
-        }
-    }
 
 
     public void savePlayerState() {
