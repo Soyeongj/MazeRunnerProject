@@ -16,8 +16,8 @@ public class Door {
         position = new Vector2(x, y);
         bounds = new Rectangle(x, y, width, height);
     }
-    public boolean isPlayerNear(Vector2 point) {
-        return position.dst(point) < INTERACTION_DISTANCE;
+    public boolean isPlayerNear(Vector2 playerPosition) {
+        return bounds.contains(playerPosition.x, playerPosition.y);
     }
 
     public void tryToOpen(Vector2 playerPosition, HUD hud, MazeRunnerGame game) {

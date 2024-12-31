@@ -1,29 +1,30 @@
 package de.tum.cit.fop.maze;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Timer;
 
 public class Trap {
     private Vector2 position;
     private Rectangle bounds;
-    private float LivesCoolDown = 0f;
-    private float needleRenderTime = 0f;
-    private boolean needlesVisible = false;
-    private Texture needleTexture;
-    private Texture higherNeedleTexture;
-    private Texture highestNeedleTexture;
-    private float higherNeedleYOffset;
+    private float livesCoolDown = 0f;
+    private float rockFallDuration = 0f;
+    private boolean isRockFalling = false;
+    private Texture rockTexture;
+    private Vector2 rockPosition;
+    private float rockStartY;
+    private static final float fallSpeed = 300f;
+    private static final float fallHeight = 70f;
 
-
-    public Trap(float x, float y, float width, float height, String needleTexturePath, String higherNeedleTexturePath, String highestNeedleTexture,float higherNeedleYOffset) {
+    public Trap(float x, float y, float width, float height, String rockTexturePath) {
         this.position = new Vector2(x, y);
         this.bounds = new Rectangle(x, y, width, height);
-        this.needleTexture = new Texture(needleTexturePath);
-        this.higherNeedleTexture = new Texture(higherNeedleTexturePath);
-        this.higherNeedleYOffset = higherNeedleYOffset;
-        this.highestNeedleTexture = new Texture(highestNeedleTexture);
+        this.rockTexture = new Texture(rockTexturePath);
+        this.rockPosition = new Vector2(x, y + fallHeight);
+        this.rockStartY = y + fallHeight;
     }
 
     public boolean isPlayerOnTrap(Vector2 playerPosition) {
@@ -31,43 +32,52 @@ public class Trap {
     }
 
     public void test(Vector2 playerPosition, HUD hud, Player player, float delta) {
-        if (LivesCoolDown <= 0 && isPlayerOnTrap(playerPosition)) {
-            if (hud.getLives() > 1) {
-                hud.decrementLives();
-                player.triggerRedEffect();
-                LivesCoolDown = 7;
-                needlesVisible = true;
-                needleRenderTime = 3f;
-            } else {
-                hud.setLives(0);
-                player.setDead();
+        if (livesCoolDown <= 0 && isPlayerOnTrap(playerPosition) && !isRockFalling) {
+            isRockFalling = true;
+            rockFallDuration = 0f;
+            rockPosition.y = rockStartY;
+        }
+
+        if (isRockFalling) {
+            rockFallDuration += delta;
+            rockPosition.y = rockStartY - (fallSpeed * rockFallDuration);
+
+            if (rockPosition.y <= position.y) {
+                rockPosition.y = position.y;
+                isRockFalling = false;
+
+                if (isPlayerOnTrap(playerPosition)) {
+                    if (hud.getLives() > 1) {
+                        hud.decrementLives();
+                        player.triggerRedEffect();
+                        livesCoolDown = 3;
+                    } else {
+                        hud.setLives(0);
+                        player.setDead();
+                    }
+                }
+
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        rockPosition.y = rockStartY;
+                    }
+                }, 0.5f);
             }
         }
 
-        if (LivesCoolDown > 0) {
-            LivesCoolDown -= delta;
-        }
-
-        if (needleRenderTime > 0) {
-            needleRenderTime -= delta;
-            if (needleRenderTime <= 0) {
-                needlesVisible = false;
-            }
+        if (livesCoolDown > 0) {
+            livesCoolDown -= delta;
         }
     }
 
-    public void renderNeedles(SpriteBatch batch) {
-        if (needlesVisible) {
-            batch.draw(needleTexture, position.x, position.y, bounds.width, bounds.height);
-            batch.draw(higherNeedleTexture, position.x, position.y + higherNeedleYOffset, bounds.width, bounds.height);
-            batch.draw(highestNeedleTexture,position.x,position.y + 2*higherNeedleYOffset,bounds.width,bounds.height );
+    public void render(SpriteBatch batch) {
+        if (isRockFalling || rockPosition.y != rockStartY) {
+            batch.draw(rockTexture, rockPosition.x, rockPosition.y, bounds.width, bounds.height);
         }
     }
 
-    // Dispose of resources
     public void dispose() {
-        needleTexture.dispose();
-        higherNeedleTexture.dispose();
-        highestNeedleTexture.dispose();
+        rockTexture.dispose();
     }
 }

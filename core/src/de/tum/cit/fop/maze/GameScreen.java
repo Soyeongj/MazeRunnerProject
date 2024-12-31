@@ -99,11 +99,8 @@ public class GameScreen implements Screen {
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
         doors = createDoorsFromLayer(doorsLayer);
         TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
-        String needleTexture = "assets/spike.png";
-        String higherNeedleTexture = "assets/spike.png";
-        String highestNeedleTexture = "assets/spike.png";
-        float higherNeedleYOffset = 5;
-        traps = createTrapsFromLayer(trapLayer, needleTexture, higherNeedleTexture, highestNeedleTexture, higherNeedleYOffset);
+        String rockTexture = "assets/rock1.png";
+        traps = createTrapsFromLayer(trapLayer, rockTexture);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
     }
@@ -128,7 +125,7 @@ public class GameScreen implements Screen {
         return doors;
     }
 
-    private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer, String needleTexture, String higherNeedleTexture, String highestNeedleTexture, float higherNeedleYOffset) {
+    private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer, String rockTexture) {
         Array<Trap> traps = new Array<>();
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -136,14 +133,12 @@ public class GameScreen implements Screen {
                 if (cell != null && cell.getTile() != null) {
                     float worldX = x * layer.getTileWidth();
                     float worldY = y * layer.getTileHeight();
-
-                    traps.add(new Trap(worldX, worldY, layer.getTileWidth(), layer.getTileHeight(), needleTexture, higherNeedleTexture, highestNeedleTexture,higherNeedleYOffset));
+                    traps.add(new Trap(worldX, worldY, layer.getTileWidth(), layer.getTileHeight(), rockTexture));
                 }
             }
         }
         return traps;
     }
-
 
 
     /**
@@ -197,11 +192,9 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
 
         if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-            // Zoom in
             zoomCamera(-ZOOM_SPEED);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-            // Zoom out
             zoomCamera(ZOOM_SPEED);
         }
 
@@ -246,7 +239,6 @@ public class GameScreen implements Screen {
             }
         }
 
-// Use an iterator to safely modify the keys list while iterating
         Iterator<Key> keyIterator = keys.iterator();
         while (keyIterator.hasNext()) {
             Key key = keyIterator.next();
@@ -254,7 +246,7 @@ public class GameScreen implements Screen {
             key.update(player, hud);
 
             if (key.isCollected()) {
-                keyIterator.remove(); // Remove the key if it is collected
+                keyIterator.remove();
             }
         }
 
@@ -278,7 +270,7 @@ public class GameScreen implements Screen {
 
         for (Trap trap : traps) {
             trap.test(playerPosition,hud,player,delta);
-            trap.renderNeedles(batch);
+            trap.render(batch);
 
         }
         friends.update(player, hud, 3f);

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class Player {
     private Texture currentTexture;
@@ -37,6 +38,8 @@ public class Player {
 
     private Rectangle bound;
 
+    private boolean isStunned = false;
+    private float stunTimer = 0f;
 
 
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
@@ -76,6 +79,8 @@ public class Player {
     }
 
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed) {
+
+
         previousX = x;
         previousY = y;
         moved = false;
@@ -288,6 +293,8 @@ public class Player {
     public void setBound(Rectangle bound) {
         this.bound = bound;
     }
+
+
 
     public void dispose() {
         up1.dispose();
