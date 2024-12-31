@@ -80,7 +80,7 @@ public class GameScreen implements Screen {
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         grievers = new Array<>();
-        grievers.add(new Griever(400, 275, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        grievers.add(new Griever(160, 275, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         grievers.add(new Griever(380, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
 

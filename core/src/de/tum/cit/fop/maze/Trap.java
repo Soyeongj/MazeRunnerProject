@@ -1,11 +1,17 @@
 package de.tum.cit.fop.maze;
 
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.audio.Sound;
+
+import java.util.TimerTask;
+
 
 public class Trap {
     private Vector2 position;
@@ -45,6 +51,7 @@ public class Trap {
             if (rockPosition.y <= position.y) {
                 rockPosition.y = position.y;
                 isRockFalling = false;
+
 
                 if (isPlayerOnTrap(playerPosition)) {
                     if (hud.getLives() > 1) {

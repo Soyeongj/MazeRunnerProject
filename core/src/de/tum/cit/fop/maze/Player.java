@@ -3,8 +3,8 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 
 public class Player {
     private Texture currentTexture;
@@ -28,7 +28,6 @@ public class Player {
     private TiledMapTileLayer collisionLayer;
     private String blockedKey = "blocked";
 
-    private Texture redup1,redup2,reddown1,reddown2,redleft1,redleft2,redright1,redright2;
     private float redEffectTimer = 0f;
     private boolean isInRedEffect = false;
 
@@ -37,10 +36,6 @@ public class Player {
     private boolean isSpeedBoosted = false;
 
     private Rectangle bound;
-
-    private boolean isStunned = false;
-    private float stunTimer = 0f;
-
 
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
         this.x = startX;
@@ -51,7 +46,6 @@ public class Player {
         this.previousY = startY;
         this.collisionLayer = collisionLayer;
 
-        // Load textures
         this.up1 = new Texture("boy_up1.png");
         this.up2 = new Texture("boy_up2.png");
         this.down1 = new Texture("boy_down1.png");
@@ -65,22 +59,10 @@ public class Player {
         this.currentTexture = right1;
         this.isDead = false;
 
-        this.redup2 = new Texture("orc_up_2.png");
-        this.redup1 = new Texture("orc_up_1.png");
-        this.reddown2 = new Texture("orc_down_2.png");
-        this.redleft1 = new Texture("orc_left_1.png");
-        this.redleft2 = new Texture("orc_left_2.png");
-        this.redright1 = new Texture("orc_right_1.png");
-        this.redright2 = new Texture("orc_right_2.png");
-        this.reddown1 = new Texture("orc_down_1.png");
-
         this.bound = new Rectangle();
-
     }
 
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed) {
-
-
         previousX = x;
         previousY = y;
         moved = false;
@@ -124,14 +106,13 @@ public class Player {
 
         float currentSpeed = isRunning ? runningSpeed : speed;
 
-        // Movement logic
         if (moveUp && y < 478) {
             y += currentSpeed * delta;
             if (collidesTop()) {
                 revertToPrevious();
             } else {
                 direction = "up";
-                animate(delta, isInRedEffect ? redup1 : up1, isInRedEffect ? redup2 : up2);  // Use red textures if in red effect
+                animate(delta, up1, up2);
                 moved = true;
             }
         } else if (moveDown && y > 0) {
@@ -140,7 +121,7 @@ public class Player {
                 revertToPrevious();
             } else {
                 direction = "down";
-                animate(delta, isInRedEffect ? reddown1 : down1, isInRedEffect ? reddown2 : down2);
+                animate(delta, down1, down2);
                 moved = true;
             }
         }
@@ -150,7 +131,7 @@ public class Player {
                 revertToPrevious();
             } else {
                 direction = "left";
-                animate(delta, isInRedEffect ? redleft1 : left1, isInRedEffect ? redleft2 : left2);
+                animate(delta, left1, left2);
                 moved = true;
             }
         } else if (moveRight && x < 478.6) {
@@ -159,7 +140,7 @@ public class Player {
                 revertToPrevious();
             } else {
                 direction = "right";
-                animate(delta, isInRedEffect ? redright1 : right1, isInRedEffect ? redright2 : right2);
+                animate(delta, right1, right2);
                 moved = true;
             }
         }
@@ -223,11 +204,16 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
-
-        batch.draw(currentTexture, x, y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
-
-
+        if (isInRedEffect) {
+            float pulse = 0.5f + 0.5f * MathUtils.sin(redEffectTimer * 5);
+            batch.setColor(1, 1 - pulse, 1 - pulse, 1);
+            batch.draw(currentTexture, x, y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
+            batch.setColor(1, 1, 1, 1);
+        } else {
+            batch.draw(currentTexture, x, y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
+        }
     }
+
     public float getX() {
         return x;
     }
@@ -243,12 +229,15 @@ public class Player {
     public void setY(float y) {
         this.y = y;
     }
+
     public float getWidth() {
         return currentTexture.getWidth();
     }
+
     public float getHeight() {
         return currentTexture.getHeight();
     }
+
     public float getScale() {
         return scale;
     }
@@ -256,6 +245,7 @@ public class Player {
     public String getDirection() {
         return direction;
     }
+
     public void setDirection(String direction) {
         this.direction = direction;
     }
@@ -267,6 +257,7 @@ public class Player {
     public void setTexture(Texture texture) {
         this.currentTexture = texture;
     }
+
     public void setDead() {
         this.isDead = true;
         setTexture(dead);
@@ -274,6 +265,7 @@ public class Player {
 
     public void triggerRedEffect() {
         isInRedEffect = true;
+        redEffectTimer = 0f;
     }
 
     public void increaseSpeed(float duration) {
@@ -294,8 +286,6 @@ public class Player {
         this.bound = bound;
     }
 
-
-
     public void dispose() {
         up1.dispose();
         up2.dispose();
@@ -306,15 +296,5 @@ public class Player {
         right1.dispose();
         right2.dispose();
         dead.dispose();
-        redup1.dispose();
-        redup2.dispose();
-        reddown1.dispose();
-        reddown2.dispose();
-        redleft1.dispose();
-        redleft2.dispose();
-        redright1.dispose();
-        redright2.dispose();
     }
-
-
 }
