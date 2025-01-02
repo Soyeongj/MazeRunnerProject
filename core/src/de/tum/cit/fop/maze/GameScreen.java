@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
 
 
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -53,6 +54,8 @@ public class GameScreen implements Screen {
     private Item item;
     private Array<Door> doors;
     private Array<Trap> traps;
+    private Arrow arrow;
+
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
      *
@@ -96,6 +99,8 @@ public class GameScreen implements Screen {
             walls = Wall.createWallsFromLayer(movingWallsLayer, grievers, hud);
         }
 
+
+
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
         doors = createDoorsFromLayer(doorsLayer);
         TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
@@ -103,6 +108,9 @@ public class GameScreen implements Screen {
         traps = createTrapsFromLayer(trapLayer, rockTexture);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
+
+        arrow = new Arrow();
+
     }
 
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
@@ -181,7 +189,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        // Check for escape key press to go back to the menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             savePlayerState();
             game.goToMenu();
@@ -233,9 +240,9 @@ public class GameScreen implements Screen {
             griever.render(batch);
         }
         for (Wall wall : walls) {
-            if (wall.isGrieverDead() && !wall.hasKeySpawned()) { // Ensure a key spawns only once per wall
+            if (wall.isGrieverDead() && !wall.hasKeySpawned()) {
                 keys.add(new Key(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y));
-                wall.setKeySpawned(true); // Track the key spawn status for the wall
+                wall.setKeySpawned(true);
             }
         }
 
@@ -273,6 +280,9 @@ public class GameScreen implements Screen {
             trap.render(batch);
 
         }
+
+        arrow.update(playerPosition,doors,hud.isKeyCollected());
+        arrow.render(batch);
         friends.update(player, hud, 3f);
         item.update(player, hud, 3f);
 
@@ -428,4 +438,5 @@ public class GameScreen implements Screen {
         for (Griever griever : grievers) {
             griever.dispose();
         }
+        arrow.dispose();
     }}

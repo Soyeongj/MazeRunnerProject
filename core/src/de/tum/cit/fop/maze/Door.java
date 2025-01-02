@@ -23,8 +23,6 @@ public class Door {
     public void tryToOpen(Vector2 playerPosition, HUD hud, MazeRunnerGame game) {
         if (isPlayerNear(playerPosition)) {
             if (hud.isKeyCollected()) {
-                hud.pressE();
-                if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                     hud.stopTimer();
                     float finalTime = 1000 + (hud.getFinalTime() * 5);
                     game.setScreen(new GameClearScreen(game, finalTime));
@@ -32,6 +30,10 @@ public class Door {
             } else {
                 hud.needKey();
             }
-        }
+
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 }

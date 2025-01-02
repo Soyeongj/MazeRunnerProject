@@ -129,7 +129,7 @@ public class HUD {
 
     public void stunMessage() {
         message = "You stunned griever!";
-        messageTimer = MESSAGE_DISPLAY_DURATION;
+        messageTimer = 2f;
     }
 
     public void needKey() {

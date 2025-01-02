@@ -32,9 +32,7 @@ public class Key {
         return isCollected;
     }
 
-    // Check if the player is close enough to the key to collect it
     public boolean checkProximityToPlayer(Player player) {
-        // Calculate distance between the key and the player
         float distance = (float) Math.sqrt(Math.pow(player.getX() - x, 2) + Math.pow(player.getY() - y, 2));
         return distance < proximityRange;
     }
