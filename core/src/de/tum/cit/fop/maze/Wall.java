@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -21,7 +23,7 @@ public class Wall {
     private float stayTimer = 0f;
     private boolean isAtTarget = false;
     private TiledMapTileLayer layer;
-    private Array<Griever> grievers; // Support for multiple Grievers
+    private Array<Griever> grievers;
     private boolean isGrieverDead = false;
     private Vector2 keySpawnPosition = null;
     private HUD hud;
@@ -174,9 +176,8 @@ public class Wall {
 
                 if (hud != null) {
                     if (hud.getLives() > 1) {
-                        // Remove both a friend and a life
-                        friends.removeLastSavedFriend(); // Remove friend regardless of result
-                        hud.decrementLives();           // Always decrement lives
+                        friends.removeLastSavedFriend();
+                        hud.decrementLives();
                         player.triggerRedEffect();
                     } else {
                         hud.setLives(0);
@@ -225,5 +226,17 @@ public class Wall {
 
     public void setKeySpawned(boolean keySpawned) {
         this.keySpawned = keySpawned;
+    }
+
+    public void saveWallState() {
+        Preferences pref = Gdx.app.getPreferences("wallState");
+        pref.putBoolean("grieverDead", isGrieverDead);
+        pref.putBoolean("isKeySpawned",keySpawned);
+        pref.flush();
+    }
+    public void loadWallState() {
+        Preferences pref = Gdx.app.getPreferences("wallState");
+        isGrieverDead = pref.getBoolean("grieverDead", isGrieverDead);
+        keySpawned = pref.getBoolean("isKeySpawned", keySpawned);
     }
 }

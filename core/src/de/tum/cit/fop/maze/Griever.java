@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -17,17 +19,14 @@ public class Griever {
     private final float monsterSpeed = 10.0f;
     private final float detectionRange = 100.0f;
     private boolean isGrieverFollowingPlayer = false;
-    private final float grieverAnimationTime = 0.1f; // Time between animation frames
+    private final float grieverAnimationTime = 0.1f;
     private Rectangle grieverRectangle;
     private final float scale = 0.2f;
 
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
-    private final float stunDuration = 3.0f; // 3 seconds stun duration
+    private final float stunDuration = 3.0f;
 
-    private Vector2 randomDirection;
-    private float randomMovementTimer = 0f;
-    private final float randomMovementInterval = 8.0f;
     private final Random random = new Random();
     private boolean isRandomMovement = false;
 
@@ -54,7 +53,6 @@ public class Griever {
         griever = grieverTextures.get(fixedGrieverDirection)[0];
         grieverStateTime = 0f;
         grieverRectangle = new Rectangle(monsterX, monsterY, griever.getWidth(), griever.getHeight());
-        randomDirection = getRandomDirection();
     }
 
     private boolean isPathTile(float x, float y, TiledMapTileLayer layer) {
@@ -291,11 +289,10 @@ public class Griever {
 
         if (LivesCoolDownTimer <= 0 && distance < 5f && this.isGrieverNotStunned()) {
             if (hud.getLives() > 1) {
-                // Remove both a friend and a life
-                friends.removeLastSavedFriend(); // Remove friend regardless of result
-                hud.decrementLives();           // Always decrement lives
+                friends.removeLastSavedFriend();
+                hud.decrementLives();
                 player.triggerRedEffect();
-                LivesCoolDownTimer = 7; // Reset cooldown timer
+                LivesCoolDownTimer = 7;
             } else {
                 hud.setLives(0);
                 player.revertToPrevious();
@@ -377,5 +374,25 @@ public class Griever {
 
     public float getScale() {
         return scale;
+    }
+
+    public void saveGrieverstate() {
+        Preferences pref = Gdx.app.getPreferences("grieverstate");
+        pref.putFloat("x", monsterX);
+        pref.putFloat("y", monsterY);
+        pref.putBoolean("isGrieverStunned", isGrieverStunned);
+        pref.putBoolean("isGrieverFollowing",isGrieverFollowingPlayer);
+        pref.putBoolean("isGrieverRandom",isRandomMovement);
+        pref.putFloat("livescooldown",LivesCoolDownTimer);
+        pref.flush();
+    }
+    public void loadGrieverstate() {
+        Preferences pref = Gdx.app.getPreferences("grieverstate");
+        monsterX = pref.getFloat("x", monsterX);
+        monsterY = pref.getFloat("y", monsterY);
+        isGrieverStunned = pref.getBoolean("isGrieverStunned", isGrieverStunned);
+        isGrieverFollowingPlayer = pref.getBoolean("isGrieverFollowing", isGrieverFollowingPlayer);
+        isRandomMovement = pref.getBoolean("isRandomMovement", isRandomMovement);
+        LivesCoolDownTimer = pref.getFloat("livescooldown", LivesCoolDownTimer);
     }
 }

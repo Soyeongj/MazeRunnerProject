@@ -65,10 +65,10 @@ public class MenuScreen implements Screen {
 
                 if (currentScreen instanceof GameScreen) {
                     GameScreen gameScreen = (GameScreen) currentScreen;
-                    gameScreen.loadPlayerState();
+                    gameScreen.loadState();
                 } else {
                     GameScreen gameScreen = new GameScreen(game);
-                    gameScreen.loadPlayerState();
+                    gameScreen.loadState();
                     game.setScreen(gameScreen);
                 }
             }

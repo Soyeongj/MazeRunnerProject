@@ -83,7 +83,7 @@ public class GameScreen implements Screen {
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         grievers = new Array<>();
-        grievers.add(new Griever(380, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        grievers.add(new Griever(170, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
 
 
@@ -188,7 +188,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            savePlayerState();
+            saveState();
             game.goToMenu();
         }
 
@@ -255,7 +255,6 @@ public class GameScreen implements Screen {
             }
         }
 
-
         if (hud.getLives() <= 0) {
             hud.stopTimer();
             float finalTime = 0;
@@ -290,8 +289,6 @@ public class GameScreen implements Screen {
         batch.end();
     }
 
-
-
     private void zoomCamera(float amount) {
         Vector3 beforeZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(beforeZoom);
@@ -307,84 +304,53 @@ public class GameScreen implements Screen {
                 beforeZoom.y - afterZoom.y,
                 0
         );
-
         lastPosition.set(camera.position);
     }
 
 
 
-    public void savePlayerState() {
-        Preferences prefs = Gdx.app.getPreferences("PlayerState");
-        prefs.putFloat("playerX", player.getX());
-        prefs.putFloat("playerY", player.getY());
-        prefs.putInteger("playerLives", hud.getLives());
+    public void saveState() {
+        player.savePlayerState();
         for (Griever griever : grievers) {
-            prefs.putFloat("grieverX", griever.getMonsterX());
-            prefs.putFloat("grieverY", griever.getMonsterY());
+            griever.saveGrieverstate();
         }
-        prefs.putFloat("scoreTimer", hud.getScoreTimer()); // Save current timer value
+        friends.saveFriendsStates();
+        item.saveItemState();
 
-
-        for (int i = 0; i < item.getIsItemCollected().length; i++) {
-            prefs.putBoolean("itemCollected" + i, item.getIsItemCollected()[i]);
-            prefs.putFloat("item" + i + "X", item.getItemPositions()[i].x);
-            prefs.putFloat("item" + i + "Y", item.getItemPositions()[i].y);
+        for (Trap trap : traps) {
+            trap.saveTrapState();
+        }
+        for (Wall wall: walls) {
+            wall.saveWallState();
         }
         for (Key key : keys) {
-            prefs.putFloat("keyX", key.getX());
-            prefs.putFloat("keyY", key.getY());
+            key.saveKeyState();
         }
-        prefs.putBoolean("keyCollected", hud.isKeyCollected());
+        hud.saveHUDState();
 
-        for (Wall wall : walls) {
-            prefs.putBoolean("grieverDead", wall.isGrieverDead());
-        }
 
-        prefs.flush();
-        friends.saveFriendsStates();
     }
 
-    public void loadPlayerState() {
-        Preferences prefs = Gdx.app.getPreferences("PlayerState");
-        if (prefs.contains("playerX") && prefs.contains("playerY")) {
-            float x = prefs.getFloat("playerX");
-            player.setX(x);
-            float y = prefs.getFloat("playerY");
-            player.setY(y);
-            int lives = prefs.getInteger("playerLives");
-            hud.setLives(lives);
-            float monsterX = prefs.getFloat("grieverX");
-            float monsterY = prefs.getFloat("grieverY");
-            for (Griever griever : grievers) {
-                griever.setPosition((int) monsterX, (int) monsterY);
-            }
-
-            for (int i = 0;i <item.getIsItemCollected().length; i++) {
-                item.getIsItemCollected()[i] = prefs.getBoolean("itemCollected" + i, false);
-                float itemX = prefs.getFloat("item" + i + "X", -1000);
-                float itemY = prefs.getFloat("item" + i + "Y", -1000);
-                item.getItemPositions()[i] = new Vector2(itemX, itemY);
-            }
-            boolean isKeyCollected = prefs.getBoolean("keyCollected", false);
-            hud.setKeyCollected(isKeyCollected);
-            float keyX = prefs.getFloat("keyX", -1000);
-            float keyY = prefs.getFloat("keyY", -1000);
-            for (Key key : keys) {
-                key.setX(keyX);
-                key.setY(keyY);
-            }
-            boolean isGrieverDead = prefs.getBoolean("grieverDead", false);
-            for (Wall wall : walls) {
-                wall.setGrieverDead(isGrieverDead);
-            }
-            if (prefs.contains("scoreTimer")) {
-                float savedScoreTimer = prefs.getFloat("scoreTimer");
-                hud.setScoreTimer(savedScoreTimer); // Restore countdown
-                hud.startTimer();
-            }
-            friends.saveFriendsStates();
-
+    public void loadState() {
+        player.loadPlayerState();
+        for (Griever griever: grievers) {
+            griever.loadGrieverstate();
         }
+        friends.loadFriendsStates();
+        item.loadItemState();
+
+        for (Trap trap : traps) {
+            trap.loadTrapState();
+        }
+        for (Wall wall : walls) {
+            wall.loadWallState();
+        }
+        for (Key key : keys) {
+            key.loadKeyState();
+        }
+        hud.loadHUDState();
+
+
     }
 
 

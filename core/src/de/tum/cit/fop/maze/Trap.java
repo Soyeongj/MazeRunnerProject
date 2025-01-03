@@ -2,6 +2,7 @@ package de.tum.cit.fop.maze;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -37,7 +38,7 @@ public class Trap {
         return bounds.contains(playerPosition.x, playerPosition.y);
     }
 
-    public void test(Vector2 playerPosition, HUD hud, Player player, float delta, Friends friends) {  // Add Friends parameter
+    public void test(Vector2 playerPosition, HUD hud, Player player, float delta,Friends friends) {
         if (livesCoolDown <= 0 && isPlayerOnTrap(playerPosition) && !isRockFalling) {
             isRockFalling = true;
             rockFallDuration = 0f;
@@ -52,17 +53,12 @@ public class Trap {
                 rockPosition.y = position.y;
                 isRockFalling = false;
 
+
                 if (isPlayerOnTrap(playerPosition)) {
                     if (hud.getLives() > 1) {
-                        // Try to remove a friend first
-                        if (friends.removeLastSavedFriend()) {
-                            // Only decrement lives if no friend was available to remove
-                            player.triggerRedEffect();
-                            hud.decrementLives();
-                            player.triggerRedEffect();
-                        }
-
-
+                        friends.removeLastSavedFriend();
+                        hud.decrementLives();
+                        player.triggerRedEffect();
                         livesCoolDown = 3;
                     } else {
                         hud.setLives(0);
@@ -92,5 +88,20 @@ public class Trap {
 
     public void dispose() {
         rockTexture.dispose();
+    }
+
+    public void saveTrapState() {
+        Preferences prefs = Gdx.app.getPreferences("trap");
+        prefs.putFloat("positionX",position.x);
+        prefs.putFloat("positionY",position.y);
+        prefs.putFloat("lcd",livesCoolDown);
+        prefs.putBoolean("isRockFalling",isRockFalling);
+    }
+    public void loadTrapState() {
+        Preferences prefs = Gdx.app.getPreferences("trap");
+        position.x = prefs.getFloat("positionX",position.x);
+        position.y = prefs.getFloat("positionY",position.y);
+        livesCoolDown = prefs.getFloat("lcd",livesCoolDown);
+        isRockFalling = prefs.getBoolean("isRockFalling",isRockFalling);
     }
 }

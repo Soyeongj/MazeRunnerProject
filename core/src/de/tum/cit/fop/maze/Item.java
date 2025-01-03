@@ -3,6 +3,9 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.Gdx;
+
 public class Item {
     private Texture[] items = {
             new Texture("potion_red.png"),
@@ -16,6 +19,8 @@ public class Item {
     };
     private boolean[] isItemCollected = {false,false,false};
     private float scale = 0.2f;
+    private static final String PREFERENCES_NAME = "ItemState";
+
     public Item() {
     }
     public void render(SpriteBatch batch) {
@@ -74,5 +79,25 @@ public class Item {
 
     public void setIsItemCollected(boolean[] isItemCollected) {
         this.isItemCollected = isItemCollected;
+    }
+
+    public void saveItemState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        for (int i = 0; i < isItemCollected.length; i++) {
+            preferences.putBoolean("itemCollected" + i, isItemCollected[i]);
+            preferences.putFloat("itemPosX" + i, itemPositions[i].x);
+            preferences.putFloat("itemPosY" + i, itemPositions[i].y);
+        }
+        preferences.flush();
+    }
+
+    public void loadItemState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        for (int i = 0; i < isItemCollected.length; i++) {
+            isItemCollected[i] = preferences.getBoolean("itemCollected" + i, false);
+            float x = preferences.getFloat("itemPosX" + i, itemPositions[i].x);
+            float y = preferences.getFloat("itemPosY" + i, itemPositions[i].y);
+            itemPositions[i] = new Vector2(x, y);
+        }
     }
 }

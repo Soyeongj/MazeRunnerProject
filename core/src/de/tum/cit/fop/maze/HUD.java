@@ -9,7 +9,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.Color;
-import de.tum.cit.fop.maze.Player;
+import com.badlogic.gdx.Preferences;
+
 
 public class HUD {
     private BitmapFont font;
@@ -29,6 +30,8 @@ public class HUD {
     private float scoreTimer;
     private boolean isGameRunning = true;
     private float finalTime;
+    private static final String PREFERENCES_NAME = "HUDState";
+
 
 
     public HUD() {
@@ -170,7 +173,27 @@ public class HUD {
     }
 
     public void dispose() {
-
         font.dispose();
+    }
+
+    public void saveHUDState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        preferences.putInteger("lives", lives);
+        preferences.putFloat("scoreTimer", scoreTimer);
+        preferences.putBoolean("keyCollected", keyCollected);
+        preferences.putBoolean("isGameRunning", isGameRunning);
+        preferences.putFloat("finalTime", finalTime);
+        preferences.putFloat("globalTimer", globalTimer);
+        preferences.flush();
+    }
+
+    public void loadHUDState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        lives = preferences.getInteger("lives", lives);
+        scoreTimer = preferences.getFloat("scoreTimer", scoreTimer);
+        keyCollected = preferences.getBoolean("keyCollected", keyCollected);
+        isGameRunning = preferences.getBoolean("isGameRunning", isGameRunning);
+        finalTime = preferences.getFloat("finalTime", finalTime);
+        globalTimer = preferences.getFloat("globalTimer", globalTimer);
     }
 }

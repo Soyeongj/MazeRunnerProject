@@ -1,10 +1,12 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.Preferences;
 
 public class Arrow {
     private Texture arrowTexture;
@@ -12,7 +14,7 @@ public class Arrow {
     private float rotation;
 
     public Arrow() {
-        arrowTexture = new Texture("arrow.png"); // Create your arrow texture
+        arrowTexture = new Texture("arrow.png");
         position = new Vector2();
     }
 
@@ -66,5 +68,16 @@ public class Arrow {
         if (arrowTexture != null) {
             arrowTexture.dispose();
         }
+    }
+
+    public void saveArrowState() {
+        Preferences prefs = Gdx.app.getPreferences("arrow");
+        prefs.putFloat("rotation", rotation);
+        prefs.flush();
+    }
+
+    public void loadArrowState() {
+        Preferences prefs = Gdx.app.getPreferences("arrow");
+        rotation = prefs.getFloat("rotation", rotation);
     }
 }

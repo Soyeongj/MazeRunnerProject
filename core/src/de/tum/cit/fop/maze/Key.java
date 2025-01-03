@@ -2,20 +2,25 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 
 public class Key {
     private Texture keyTexture;
     private float x, y;
     private boolean isCollected;
     private float scale = 0.2f;
-    private float proximityRange = 5f;  // Range within which the player can collect the key
+    private float proximityRange = 5f;
+    private static final String PREFERENCES_NAME = "KeyState";
+
 
 
     public Key(float x, float y) {
         this.x = x;
         this.y = y;
         this.isCollected = false;
-        keyTexture = new Texture("key.png"); // Assuming "key.png" is the texture for the key
+        keyTexture = new Texture("key.png");
+
     }
 
     public void render(SpriteBatch batch) {
@@ -37,7 +42,6 @@ public class Key {
         return distance < proximityRange;
     }
 
-    // Set the key position
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
@@ -72,5 +76,20 @@ public class Key {
         this.x = x;
     }
 
+    public void saveKeyState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        preferences.putFloat("keyPosX", x);
+        preferences.putFloat("keyPosY", y);
+        preferences.putBoolean("keyCollected", isCollected);
 
+        preferences.flush();
+    }
+
+    public void loadKeyState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        x = preferences.getFloat("keyPosX", x);
+        y = preferences.getFloat("keyPosY", y);
+        isCollected = preferences.getBoolean("keyCollected", isCollected);
+
+    }
 }

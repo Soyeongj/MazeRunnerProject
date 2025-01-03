@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -16,7 +18,6 @@ public class Player {
     private float stateTime = 0f;
     private String direction = "right";
     private float scale = 0.2f;
-    private boolean moved = false;
     private float previousX, previousY;
 
     private final float runDuration = 2f;
@@ -36,6 +37,9 @@ public class Player {
     private boolean isSpeedBoosted = false;
 
     private Rectangle bound;
+
+    private static final String PREFERENCES_NAME = "PlayerState";
+
 
     public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
         this.x = startX;
@@ -65,7 +69,6 @@ public class Player {
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed) {
         previousX = x;
         previousY = y;
-        moved = false;
 
         if (isSpeedBoosted) {
             speedBoostDuration -= delta;
@@ -113,7 +116,6 @@ public class Player {
             } else {
                 direction = "up";
                 animate(delta, up1, up2);
-                moved = true;
             }
         } else if (moveDown && y > 0) {
             y -= currentSpeed * delta;
@@ -122,7 +124,6 @@ public class Player {
             } else {
                 direction = "down";
                 animate(delta, down1, down2);
-                moved = true;
             }
         }
         if (moveLeft && x > 0) {
@@ -132,7 +133,6 @@ public class Player {
             } else {
                 direction = "left";
                 animate(delta, left1, left2);
-                moved = true;
             }
         } else if (moveRight && x < 478.6) {
             x += currentSpeed * delta;
@@ -141,7 +141,6 @@ public class Player {
             } else {
                 direction = "right";
                 animate(delta, right1, right2);
-                moved = true;
             }
         }
     }
@@ -296,5 +295,40 @@ public class Player {
         right1.dispose();
         right2.dispose();
         dead.dispose();
+    }
+
+    public void savePlayerState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        preferences.putFloat("x", x);
+        preferences.putFloat("y", y);
+        preferences.putFloat("speed", speed);
+        preferences.putBoolean("isDead", isDead);
+        preferences.putString("direction", direction);
+        preferences.putBoolean("isSpeedBoosted", isSpeedBoosted);
+        preferences.putFloat("speedBoostDuration", speedBoostDuration);
+        preferences.putBoolean("isInRedEffect", isInRedEffect);
+        preferences.putFloat("redEffectTimer", redEffectTimer);
+        preferences.putBoolean("isRunning", isRunning);
+        preferences.putBoolean("canRun", canRun);
+        preferences.putFloat("runTimer", runTimer);
+        preferences.putFloat("cooldownTimer", cooldownTimer);
+        preferences.flush();
+    }
+
+    public void loadPlayerState() {
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
+        x = preferences.getFloat("x", x);
+        y = preferences.getFloat("y", y);
+        speed = preferences.getFloat("speed", speed);
+        isDead = preferences.getBoolean("isDead", isDead);
+        direction = preferences.getString("direction", direction);
+        isSpeedBoosted = preferences.getBoolean("isSpeedBoosted", isSpeedBoosted);
+        speedBoostDuration = preferences.getFloat("speedBoostDuration", speedBoostDuration);
+        isInRedEffect = preferences.getBoolean("isInRedEffect", isInRedEffect);
+        redEffectTimer = preferences.getFloat("redEffectTimer", redEffectTimer);
+        isRunning = preferences.getBoolean("isRunning", isRunning);
+        canRun = preferences.getBoolean("canRun", canRun);
+        runTimer = preferences.getFloat("runTimer", runTimer);
+        cooldownTimer = preferences.getFloat("cooldownTimer", cooldownTimer);
     }
 }
