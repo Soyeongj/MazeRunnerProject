@@ -86,7 +86,6 @@ public class GameScreen implements Screen {
         grievers.add(new Griever(380, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
 
-        friends.setScale(0.2f);
 
         keys = new Array<>();
 
@@ -265,7 +264,7 @@ public class GameScreen implements Screen {
         }
 
         hud.updateScoreTimer(delta);
-        friends.render(batch,player);
+        friends.render(batch,player,delta);
         item.render(batch);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
 
@@ -282,7 +281,7 @@ public class GameScreen implements Screen {
 
         arrow.update(playerPosition,doors,hud.isKeyCollected());
         arrow.render(batch);
-        friends.update(player, hud, 3f);
+        friends.update(player, hud, 3f,delta);
         item.update(player, hud, 3f);
 
 
@@ -325,11 +324,7 @@ public class GameScreen implements Screen {
         }
         prefs.putFloat("scoreTimer", hud.getScoreTimer()); // Save current timer value
 
-        for (int i = 0; i < friends.getIsFriendSaved().length; i++) {
-            prefs.putBoolean("friendSaved" + i, friends.getIsFriendSaved()[i]);
-            prefs.putFloat("friend" + i + "X", friends.getFriendsPositions()[i].x);
-            prefs.putFloat("friend" + i + "Y", friends.getFriendsPositions()[i].y);
-        }
+
         for (int i = 0; i < item.getIsItemCollected().length; i++) {
             prefs.putBoolean("itemCollected" + i, item.getIsItemCollected()[i]);
             prefs.putFloat("item" + i + "X", item.getItemPositions()[i].x);
@@ -346,6 +341,7 @@ public class GameScreen implements Screen {
         }
 
         prefs.flush();
+        friends.saveFriendsStates();
     }
 
     public void loadPlayerState() {
@@ -362,12 +358,7 @@ public class GameScreen implements Screen {
             for (Griever griever : grievers) {
                 griever.setPosition((int) monsterX, (int) monsterY);
             }
-            for (int i = 0; i < friends.getIsFriendSaved().length; i++) {
-                friends.getIsFriendSaved()[i] = prefs.getBoolean("friendSaved" + i, false); // Default to false if not saved
-                float friendX = prefs.getFloat("friend" + i + "X", -1000);  // Default to an invalid position if not saved
-                float friendY = prefs.getFloat("friend" + i + "Y", -1000);
-                friends.getFriendsPositions()[i] = new Vector2(friendX, friendY);
-            }
+
             for (int i = 0;i <item.getIsItemCollected().length; i++) {
                 item.getIsItemCollected()[i] = prefs.getBoolean("itemCollected" + i, false);
                 float itemX = prefs.getFloat("item" + i + "X", -1000);
@@ -391,6 +382,7 @@ public class GameScreen implements Screen {
                 hud.setScoreTimer(savedScoreTimer); // Restore countdown
                 hud.startTimer();
             }
+            friends.saveFriendsStates();
 
         }
     }

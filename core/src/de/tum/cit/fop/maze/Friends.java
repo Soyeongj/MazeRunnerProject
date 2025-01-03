@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
+import com.badlogic.gdx.Preferences;
+
 
 public class Friends {
     private Texture[] friends = {
@@ -16,9 +18,11 @@ public class Friends {
             new Texture("oldman_right_1.png"),
             new Texture("oldman_right_1.png")
     };
+
     private float friend1x = 132, friend1y = 183;
     private float friend2x = 105, friend2y = 256;
     private float friend3x = 210, friend3y = 283;
+
     private Vector2[] friendsPositions = {
             new Vector2(friend1x, friend1y),
             new Vector2(friend2x, friend2y),
@@ -26,11 +30,16 @@ public class Friends {
     };
 
     private List<Vector2> savedFriendsPositions = new ArrayList<>();
-    private static final float FOLLOWING_DISTANCE = 5f;
+    private static final float FOLLOWING_DISTANCE = 8f;
     private boolean[] isFriendSaved = {false, false, false};
-    private float scale = 1.0f;
+    private float scale = 0.2f;
     private BitmapFont font;
-    private Vector2 lastPlayerPosition; // To track player movement direction
+    private Vector2 lastPlayerPosition;
+
+    private float stateTime = 0f;
+    private float walkAnimationTime = 0.1f;
+    private Texture currentTexture;
+    private Texture up1, up2, down1, down2, left1, left2, right1, right2;
 
     public Friends() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
@@ -46,57 +55,60 @@ public class Friends {
 
         font.getData().setScale(0.8f);
         lastPlayerPosition = new Vector2(0, 0);
+
+        up1 = new Texture("oldman_up_1.png");
+        up2 = new Texture("oldman_up_2.png");
+        down1 = new Texture("oldman_down_1.png");
+        down2 = new Texture("oldman_down_2.png");
+        left1 = new Texture("oldman_left_1.png");
+        left2 = new Texture("oldman_left_2.png");
+        right1 = new Texture("oldman_right_1.png");
+        right2 = new Texture("oldman_right_2.png");
+
+        currentTexture = right1;
     }
 
-    public void render(SpriteBatch batch, Player player) {
-        // Render unsaved friends
+    private void animate(float delta, Texture texture1, Texture texture2) {
+        stateTime += delta;
+        if (stateTime >= walkAnimationTime) {
+            currentTexture = (currentTexture == texture1) ? texture2 : texture1;
+            stateTime = 0f;
+        }
+    }
+
+    private void updateAnimationDirection(Vector2 direction, float delta) {
+        if (Math.abs(direction.x) > Math.abs(direction.y)) {
+            if (direction.x > 0) {
+                animate(delta, right1, right2);
+            } else {
+                animate(delta, left1, left2);
+            }
+        } else {
+            if (direction.y > 0) {
+                animate(delta, up1, up2);
+            } else {
+                animate(delta, down1, down2);
+            }
+        }
+    }
+
+    public void render(SpriteBatch batch, Player player, float delta) {
         for (int i = 0; i < friendsPositions.length; i++) {
             if (!isFriendSaved[i]) {
-                batch.draw(friends[i], friendsPositions[i].x, friendsPositions[i].y,
+                batch.draw(currentTexture, friendsPositions[i].x, friendsPositions[i].y,
                         friends[i].getWidth() * scale, friends[i].getHeight() * scale);
                 Vector2 playerPosition = new Vector2(player.getX(), player.getY());
                 float distance = playerPosition.dst(friendsPositions[i]);
                 if (distance <= 50) {
-                    font.draw(batch, "help me!", friendsPositions[i].x-9, friendsPositions[i].y+10);
+                    font.draw(batch, "help me!", friendsPositions[i].x - 9, friendsPositions[i].y + 10);
                 }
             }
         }
-
-        // Render saved friends
         for (int i = 0; i < savedFriendsPositions.size(); i++) {
             Vector2 pos = savedFriendsPositions.get(i);
-            batch.draw(friends[i], pos.x, pos.y,
+            batch.draw(currentTexture, pos.x, pos.y,
                     friends[i].getWidth() * scale, friends[i].getHeight() * scale);
         }
-    }
-
-    private Vector2 getFollowPosition(Vector2 targetPos, Vector2 movementDirection) {
-        Vector2 followPos = new Vector2();
-
-        // If moving horizontally
-        if (Math.abs(movementDirection.x) > Math.abs(movementDirection.y)) {
-            // Moving right
-            if (movementDirection.x > 0) {
-                followPos.set(targetPos.x - FOLLOWING_DISTANCE, targetPos.y);
-            }
-            // Moving left
-            else {
-                followPos.set(targetPos.x + FOLLOWING_DISTANCE, targetPos.y);
-            }
-        }
-        // If moving vertically
-        else {
-            // Moving up
-            if (movementDirection.y > 0) {
-                followPos.set(targetPos.x, targetPos.y - FOLLOWING_DISTANCE);
-            }
-            // Moving down
-            else {
-                followPos.set(targetPos.x, targetPos.y + FOLLOWING_DISTANCE);
-            }
-        }
-
-        return followPos;
     }
 
     public boolean checkAndSaveFriend(Vector2 playerPosition, float proximity, int index) {
@@ -104,7 +116,6 @@ public class Friends {
             float distance = playerPosition.dst(friendsPositions[index]);
             if (distance <= proximity) {
                 isFriendSaved[index] = true;
-                // Position will be set in updateFollowingPositions
                 savedFriendsPositions.add(new Vector2(playerPosition));
                 return true;
             }
@@ -112,7 +123,7 @@ public class Friends {
         return false;
     }
 
-    public void updateFollowingPositions(Player player) {
+    public void updateFollowingPositions(Player player, float delta) {
         if (savedFriendsPositions.isEmpty()) {
             lastPlayerPosition = new Vector2(player.getX(), player.getY());
             return;
@@ -124,34 +135,37 @@ public class Friends {
                 currentPlayerPos.y - lastPlayerPosition.y
         );
 
-        // Only update positions if the player has moved
         if (movementDirection.len2() > 0) {
-            // Update each friend's position
-            for (int i = 0; i < savedFriendsPositions.size(); i++) {
-                Vector2 targetPos;
-                if (i == 0) {
-                    // First friend follows player
-                    targetPos = currentPlayerPos;
-                } else {
-                    // Other friends follow the friend in front of them
-                    targetPos = savedFriendsPositions.get(i - 1);
-                }
+            updateAnimationDirection(movementDirection, delta);
 
-                Vector2 newPos = getFollowPosition(targetPos, movementDirection);
-                savedFriendsPositions.set(i, newPos);
+            Vector2 firstFriendTarget = new Vector2(player.getX(), player.getY());
+            Vector2 firstFriendCurrent = savedFriendsPositions.get(0);
+            savedFriendsPositions.set(0, firstFriendCurrent.lerp(firstFriendTarget, 0.1f));
+
+            for (int i = 1; i < savedFriendsPositions.size(); i++) {
+                Vector2 currentFriendPos = savedFriendsPositions.get(i);
+                Vector2 targetFriendPos = savedFriendsPositions.get(i - 1);
+                Vector2 direction = new Vector2(
+                        targetFriendPos.x - currentFriendPos.x,
+                        targetFriendPos.y - currentFriendPos.y
+                );
+
+                if (direction.len() > FOLLOWING_DISTANCE) {
+                    savedFriendsPositions.set(i, currentFriendPos.lerp(targetFriendPos, 0.1f));
+                }
             }
         }
 
-        // Update last player position for next frame
         lastPlayerPosition.set(currentPlayerPos);
     }
 
-    public void update(Player player, HUD hud, float interactionRadius) {
+
+    public void update(Player player, HUD hud, float interactionRadius, float delta) {
         int savedFriends = checkAndSaveAllFriends(new Vector2(player.getX(), player.getY()), interactionRadius);
         for (int i = 0; i < savedFriends; i++) {
             hud.incrementLives();
         }
-        updateFollowingPositions(player);
+        updateFollowingPositions(player, delta);
     }
 
     public int checkAndSaveAllFriends(Vector2 playerPosition, float proximity) {
@@ -172,6 +186,14 @@ public class Friends {
         for (Texture friend : friends) {
             friend.dispose();
         }
+        up1.dispose();
+        up2.dispose();
+        down1.dispose();
+        down2.dispose();
+        left1.dispose();
+        left2.dispose();
+        right1.dispose();
+        right2.dispose();
     }
 
     public Vector2[] getFriendsPositions() {
@@ -192,14 +214,11 @@ public class Friends {
 
     public boolean removeLastSavedFriend() {
         if (!savedFriendsPositions.isEmpty()) {
-            // Remove the last friend from the following list
             savedFriendsPositions.remove(savedFriendsPositions.size() - 1);
 
-            // Find the last saved friend and mark it as unsaved
             for (int i = isFriendSaved.length - 1; i >= 0; i--) {
                 if (isFriendSaved[i]) {
                     isFriendSaved[i] = false;
-                    // Reset the friend's position to be off-screen or to a designated "lost" position
                     friendsPositions[i] = new Vector2(-100, -100);
                     return true;
                 }
@@ -207,4 +226,43 @@ public class Friends {
         }
         return false;
     }
+
+    public void saveFriendsStates() {
+        Preferences preferences = Gdx.app.getPreferences("Friends");
+        for (int i = 0; i < friendsPositions.length; i++) {
+            preferences.putFloat("friendsPositionX" + i, friendsPositions[i].x);
+            preferences.putFloat("friendsPositionY" + i, friendsPositions[i].y);
+        }
+        for (int i = 0; i < isFriendSaved.length; i++) {
+            preferences.putBoolean("isFriendSaved" + i, isFriendSaved[i]);
+        }
+        preferences.putInteger("savedFriendsCount", savedFriendsPositions.size());
+        for (int i = 0; i < savedFriendsPositions.size(); i++) {
+            preferences.putFloat("savedFriendPosX_" + i, savedFriendsPositions.get(i).x);
+            preferences.putFloat("savedFriendPosY_" + i, savedFriendsPositions.get(i).y);
+        }
+
+        preferences.flush();
+    }
+
+    public void loadFriendsStates() {
+        Preferences preferences = Gdx.app.getPreferences("Friends");
+        for (int i = 0; i < friendsPositions.length; i++) {
+            friendsPositions[i].x = preferences.getFloat("friendsPositionX" + i, friendsPositions[i].x);
+            friendsPositions[i].y = preferences.getFloat("friendsPositionY" + i, friendsPositions[i].y);
+        }
+        for (int i = 0; i < isFriendSaved.length; i++) {
+            isFriendSaved[i] = preferences.getBoolean("isFriendSaved" + i, false);
+        }
+        savedFriendsPositions.clear();
+        int savedFriendsCount = preferences.getInteger("savedFriendsCount", 0);
+        for (int i = 0; i < savedFriendsCount; i++) {
+            float x = preferences.getFloat("savedFriendPosX_" + i, 0);
+            float y = preferences.getFloat("savedFriendPosY_" + i, 0);
+            savedFriendsPositions.add(new Vector2(x, y));
+        }
+
+    }
+
+
 }
