@@ -37,7 +37,7 @@ public class Trap {
         return bounds.contains(playerPosition.x, playerPosition.y);
     }
 
-    public void test(Vector2 playerPosition, HUD hud, Player player, float delta) {
+    public void test(Vector2 playerPosition, HUD hud, Player player, float delta, Friends friends) {  // Add Friends parameter
         if (livesCoolDown <= 0 && isPlayerOnTrap(playerPosition) && !isRockFalling) {
             isRockFalling = true;
             rockFallDuration = 0f;
@@ -52,11 +52,17 @@ public class Trap {
                 rockPosition.y = position.y;
                 isRockFalling = false;
 
-
                 if (isPlayerOnTrap(playerPosition)) {
                     if (hud.getLives() > 1) {
-                        hud.decrementLives();
-                        player.triggerRedEffect();
+                        // Try to remove a friend first
+                        if (friends.removeLastSavedFriend()) {
+                            // Only decrement lives if no friend was available to remove
+                            player.triggerRedEffect();
+                            hud.decrementLives();
+                            player.triggerRedEffect();
+                        }
+
+
                         livesCoolDown = 3;
                     } else {
                         hud.setLives(0);

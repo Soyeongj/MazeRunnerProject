@@ -79,7 +79,7 @@ public class Griever {
     }
 
 
-    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player) {
+    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player,Friends friends) {
         grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
 
         if (isGrieverStunned) {
@@ -166,7 +166,7 @@ public class Griever {
 
         updateAnimation(delta);
         checkStunCondition(playerX, playerY, playerDirection);
-        checkPlayerCollision(player,hud,delta);
+        checkPlayerCollision(player,hud,friends,delta);
     }
 
     // 플레이어 방향으로 목표 찾기 실패 시 임시 랜덤 이동으로 전환
@@ -284,14 +284,16 @@ public class Griever {
         Texture[] textures = grieverTextures.get(direction);
         return (griever == textures[0]) ? textures[1] : textures[0];
     }
-    public void checkPlayerCollision(Player player, HUD hud, float delta) {
+    public void checkPlayerCollision(Player player, HUD hud, Friends friends, float delta) {
         int diffX = (int) (player.getX() - this.getMonsterX());
         int diffY = (int) (player.getY() - this.getMonsterY());
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
 
         if (LivesCoolDownTimer <= 0 && distance < 5f && this.isGrieverNotStunned()) {
             if (hud.getLives() > 1) {
-                hud.decrementLives();
+                // Remove both a friend and a life
+                friends.removeLastSavedFriend(); // Remove friend regardless of result
+                hud.decrementLives();           // Always decrement lives
                 player.triggerRedEffect();
                 LivesCoolDownTimer = 7; // Reset cooldown timer
             } else {

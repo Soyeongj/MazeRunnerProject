@@ -27,9 +27,8 @@ public class Door {
                     float finalTime = 1000 + (hud.getFinalTime() * 5);
                     game.setScreen(new GameClearScreen(game, finalTime));
                 }
-            } else {
-                hud.needKey();
             }
+
 
     }
 

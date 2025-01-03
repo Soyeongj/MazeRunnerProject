@@ -159,7 +159,7 @@ public class Wall {
         }
     }
 
-    public void checkAndMovePlayer(Player player, float globalTimer) {
+    public void checkAndMovePlayer(Player player, float globalTimer, Friends friends) {
         float playerX = player.getX();
         float playerY = player.getY();
 
@@ -174,7 +174,9 @@ public class Wall {
 
                 if (hud != null) {
                     if (hud.getLives() > 1) {
-                        hud.decrementLives();
+                        // Remove both a friend and a life
+                        friends.removeLastSavedFriend(); // Remove friend regardless of result
+                        hud.decrementLives();           // Always decrement lives
                         player.triggerRedEffect();
                     } else {
                         hud.setLives(0);

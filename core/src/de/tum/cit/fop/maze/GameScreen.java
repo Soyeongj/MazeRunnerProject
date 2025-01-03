@@ -83,7 +83,6 @@ public class GameScreen implements Screen {
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         grievers = new Array<>();
-        grievers.add(new Griever(160, 275, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         grievers.add(new Griever(380, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
 
@@ -209,7 +208,7 @@ public class GameScreen implements Screen {
 
         walls.forEach(wall -> {
             wall.update(delta, hud.getGlobalTimer());
-            wall.checkAndMovePlayer(player, hud.getGlobalTimer());
+            wall.checkAndMovePlayer(player, hud.getGlobalTimer(),friends);
         });
 
         camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
@@ -235,7 +234,7 @@ public class GameScreen implements Screen {
         player.render(batch);
 
         for (Griever griever : grievers) {
-            griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player);
+            griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player,friends);
             griever.updateMovement(delta);
             griever.render(batch);
         }
@@ -276,7 +275,7 @@ public class GameScreen implements Screen {
         }
 
         for (Trap trap : traps) {
-            trap.test(playerPosition,hud,player,delta);
+            trap.test(playerPosition,hud,player,delta,friends);
             trap.render(batch);
 
         }
