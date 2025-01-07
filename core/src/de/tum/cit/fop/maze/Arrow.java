@@ -1,8 +1,11 @@
 package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -10,11 +13,13 @@ import com.badlogic.gdx.Preferences;
 
 public class Arrow {
     private Texture arrowTexture;
+    private Texture exitTexture;
     private Vector2 position;
     private float rotation;
 
     public Arrow() {
         arrowTexture = new Texture("arrow.png");
+        exitTexture = new Texture("arrow_exit.png");
         position = new Vector2();
     }
 
@@ -50,6 +55,19 @@ public class Arrow {
     }
 
     public void render(SpriteBatch batch) {
+        batch.draw(exitTexture,
+                position.x - exitTexture.getWidth() / 2,
+                position.y - exitTexture.getHeight() / 2,
+                exitTexture.getWidth() / 2,
+                exitTexture.getHeight() / 2,
+                exitTexture.getWidth(),
+                exitTexture.getHeight(),
+                0.01f, 0.01f, 0, // exit는 회전하지 않음
+                0, 0,
+                exitTexture.getWidth(),
+                exitTexture.getHeight(),
+                false, false);
+
         batch.draw(arrowTexture,
                 position.x - arrowTexture.getWidth()/2,
                 position.y - arrowTexture.getHeight()/2,
@@ -57,16 +75,20 @@ public class Arrow {
                 arrowTexture.getHeight()/2,
                 arrowTexture.getWidth(),
                 arrowTexture.getHeight(),
-                0.03f, 0.023f, rotation,
+                0.003f, 0.0023f, rotation,
                 0, 0,
                 arrowTexture.getWidth(),
                 arrowTexture.getHeight(),
                 false, false);
+
     }
 
     public void dispose() {
         if (arrowTexture != null) {
             arrowTexture.dispose();
+        }
+        if (exitTexture != null) {
+            exitTexture.dispose();
         }
     }
 

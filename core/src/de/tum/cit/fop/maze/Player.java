@@ -17,7 +17,7 @@ public class Player {
     private boolean isRunning = false, canRun = true;
     private float stateTime = 0f;
     private String direction = "right";
-    private float scale = 0.5f;
+    private float scale = 0.4f;
     private float previousX, previousY;
 
     private final float runDuration = 2f;
@@ -60,7 +60,7 @@ public class Player {
         this.right2 = new Texture("boy_right2.png");
         this.dead = new Texture("boydead.png");
 
-        this.currentTexture = right1;
+        this.currentTexture = down1;
         this.isDead = false;
 
         this.bound = new Rectangle();
