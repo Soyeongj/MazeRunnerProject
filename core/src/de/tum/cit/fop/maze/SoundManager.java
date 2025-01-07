@@ -6,18 +6,23 @@ import com.badlogic.gdx.audio.Sound;
 public class SoundManager {
     private static Sound rockSound;
     private static Sound lostFreindSound;
+    private static Sound saveFriendSound;
     private static Sound monsterDiedSound;
     private static Sound keyCollectedSound;
+    private static Sound itemCollectedSound;
+    private static Sound gameOverSound;
 
-    // 초기화: 필요한 모든 사운드 로드
     public static void initialize() {
         rockSound = Gdx.audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
         lostFreindSound = Gdx.audio.newSound(Gdx.files.internal("assets/lostFriendSound.mp3"));
+        saveFriendSound = Gdx.audio.newSound(Gdx.files.internal("assets/saveFriendSound.mp3"));
         monsterDiedSound = Gdx.audio.newSound(Gdx.files.internal("assets/monsterDiedSound.mp3"));
         keyCollectedSound = Gdx.audio.newSound(Gdx.files.internal("assets/keyCollectedSound.mp3"));
+        itemCollectedSound = Gdx.audio.newSound(Gdx.files.internal("assets/itemCollectedSound.mp3"));
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("assets/gameOverSound.mp3"));
+
     }
 
-    // 돌 소리 재생
     public static void playRockSound() {
         if (rockSound != null) {
             rockSound.play();
@@ -42,6 +47,23 @@ public class SoundManager {
             }
         }
 
+        public static void playGameOverSound() {
+        if (gameOverSound != null) {
+            gameOverSound.play();
+        }
+        }
+
+        public static void playSaveFriendSound() {
+        if (saveFriendSound != null) {
+            saveFriendSound.play();
+        }
+        }
+        public static void playItemCollectedSound() {
+        if (itemCollectedSound != null) {
+            itemCollectedSound.play();
+        }
+        }
+
 
     // 리소스 해제
     public static void dispose() {
@@ -51,11 +73,20 @@ public class SoundManager {
         if (lostFreindSound != null) {
             lostFreindSound.dispose();
         }
+        if (saveFriendSound != null) {
+            saveFriendSound.dispose();
+        }
         if (monsterDiedSound != null) {
             monsterDiedSound.dispose();
         }
         if (keyCollectedSound != null) {
             keyCollectedSound.dispose();
+        }
+        if (itemCollectedSound != null) {
+            itemCollectedSound.dispose();
+        }
+        if (gameOverSound != null) {
+            gameOverSound.dispose();
         }
     }
 }

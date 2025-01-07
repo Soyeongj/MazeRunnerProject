@@ -36,7 +36,9 @@ public class Item {
             if (distance <= proximity) {
                 isItemCollected[index] = true;
                 itemPositions[index] = new Vector2(-1000, -1000);
+                SoundManager.playItemCollectedSound();
                 return true;
+
             }
         }
         return false;

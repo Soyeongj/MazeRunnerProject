@@ -261,6 +261,7 @@ public class GameScreen implements Screen {
             hud.stopTimer();
             float finalTime = 0;
             game.setScreen(new GameOverScreen(game,finalTime));
+            SoundManager.playGameOverSound();
             return;
         }
 

@@ -117,6 +117,7 @@ public class Friends {
             if (distance <= proximity) {
                 isFriendSaved[index] = true;
                 savedFriendsPositions.add(new Vector2(playerPosition));
+                SoundManager.playSaveFriendSound();
                 return true;
             }
         }
