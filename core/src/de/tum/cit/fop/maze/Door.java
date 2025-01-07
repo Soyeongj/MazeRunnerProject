@@ -23,11 +23,11 @@ public class Door {
     public void tryToOpen(Vector2 playerPosition, HUD hud, MazeRunnerGame game) {
         if (isPlayerNear(playerPosition)) {
             if (hud.isKeyCollected()) {
-                    hud.stopTimer();
-                    float finalTime = 1000 + (hud.getFinalTime() * 5);
-                    game.setScreen(new GameClearScreen(game, finalTime));
-                }
+                hud.stopTimer();
+                float finalTime = 1000 + (hud.getFinalTime() * 5);
+                game.setScreen(new GameClearScreen(game, finalTime));
             }
+        }
 
 
     }

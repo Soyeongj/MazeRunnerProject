@@ -13,11 +13,7 @@ import com.badlogic.gdx.Preferences;
 
 
 public class Friends {
-    private Texture[] friends = {
-            new Texture("oldman_right_1.png"),
-            new Texture("oldman_right_1.png"),
-            new Texture("oldman_right_1.png")
-    };
+    private Texture[] friends = new Texture[6];  // Increased to 6 friends
 
     private float friend1x = 132, friend1y = 183;
     private float friend2x = 105, friend2y = 256;
@@ -26,13 +22,13 @@ public class Friends {
     private Vector2[] friendsPositions = {
             new Vector2(friend1x, friend1y),
             new Vector2(friend2x, friend2y),
-            new Vector2(friend3x, friend3y),
+            new Vector2(friend3x, friend3y)
     };
 
-    private List<Vector2> savedFriendsPositions = new ArrayList<>();
+    private List<Vector2> followingFriendsPositions = new ArrayList<>();
     private static final float FOLLOWING_DISTANCE = 8f;
-    private boolean[] isFriendSaved = {false, false, false};
-    private float scale = 0.5f;
+    private boolean[] isFriendSaved = new boolean[3];
+    private float scale = 0.2f;
     private BitmapFont font;
     private Vector2 lastPlayerPosition;
 
@@ -42,6 +38,10 @@ public class Friends {
     private Texture up1, up2, down1, down2, left1, left2, right1, right2;
 
     public Friends() {
+        for (int i = 0; i < 6; i++) {
+            friends[i] = new Texture("oldman_right_1.png");
+        }
+
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
@@ -66,6 +66,14 @@ public class Friends {
         right2 = new Texture("oldman_right_2.png");
 
         currentTexture = right1;
+
+        initializeInitialFollowers();
+    }
+
+    private void initializeInitialFollowers() {
+        for (int i = 0; i < 3; i++) {
+            followingFriendsPositions.add(new Vector2(0, 0));
+        }
     }
 
     private void animate(float delta, Texture texture1, Texture texture2) {
@@ -104,8 +112,9 @@ public class Friends {
                 }
             }
         }
-        for (int i = 0; i < savedFriendsPositions.size(); i++) {
-            Vector2 pos = savedFriendsPositions.get(i);
+
+        for (int i = 0; i < followingFriendsPositions.size(); i++) {
+            Vector2 pos = followingFriendsPositions.get(i);
             batch.draw(currentTexture, pos.x, pos.y,
                     friends[i].getWidth() * scale, friends[i].getHeight() * scale);
         }
@@ -116,7 +125,7 @@ public class Friends {
             float distance = playerPosition.dst(friendsPositions[index]);
             if (distance <= proximity) {
                 isFriendSaved[index] = true;
-                savedFriendsPositions.add(new Vector2(playerPosition));
+                followingFriendsPositions.add(new Vector2(playerPosition));
                 SoundManager.playSaveFriendSound();
                 return true;
             }
@@ -125,7 +134,7 @@ public class Friends {
     }
 
     public void updateFollowingPositions(Player player, float delta) {
-        if (savedFriendsPositions.isEmpty()) {
+        if (followingFriendsPositions.isEmpty()) {
             lastPlayerPosition = new Vector2(player.getX(), player.getY());
             return;
         }
@@ -140,26 +149,25 @@ public class Friends {
             updateAnimationDirection(movementDirection, delta);
 
             Vector2 firstFriendTarget = new Vector2(player.getX(), player.getY());
-            Vector2 firstFriendCurrent = savedFriendsPositions.get(0);
-            savedFriendsPositions.set(0, firstFriendCurrent.lerp(firstFriendTarget, 0.1f));
+            Vector2 firstFriendCurrent = followingFriendsPositions.get(0);
+            followingFriendsPositions.set(0, firstFriendCurrent.lerp(firstFriendTarget, 0.1f));
 
-            for (int i = 1; i < savedFriendsPositions.size(); i++) {
-                Vector2 currentFriendPos = savedFriendsPositions.get(i);
-                Vector2 targetFriendPos = savedFriendsPositions.get(i - 1);
+            for (int i = 1; i < followingFriendsPositions.size(); i++) {
+                Vector2 currentFriendPos = followingFriendsPositions.get(i);
+                Vector2 targetFriendPos = followingFriendsPositions.get(i - 1);
                 Vector2 direction = new Vector2(
                         targetFriendPos.x - currentFriendPos.x,
                         targetFriendPos.y - currentFriendPos.y
                 );
 
                 if (direction.len() > FOLLOWING_DISTANCE) {
-                    savedFriendsPositions.set(i, currentFriendPos.lerp(targetFriendPos, 0.1f));
+                    followingFriendsPositions.set(i, currentFriendPos.lerp(targetFriendPos, 0.1f));
                 }
             }
         }
 
         lastPlayerPosition.set(currentPlayerPos);
     }
-
 
     public void update(Player player, HUD hud, float interactionRadius, float delta) {
         int savedFriends = checkAndSaveAllFriends(new Vector2(player.getX(), player.getY()), interactionRadius);
@@ -178,6 +186,8 @@ public class Friends {
         }
         return savedFriends;
     }
+
+
 
     public void setScale(float scale) {
         this.scale = scale;
@@ -214,8 +224,7 @@ public class Friends {
     }
 
     public boolean removeLastSavedFriend() {
-        if (!savedFriendsPositions.isEmpty()) {
-            savedFriendsPositions.remove(savedFriendsPositions.size() - 1);
+            followingFriendsPositions.remove(followingFriendsPositions.size() - 1);
 
             for (int i = isFriendSaved.length - 1; i >= 0; i--) {
                 if (isFriendSaved[i]) {
@@ -224,23 +233,26 @@ public class Friends {
                     return true;
                 }
             }
-        }
+
         return false;
     }
 
     public void saveFriendsStates() {
         Preferences preferences = Gdx.app.getPreferences("Friends");
+
         for (int i = 0; i < friendsPositions.length; i++) {
             preferences.putFloat("friendsPositionX" + i, friendsPositions[i].x);
             preferences.putFloat("friendsPositionY" + i, friendsPositions[i].y);
         }
+
         for (int i = 0; i < isFriendSaved.length; i++) {
             preferences.putBoolean("isFriendSaved" + i, isFriendSaved[i]);
         }
-        preferences.putInteger("savedFriendsCount", savedFriendsPositions.size());
-        for (int i = 0; i < savedFriendsPositions.size(); i++) {
-            preferences.putFloat("savedFriendPosX_" + i, savedFriendsPositions.get(i).x);
-            preferences.putFloat("savedFriendPosY_" + i, savedFriendsPositions.get(i).y);
+
+        preferences.putInteger("followingFriendsCount", followingFriendsPositions.size());
+        for (int i = 0; i < followingFriendsPositions.size(); i++) {
+            preferences.putFloat("followingFriendPosX_" + i, followingFriendsPositions.get(i).x);
+            preferences.putFloat("followingFriendPosY_" + i, followingFriendsPositions.get(i).y);
         }
 
         preferences.flush();
@@ -248,22 +260,27 @@ public class Friends {
 
     public void loadFriendsStates() {
         Preferences preferences = Gdx.app.getPreferences("Friends");
+
         for (int i = 0; i < friendsPositions.length; i++) {
-            friendsPositions[i].x = preferences.getFloat("friendsPositionX" + i, friendsPositions[i].x);
-            friendsPositions[i].y = preferences.getFloat("friendsPositionY" + i, friendsPositions[i].y);
+            float x = preferences.getFloat("friendsPositionX" + i, friendsPositions[i].x);
+            float y = preferences.getFloat("friendsPositionY" + i, friendsPositions[i].y);
+            friendsPositions[i] = new Vector2(x, y);
         }
+
         for (int i = 0; i < isFriendSaved.length; i++) {
             isFriendSaved[i] = preferences.getBoolean("isFriendSaved" + i, false);
         }
-        savedFriendsPositions.clear();
-        int savedFriendsCount = preferences.getInteger("savedFriendsCount", 0);
-        for (int i = 0; i < savedFriendsCount; i++) {
-            float x = preferences.getFloat("savedFriendPosX_" + i, 0);
-            float y = preferences.getFloat("savedFriendPosY_" + i, 0);
-            savedFriendsPositions.add(new Vector2(x, y));
-        }
 
+        followingFriendsPositions.clear();
+        int followingFriendsCount = preferences.getInteger("followingFriendsCount", 3);  // Default to 3 initial friends
+        for (int i = 0; i < followingFriendsCount; i++) {
+            float x = preferences.getFloat("followingFriendPosX_" + i, 0);
+            float y = preferences.getFloat("followingFriendPosY_" + i, 0);
+            followingFriendsPositions.add(new Vector2(x, y));
+        }
     }
+
+
 
 
 }

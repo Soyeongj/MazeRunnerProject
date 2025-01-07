@@ -58,8 +58,7 @@ public class GameScreen implements Screen {
     private Array<Door> doors;
     private Array<Trap> traps;
     private Arrow arrow;
-    private TrapItem trapItem;
-    private ShapeRenderer shapeRenderer;
+
 
 
 
@@ -115,8 +114,7 @@ public class GameScreen implements Screen {
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
 
         arrow = new Arrow();
-        trapItem = new TrapItem();
-        shapeRenderer = new ShapeRenderer();
+
 
         SoundManager.initialize();
 
@@ -277,7 +275,6 @@ public class GameScreen implements Screen {
         hud.updateScoreTimer(delta);
         friends.render(batch,player,delta);
         item.render(batch);
-        trapItem.render(batch);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
 
 
@@ -295,14 +292,7 @@ public class GameScreen implements Screen {
         arrow.render(batch);
         friends.update(player, hud, 7f,delta);
         item.update(player, hud, 7f);
-        trapItem.update(player, hud, 7f);
 
-        if (trapItem.isFogActive()) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(0, 0, 0, 0.85f);
-            shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            shapeRenderer.end();
-        }
         hud.render(batch, player);
 
         batch.end();

@@ -42,27 +42,27 @@ public class SoundManager {
     }
 
     public static void playKeyCollectedSound() {
-            if (keyCollectedSound != null) {
-                keyCollectedSound.play();
-            }
+        if (keyCollectedSound != null) {
+            keyCollectedSound.play();
         }
+    }
 
-        public static void playGameOverSound() {
+    public static void playGameOverSound() {
         if (gameOverSound != null) {
             gameOverSound.play();
         }
-        }
+    }
 
-        public static void playSaveFriendSound() {
+    public static void playSaveFriendSound() {
         if (saveFriendSound != null) {
             saveFriendSound.play();
         }
-        }
-        public static void playItemCollectedSound() {
+    }
+    public static void playItemCollectedSound() {
         if (itemCollectedSound != null) {
             itemCollectedSound.play();
         }
-        }
+    }
 
 
     // 리소스 해제

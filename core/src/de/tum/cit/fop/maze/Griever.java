@@ -21,11 +21,11 @@ public class Griever {
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f;
     private Rectangle grieverRectangle;
-    private final float scale = 0.5f;
+    private final float scale = 0.1f;
 
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
-    private final float stunDuration = 3.0f;
+    private final float stunDuration = 1.5f;
 
     private final Random random = new Random();
     private boolean isRandomMovement = false;
@@ -44,10 +44,10 @@ public class Griever {
         this.path2Layer = path2Layer;
 
         grieverTextures = new HashMap<>();
-        grieverTextures.put("up", new Texture[]{new Texture("grieverup.png"), new Texture("grieverup2.png")});
-        grieverTextures.put("down", new Texture[]{new Texture("grieverdown.png"), new Texture("grieverdown2.png")});
-        grieverTextures.put("left", new Texture[]{new Texture("grieverleft.png"), new Texture("grieverleft2.png")});
-        grieverTextures.put("right", new Texture[]{new Texture("grieverright.png"), new Texture("grieverright2.png")});
+        grieverTextures.put("up", new Texture[]{new Texture("monsterup1.png"), new Texture("monsterup2.png")});
+        grieverTextures.put("down", new Texture[]{new Texture("monsterdown1.png"), new Texture("monsterdown2.png")});
+        grieverTextures.put("left", new Texture[]{new Texture("monsterleft1.png"), new Texture("monsterleft2.png")});
+        grieverTextures.put("right", new Texture[]{new Texture("monsterright1.png"), new Texture("monsterright2.png")});
 
         fixedGrieverDirection = "right";
         griever = grieverTextures.get(fixedGrieverDirection)[0];
