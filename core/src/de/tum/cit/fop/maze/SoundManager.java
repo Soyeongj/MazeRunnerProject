@@ -6,11 +6,13 @@ import com.badlogic.gdx.audio.Sound;
 public class SoundManager {
     private static Sound rockSound;
     private static Sound lostFreindSound;
+    private static Sound monsterDiedSound;
 
     // 초기화: 필요한 모든 사운드 로드
     public static void initialize() {
         rockSound = Gdx.audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
         lostFreindSound = Gdx.audio.newSound(Gdx.files.internal("assets/lostFriendSound.mp3"));
+        monsterDiedSound = Gdx.audio.newSound(Gdx.files.internal("assets/monsterDiedSound.mp3"));
     }
 
     // 돌 소리 재생
@@ -26,6 +28,14 @@ public class SoundManager {
         }
     }
 
+    public static void playMonsterDiedSound() {
+        if (monsterDiedSound != null) {
+            monsterDiedSound.play();
+        }
+    }
+
+
+
     // 리소스 해제
     public static void dispose() {
         if (rockSound != null) {
@@ -33,6 +43,9 @@ public class SoundManager {
         }
         if (lostFreindSound != null) {
             lostFreindSound.dispose();
+        }
+        if (monsterDiedSound != null) {
+            monsterDiedSound.dispose();
         }
     }
 }
