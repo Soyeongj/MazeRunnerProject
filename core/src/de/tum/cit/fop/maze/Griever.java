@@ -133,7 +133,6 @@ public class Griever {
                     }
                 }
             }
-
             if (isPathTile(monsterX + deltaX, monsterY + deltaY, pathLayer)) {
                 monsterX += deltaX;
                 monsterY += deltaY;
