@@ -157,6 +157,9 @@ public class Wall {
                 griever.setPosition(-1000, -1000);
                 keySpawnPosition = new Vector2(grieverX, grieverY);
                 isGrieverDead = true;
+
+                SoundManager.playMonsterDiedSound();
+
             }
         }
     }

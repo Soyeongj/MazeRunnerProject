@@ -19,7 +19,7 @@ public class Trap {
     private Rectangle bounds;
     private float livesCoolDown = 0f;
     private float rockFallDuration = 0f;
-    private boolean isRockFalling = false;
+    public boolean isRockFalling = false;
     private Texture rockTexture;
     private Vector2 rockPosition;
     private float rockStartY;
@@ -43,6 +43,8 @@ public class Trap {
             isRockFalling = true;
             rockFallDuration = 0f;
             rockPosition.y = rockStartY;
+
+            SoundManager.playRockSound();
         }
 
         if (isRockFalling) {

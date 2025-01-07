@@ -52,6 +52,7 @@ public class Key {
             isCollected = true;
             hud.collectKey();
             setPosition(-1000, -1000);
+            SoundManager.playKeyCollectedSound();
         }
     }
 

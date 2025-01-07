@@ -128,6 +128,9 @@ public class HUD {
         this.lives--;
         message = "You lost a friend.";
         messageTimer = MESSAGE_DISPLAY_DURATION;
+
+        SoundManager.playLostFriendSound();
+
     }
 
     public void stunMessage() {
