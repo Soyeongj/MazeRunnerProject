@@ -53,6 +53,7 @@ public class Item {
         }
         return count;
     }
+
     public void update(Player player, HUD hud, float interactionRadius) {
         int collectedItems = checkAndCollectAllItmes(new Vector2(player.getX(), player.getY()), interactionRadius);
         for (int i = 0; i < collectedItems; i++) {

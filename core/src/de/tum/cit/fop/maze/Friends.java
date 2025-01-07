@@ -32,7 +32,7 @@ public class Friends {
     private List<Vector2> savedFriendsPositions = new ArrayList<>();
     private static final float FOLLOWING_DISTANCE = 8f;
     private boolean[] isFriendSaved = {false, false, false};
-    private float scale = 0.2f;
+    private float scale = 0.5f;
     private BitmapFont font;
     private Vector2 lastPlayerPosition;
 

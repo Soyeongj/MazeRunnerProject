@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 
 
@@ -56,7 +58,10 @@ public class GameScreen implements Screen {
     private Array<Door> doors;
     private Array<Trap> traps;
     private Arrow arrow;
-    private Sound rockSound;
+    private TrapItem trapItem;
+    private ShapeRenderer shapeRenderer;
+
+
 
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
@@ -84,7 +89,8 @@ public class GameScreen implements Screen {
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         grievers = new Array<>();
-        grievers.add(new Griever(160, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        grievers.add(new Griever(300, 320, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+
         batch = new SpriteBatch();
 
 
@@ -109,6 +115,9 @@ public class GameScreen implements Screen {
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
 
         arrow = new Arrow();
+        trapItem = new TrapItem();
+        shapeRenderer = new ShapeRenderer();
+
         SoundManager.initialize();
 
     }
@@ -268,6 +277,7 @@ public class GameScreen implements Screen {
         hud.updateScoreTimer(delta);
         friends.render(batch,player,delta);
         item.render(batch);
+        trapItem.render(batch);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
 
 
@@ -283,10 +293,16 @@ public class GameScreen implements Screen {
 
         arrow.update(playerPosition,doors,hud.isKeyCollected());
         arrow.render(batch);
-        friends.update(player, hud, 3f,delta);
-        item.update(player, hud, 3f);
+        friends.update(player, hud, 7f,delta);
+        item.update(player, hud, 7f);
+        trapItem.update(player, hud, 7f);
 
-
+        if (trapItem.isFogActive()) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0, 0, 0, 0.85f);
+            shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            shapeRenderer.end();
+        }
         hud.render(batch, player);
 
         batch.end();

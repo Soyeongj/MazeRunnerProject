@@ -9,8 +9,8 @@ public class Key {
     private Texture keyTexture;
     private float x, y;
     private boolean isCollected;
-    private float scale = 0.2f;
-    private float proximityRange = 5f;
+    private float scale = 0.5f;
+    private float proximityRange = 7f;
     private static final String PREFERENCES_NAME = "KeyState";
 
 
