@@ -17,7 +17,7 @@ public class Player {
     private boolean isRunning = false, canRun = true;
     private float stateTime = 0f;
     private String direction = "right";
-    private float scale = 0.2f;
+    private float scale = 0.5f;
     private float previousX, previousY;
 
     private final float runDuration = 2f;
@@ -274,7 +274,7 @@ public class Player {
 
     public void resetSpeedBoost() {
         isSpeedBoosted = false;
-        speed = 10f;
+        speed = 30f;
     }
 
     public Rectangle getBound() {

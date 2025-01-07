@@ -37,7 +37,7 @@ public class GameScreen implements Screen {
     private final OrthographicCamera camera;
     private float currentZoom = 0.1f;
     private final float MIN_ZOOM = 0.08f;
-    private final float MAX_ZOOM = 0.4f;
+    private final float MAX_ZOOM = 0.2f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
     private Viewport viewport;
@@ -83,7 +83,7 @@ public class GameScreen implements Screen {
         this.item = new Item();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         grievers = new Array<>();
-        grievers.add(new Griever(170, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        grievers.add(new Griever(160, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
 
 

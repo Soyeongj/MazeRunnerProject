@@ -21,7 +21,7 @@ public class Griever {
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f;
     private Rectangle grieverRectangle;
-    private final float scale = 0.2f;
+    private final float scale = 0.5f;
 
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
@@ -117,9 +117,22 @@ public class Griever {
             }
 
             // 목표 방향으로 이동
-            Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY).nor();
-            deltaX = directionToTarget.x * monsterSpeed * delta;
-            deltaY = directionToTarget.y * monsterSpeed * delta;
+            Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY);
+            float distancetotarget = directionToTarget.len();
+            if (distancetotarget > 1f) { // Add a minimum threshold
+                directionToTarget.nor();
+                deltaX = directionToTarget.x * monsterSpeed * delta;
+                deltaY = directionToTarget.y * monsterSpeed * delta;
+
+                // Only update direction if we're moving significantly
+                if (Math.abs(deltaX) > 0.01f || Math.abs(deltaY) > 0.01f) {
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        fixedGrieverDirection = deltaX > 0 ? "right" : "left";
+                    } else {
+                        fixedGrieverDirection = deltaY > 0 ? "up" : "down";
+                    }
+                }
+            }
 
             if (isPathTile(monsterX + deltaX, monsterY + deltaY, pathLayer)) {
                 monsterX += deltaX;
@@ -156,11 +169,7 @@ public class Griever {
             }
         }
 
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            fixedGrieverDirection = deltaX > 0 ? "right" : "left";
-        } else if (deltaY != 0) {
-            fixedGrieverDirection = deltaY > 0 ? "up" : "down";
-        }
+
 
         updateAnimation(delta);
         checkStunCondition(playerX, playerY, playerDirection);
@@ -257,7 +266,7 @@ public class Griever {
 
     private void checkStunCondition(float playerX, float playerY, String playerDirection) {
         float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
-        if (distance <= 5f) {
+        if (distance <= 25f) {
             // 방향 조건 확인
             if (isGrieverInOppositeDirection(playerDirection) && !isGrieverStunned) {
                 isGrieverStunned = true;
@@ -292,7 +301,7 @@ public class Griever {
                 friends.removeLastSavedFriend();
                 hud.decrementLives();
                 player.triggerRedEffect();
-                LivesCoolDownTimer = 7;
+                LivesCoolDownTimer = 2;
             } else {
                 hud.setLives(0);
                 player.revertToPrevious();
