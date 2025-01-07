@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Sound;
 
 
 
@@ -55,6 +56,7 @@ public class GameScreen implements Screen {
     private Array<Door> doors;
     private Array<Trap> traps;
     private Arrow arrow;
+    private Sound rockSound;
 
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
@@ -77,7 +79,6 @@ public class GameScreen implements Screen {
 
 
         centerCameraOnMap();
-
         hud = new HUD();
         this.friends = new Friends();
         this.item = new Item();
@@ -108,6 +109,7 @@ public class GameScreen implements Screen {
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
 
         arrow = new Arrow();
+        SoundManager.initialize();
 
     }
 
