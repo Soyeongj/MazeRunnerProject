@@ -17,7 +17,7 @@ public class Player {
     private boolean isRunning = false, canRun = true;
     private float stateTime = 0f;
     private String direction = "right";
-    private float scale = 0.4f;
+    private float scale = 0.2f;
     private float previousX, previousY;
 
     private final float runDuration = 2f;

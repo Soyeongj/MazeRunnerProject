@@ -21,7 +21,7 @@ public class Griever {
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f;
     private Rectangle grieverRectangle;
-    private final float scale = 0.05f;
+    private final float scale = 0.4f;
 
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
@@ -44,10 +44,10 @@ public class Griever {
         this.path2Layer = path2Layer;
 
         grieverTextures = new HashMap<>();
-        grieverTextures.put("up", new Texture[]{new Texture("monsterup1.png"), new Texture("monsterup2.png")});
-        grieverTextures.put("down", new Texture[]{new Texture("monsterdown1.png"), new Texture("monsterdown2.png")});
-        grieverTextures.put("left", new Texture[]{new Texture("monsterleft1.png"), new Texture("monsterleft2.png")});
-        grieverTextures.put("right", new Texture[]{new Texture("monsterright1.png"), new Texture("monsterright2.png")});
+        grieverTextures.put("up", new Texture[]{new Texture("monster_up1.png"), new Texture("monster_up2.png")});
+        grieverTextures.put("down", new Texture[]{new Texture("monster_down1.png"), new Texture("monster_down2.png")});
+        grieverTextures.put("left", new Texture[]{new Texture("monster_left1.png"), new Texture("monster_left2.png")});
+        grieverTextures.put("right", new Texture[]{new Texture("monster_right1.png"), new Texture("monster_right2.png")});
 
         fixedGrieverDirection = "right";
         griever = grieverTextures.get(fixedGrieverDirection)[0];
@@ -107,13 +107,21 @@ public class Griever {
 
         if (isGrieverFollowingPlayer) {
             if (currentTarget == null || reachedTarget()) {
-                currentTarget = findNextTargetTowardsPlayer(playerX, playerY);
-                if (currentTarget == null) {
-                    System.out.println("No valid target found while following the player. Switching to random movement temporarily.");
-                    switchToTemporaryRandomMovement(delta); // 임시 랜덤 이동으로 전환
+                int attempts = 0;
+                Vector2 newTarget = null;
+
+                while (newTarget == null && attempts < 3) {
+                    newTarget = findNextTargetTowardsPlayer(playerX, playerY);
+                    attempts++;
+                }
+
+                if (newTarget == null) {
+                    System.out.println("Failed to find valid path, switching to random movement");
+                    switchToRandomMovement();
                     return;
                 }
-                System.out.println("New target set for following player: " + currentTarget);
+
+                currentTarget = newTarget;
             }
 
             // 목표 방향으로 이동
@@ -176,6 +184,35 @@ public class Griever {
         checkPlayerCollision(player,hud,friends,delta);
     }
 
+    private Vector2 findNextTargetWithMinDistance(float minDistance) {
+        // 4개의 기본 방향을 정의 (오른쪽, 왼쪽, 위, 아래)
+        List<Vector2> directions = Arrays.asList(
+                new Vector2(1, 0),  // Right
+                new Vector2(-1, 0), // Left
+                new Vector2(0, 1),  // Up
+                new Vector2(0, -1)  // Down
+        );
+        Collections.shuffle(directions); // 방향을 랜덤하게 섞음
+
+        // 각 방향에 대해 검사
+        for (Vector2 direction : directions) {
+            // 다음 타일의 위치 계산
+            float nextX = monsterX + direction.x * path2Layer.getTileWidth();
+            float nextY = monsterY + direction.y * path2Layer.getTileHeight();
+
+            // 해당 위치가 이동 가능한 타일인지 확인
+            if (isPathTile(nextX, nextY, path2Layer)) {
+                // 현재 위치와 다음 위치 사이의 거리 계산
+                float distance = Vector2.dst(monsterX, monsterY, nextX, nextY);
+                // 최소 거리 조건을 만족하면 해당 위치를 반환
+                if (distance >= minDistance) {
+                    return new Vector2(nextX, nextY);
+                }
+            }
+        }
+        return null; // 적절한 목표점을 찾지 못한 경우
+    }
+
     // 플레이어 방향으로 목표 찾기 실패 시 임시 랜덤 이동으로 전환
     private void switchToTemporaryRandomMovement(float delta) {
         currentTarget = findNextTargetWithMinDistance(10f); // 임시 랜덤 목표 설정
@@ -196,66 +233,66 @@ public class Griever {
         }
     }
 
+    // 목표에 도달했는지 확인
+    private boolean reachedTarget() {
+        float tolerance = 2f; // 도달 판정 거리를 약간 늘림
+        return Math.abs(monsterX - currentTarget.x) < tolerance &&
+                Math.abs(monsterY - currentTarget.y) < tolerance;
+    }
 
+    // 다음 목표를 설정
     private Vector2 findNextTargetTowardsPlayer(float playerX, float playerY) {
         Vector2[] directions = {
-                new Vector2(1, 0),  // Right
-                new Vector2(-1, 0), // Left
-                new Vector2(0, 1),  // Up
-                new Vector2(0, -1)  // Down
+                new Vector2(1, 0), new Vector2(-1, 0),
+                new Vector2(0, 1), new Vector2(0, -1)
         };
 
         Vector2 closestTarget = null;
         float closestDistance = Float.MAX_VALUE;
 
+        // 현재 위치에서 실제로 이동 가능한 방향만 고려
         for (Vector2 direction : directions) {
             float nextX = monsterX + direction.x * pathLayer.getTileWidth();
             float nextY = monsterY + direction.y * pathLayer.getTileHeight();
 
-            if (isPathTile(nextX, nextY, pathLayer)) {
-                Vector2 directionToPlayer = new Vector2(playerX - nextX, playerY - nextY).nor();
-                if (direction.dot(directionToPlayer) > 0) { // 플레이어 방향으로 타일 확인
-                    float distanceToPlayer = Vector2.dst(nextX, nextY, playerX, playerY);
-                    if (distanceToPlayer < closestDistance) {
-                        closestTarget = new Vector2(nextX, nextY);
-                        closestDistance = distanceToPlayer;
-                    }
+            // 이동 가능성 체크를 더 엄격하게
+            if (isPathTile(nextX, nextY, pathLayer) &&
+                    isPathClear(monsterX, monsterY, nextX, nextY)) {
+                Vector2 potentialTarget = new Vector2(nextX, nextY);
+                float distanceToPlayer = Vector2.dst(nextX, nextY, playerX, playerY);
+
+                if (distanceToPlayer < closestDistance) {
+                    closestTarget = potentialTarget;
+                    closestDistance = distanceToPlayer;
                 }
             }
         }
 
-        // 가장 가까운 타겟 반환 (없으면 null)
-        return closestTarget != null ? closestTarget : new Vector2(playerX, playerY);
+        // 유효한 타겟을 찾지 못했다면 랜덤 이동으로 전환
+        if (closestTarget == null) {
+            switchToRandomMovement();
+            return findNextTargetWithMinDistance(10f);
+        }
+
+        return closestTarget;
     }
 
-    // 목표에 도달했는지 확인
-    private boolean reachedTarget() {
-        return Math.abs(monsterX - currentTarget.x) < 1f && Math.abs(monsterY - currentTarget.y) < 1f;
-    }
+    private boolean isPathClear(float startX, float startY, float endX, float endY) {
+        // 시작점과 끝점 사이의 여러 지점을 체크
+        float steps = 5; // 체크할 중간 지점의 수
+        for (int i = 0; i <= steps; i++) {
+            float t = i / steps;
+            float checkX = startX + (endX - startX) * t;
+            float checkY = startY + (endY - startY) * t;
 
-    // 다음 목표를 설정
-    private Vector2 findNextTargetWithMinDistance(float minDistance) {
-        List<Vector2> directions = Arrays.asList(
-                new Vector2(1, 0),  // Right
-                new Vector2(-1, 0), // Left
-                new Vector2(0, 1),  // Up
-                new Vector2(0, -1)  // Down
-        );
-        Collections.shuffle(directions); // 방향 랜덤화
-
-        for (Vector2 direction : directions) {
-            float nextX = monsterX + direction.x * path2Layer.getTileWidth();
-            float nextY = monsterY + direction.y * path2Layer.getTileHeight();
-
-            if (isPathTile(nextX, nextY, path2Layer)) {
-                float distance = Vector2.dst(monsterX, monsterY, nextX, nextY); // 목표와의 거리 계산
-                if (distance >= minDistance) { // 최소 거리 조건
-                    return new Vector2(nextX, nextY);
-                }
+            if (!isPathTile(checkX, checkY, pathLayer)) {
+                return false;
             }
         }
-        return null;
+        return true;
     }
+
+
     private void updateAnimation(float delta) {
         grieverStateTime += delta;
         if (grieverStateTime >= grieverAnimationTime) {
@@ -266,7 +303,7 @@ public class Griever {
 
     private void checkStunCondition(float playerX, float playerY, String playerDirection) {
         float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
-        if (distance <= 25f) {
+        if (distance <= 10f) {
             // 방향 조건 확인
             if (isGrieverInOppositeDirection(playerDirection) && !isGrieverStunned) {
                 isGrieverStunned = true;

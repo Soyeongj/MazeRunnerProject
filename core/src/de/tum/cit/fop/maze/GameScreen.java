@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(800, 480, camera);
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
 
-        camera.zoom = 0.1f;
+        camera.zoom = 0.05f;
 
         tiledMap = new TmxMapLoader().load("map1.tmx");
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
