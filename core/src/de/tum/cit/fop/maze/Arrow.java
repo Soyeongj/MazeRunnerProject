@@ -19,7 +19,7 @@ public class Arrow {
 
     public Arrow() {
         arrowTexture = new Texture("arrow.png");
-        exitTexture = new Texture("arrow_exit.png");
+        exitTexture = new Texture("exit.png");
         position = new Vector2();
     }
 
@@ -62,7 +62,7 @@ public class Arrow {
                 exitTexture.getHeight() / 2,
                 exitTexture.getWidth(),
                 exitTexture.getHeight(),
-                0.01f, 0.01f, 0, // exit는 회전하지 않음
+                0.25f, 0.25f, 0, // exit는 회전하지 않음
                 0, 0,
                 exitTexture.getWidth(),
                 exitTexture.getHeight(),
@@ -75,7 +75,7 @@ public class Arrow {
                 arrowTexture.getHeight()/2,
                 arrowTexture.getWidth(),
                 arrowTexture.getHeight(),
-                0.003f, 0.0023f, rotation,
+                0.15f, 0.15f, rotation,
                 0, 0,
                 arrowTexture.getWidth(),
                 arrowTexture.getHeight(),
