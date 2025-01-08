@@ -56,7 +56,7 @@ public class MenuScreen implements Screen {
                 Gdx.app.exit();
             }
         });
-        TextButton resumeButton = new TextButton("Resume", game.getSkin());
+        TextButton resumeButton = new TextButton("Continue To Play", game.getSkin());
         table.add(resumeButton).width(300).row();
         resumeButton.addListener(new ChangeListener() {
             @Override

@@ -235,11 +235,13 @@ public class Wall {
         Preferences pref = Gdx.app.getPreferences("wallState");
         pref.putBoolean("grieverDead", isGrieverDead);
         pref.putBoolean("isKeySpawned",keySpawned);
+        pref.putBoolean("hasKeySpawned",hasKeySpawned());
         pref.flush();
     }
     public void loadWallState() {
         Preferences pref = Gdx.app.getPreferences("wallState");
         isGrieverDead = pref.getBoolean("grieverDead", isGrieverDead);
         keySpawned = pref.getBoolean("isKeySpawned", keySpawned);
+        setKeySpawned(pref.getBoolean("hasKeySpawned", hasKeySpawned()));
     }
 }

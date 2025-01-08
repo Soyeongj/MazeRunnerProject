@@ -31,14 +31,13 @@ public class GameOverScreen implements Screen {
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
         this.gameOverTexture = new Texture("gameover.jpg");
-        this.fadeAlpha = 0f; // Start fully transparent
+        this.fadeAlpha = 0f;
         font.setColor(Color.WHITE);
         this.finalTime = finalTime;
     }
 
     @Override
     public void show() {
-        // Reset alpha when the screen is shown
         fadeAlpha = 0f;
     }
 
@@ -59,22 +58,18 @@ public class GameOverScreen implements Screen {
         float scaledTextureWidth = textureWidth * textureWidthScale;
         float scaledTextureHeight = textureHeight * textureHeightScale;
 
-        // Set batch color with alpha for fade effect
         batch.setColor(1f, 1f, 1f, fadeAlpha);
 
-        // Draw the game over texture
         batch.draw(gameOverTexture, (screenWidth - scaledTextureWidth) / 2, (screenHeight - scaledTextureHeight) / 2,
                 scaledTextureWidth, scaledTextureHeight);
 
-        // Reset the batch color to draw text without transparency
         batch.setColor(1f, 1f, 1f, 1f);
-        font.getData().setScale(2.5f); // Further increase text size for the options
+        font.getData().setScale(2.5f);
         font.draw(batch, "Press ENTER to Go to Menu or ESC to Quit", screenWidth / 2 - textOffsetX, screenHeight / 2 - textOffsetY);
         font.draw(batch, "Your Score: " + (int) finalTime, screenWidth / 2 - 190, screenHeight / 2 - 230);
         batch.end();
 
-        // Handle input
-        if (fadeAlpha >= 1f) { // Allow input only after fade-in is complete
+        if (fadeAlpha >= 1f) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 game.goToMenu();
             }

@@ -27,8 +27,8 @@ public class GameClearScreen implements Screen {
     private final float textOffsetY = 150f;
 
 
-    private float fadeAlpha; // Alpha value for fade effect
-    private static final float FADE_SPEED = 0.5f; // Speed of the fade effect
+    private float fadeAlpha;
+    private static final float FADE_SPEED = 0.5f;
     private float finalTime;
 
 
@@ -72,25 +72,21 @@ public class GameClearScreen implements Screen {
         float scaledTextureHeight = textureHeight * textureHeightScale;
 
 
-        // Set batch color with alpha for fade effect
         batch.setColor(1f, 1f, 1f, fadeAlpha);
 
 
-        // Draw the game over texture
         batch.draw(gameClearTexture, (screenWidth - scaledTextureWidth) / 2, (screenHeight - scaledTextureHeight) / 2,
                 scaledTextureWidth, scaledTextureHeight);
 
 
-        // Reset the batch color to draw text without transparency
         batch.setColor(1f, 1f, 1f, 1f);
-        font.getData().setScale(2.5f); // Further increase text size for the options
+        font.getData().setScale(2.5f);
         font.draw(batch, "Press ENTER to Go to Menu or ESC to Quit", screenWidth / 2 - textOffsetX, screenHeight / 2 - textOffsetY);
         font.draw(batch, "Your Score: " + (int) finalTime, screenWidth / 2 - 190, screenHeight / 2 - 230);
         batch.end();
 
 
-        // Handle input
-        if (fadeAlpha >= 1f) { // Allow input only after fade-in is complete
+        if (fadeAlpha >= 1f) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 game.goToMenu();
             }
@@ -138,6 +134,5 @@ public class GameClearScreen implements Screen {
         font.dispose();
     }
 }
-
 
 

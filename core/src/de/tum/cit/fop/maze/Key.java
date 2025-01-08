@@ -77,20 +77,5 @@ public class Key {
         this.x = x;
     }
 
-    public void saveKeyState() {
-        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
-        preferences.putFloat("keyPosX", x);
-        preferences.putFloat("keyPosY", y);
-        preferences.putBoolean("keyCollected", isCollected);
 
-        preferences.flush();
-    }
-
-    public void loadKeyState() {
-        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
-        x = preferences.getFloat("keyPosX", x);
-        y = preferences.getFloat("keyPosY", y);
-        isCollected = preferences.getBoolean("keyCollected", isCollected);
-
-    }
 }

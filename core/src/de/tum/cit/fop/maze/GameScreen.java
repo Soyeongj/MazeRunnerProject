@@ -37,7 +37,7 @@ public class GameScreen implements Screen {
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
     private float currentZoom = 0.1f;
-    private final float MIN_ZOOM = 0.08f;
+    private final float MIN_ZOOM = 0.05f;
     private final float MAX_ZOOM = 0.2f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
@@ -257,7 +257,7 @@ public class GameScreen implements Screen {
             }
         }
 
-        if (hud.getLives() <= 0) {
+        if (hud.getLives() <= 0 || hud.getScoreTimer() <= 0) {
             hud.stopTimer();
             float finalTime = 0;
             game.setScreen(new GameOverScreen(game,finalTime));
@@ -326,10 +326,18 @@ public class GameScreen implements Screen {
         for (Wall wall: walls) {
             wall.saveWallState();
         }
-        for (Key key : keys) {
-            key.saveKeyState();
-        }
+
         hud.saveHUDState();
+
+        Preferences preferences = Gdx.app.getPreferences("Keys");
+        preferences.putInteger("numberOfKeys", keys.size);
+        for (int i = 0; i < keys.size; i++) {
+            Key key = keys.get(i);
+            preferences.putFloat("key_" + i + "_x", key.getX());
+            preferences.putFloat("key_" + i + "_y", key.getY());
+            preferences.putBoolean("key_" + i + "_collected", key.isCollected());
+        }
+        preferences.flush();
 
 
     }
@@ -348,12 +356,22 @@ public class GameScreen implements Screen {
         for (Wall wall : walls) {
             wall.loadWallState();
         }
-        for (Key key : keys) {
-            key.loadKeyState();
+
+        keys.clear();
+        Preferences preferences = Gdx.app.getPreferences("Keys");
+        int numberOfKeys = preferences.getInteger("numberOfKeys", 0);
+        for (int i = 0; i < numberOfKeys; i++) {
+            float x = preferences.getFloat("key_" + i + "_x", 0);
+            float y = preferences.getFloat("key_" + i + "_y", 0);
+            boolean collected = preferences.getBoolean("key_" + i + "_collected", false);
+
+            if (!collected) {
+                Key key = new Key(x, y);
+                keys.add(key);
+            }
         }
+
         hud.loadHUDState();
-
-
     }
 
 
