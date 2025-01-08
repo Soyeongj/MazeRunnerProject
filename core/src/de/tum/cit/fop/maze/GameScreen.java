@@ -168,24 +168,6 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
-    private void updateCameraPosition() {
-
-        float playerX = player.getX();
-        float playerY = player.getY();
-
-
-        float cameraHalfWidth = camera.viewportWidth / 2f;
-        float cameraHalfHeight = camera.viewportHeight / 2f;
-
-        int mapWidth = tiledMap.getProperties().get("width", Integer.class) * tiledMap.getProperties().get("tilewidth", Integer.class);
-        int mapHeight = tiledMap.getProperties().get("height", Integer.class) * tiledMap.getProperties().get("tileheight", Integer.class);
-
-        float cameraX = Math.max(cameraHalfWidth, Math.min(playerX, mapWidth - cameraHalfWidth));
-        float cameraY = Math.max(cameraHalfHeight, Math.min(playerY, mapHeight - cameraHalfHeight));
-
-        camera.position.set(cameraX, cameraY, 0);
-    }
-
 
     @Override
     public void render(float delta) {
@@ -212,7 +194,7 @@ public class GameScreen implements Screen {
             wall.checkAndMovePlayer(player, hud.getGlobalTimer(),friends);
         });
 
-        camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
+        camera.position.set(player.getX() +( player.getWidth() / 2 ) -10, player.getY() + (player.getHeight() / 2) -10, 0);
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
