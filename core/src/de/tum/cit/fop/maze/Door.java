@@ -26,6 +26,7 @@ public class Door {
                     hud.stopTimer();
                     float finalTime = 1000 + (hud.getFinalTime() * 5);
                     game.setScreen(new GameClearScreen(game, finalTime));
+                    SoundManager.playVictorySound();
                 }
             }
 

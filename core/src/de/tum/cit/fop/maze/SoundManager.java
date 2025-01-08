@@ -3,6 +3,8 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 
+import static com.badlogic.gdx.Gdx.audio;
+
 public class SoundManager {
     private static Sound rockSound;
     private static Sound lostFreindSound;
@@ -11,15 +13,18 @@ public class SoundManager {
     private static Sound keyCollectedSound;
     private static Sound itemCollectedSound;
     private static Sound gameOverSound;
+    private static Sound victorySound;
 
     public static void initialize() {
-        rockSound = Gdx.audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
-        lostFreindSound = Gdx.audio.newSound(Gdx.files.internal("assets/lostFriendSound.mp3"));
-        saveFriendSound = Gdx.audio.newSound(Gdx.files.internal("assets/saveFriendSound.mp3"));
-        monsterDiedSound = Gdx.audio.newSound(Gdx.files.internal("assets/monsterDiedSound.mp3"));
-        keyCollectedSound = Gdx.audio.newSound(Gdx.files.internal("assets/keyCollectedSound.mp3"));
-        itemCollectedSound = Gdx.audio.newSound(Gdx.files.internal("assets/itemCollectedSound.mp3"));
-        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("assets/gameOverSound.mp3"));
+        rockSound = audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
+        lostFreindSound = audio.newSound(Gdx.files.internal("assets/lostFriendSound.mp3"));
+        saveFriendSound = audio.newSound(Gdx.files.internal("assets/saveFriendSound.mp3"));
+        monsterDiedSound = audio.newSound(Gdx.files.internal("assets/monsterDiedSound.mp3"));
+        keyCollectedSound = audio.newSound(Gdx.files.internal("assets/keyCollectedSound.mp3"));
+        itemCollectedSound = audio.newSound(Gdx.files.internal("assets/itemCollectedSound.mp3"));
+        gameOverSound = audio.newSound(Gdx.files.internal("assets/gameOverSound.mp3"));
+        victorySound = audio.newSound(Gdx.files.internal("assets/victorySound.mp3"));
+
 
     }
 
@@ -63,6 +68,11 @@ public class SoundManager {
             itemCollectedSound.play();
         }
         }
+        public static void playVictorySound() {
+        if (victorySound != null) {
+            victorySound.play();
+        }
+        }
 
 
     // 리소스 해제
@@ -87,6 +97,9 @@ public class SoundManager {
         }
         if (gameOverSound != null) {
             gameOverSound.dispose();
+        }
+        if (victorySound != null) {
+            victorySound.dispose();
         }
     }
 }
