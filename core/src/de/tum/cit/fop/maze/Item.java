@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Gdx;
 
-public class Item {
+public class Item implements Renderable {
     private Texture[] items = {
             new Texture("potion_red.png"),
             new Texture("potion_red.png"),
@@ -65,22 +65,6 @@ public class Item {
         for (Texture item : items) {
             item.dispose();
         }
-    }
-
-    public Vector2[] getItemPositions() {
-        return itemPositions;
-    }
-
-    public void setItemPositions(Vector2[] itemPositions) {
-        this.itemPositions = itemPositions;
-    }
-
-    public boolean[] getIsItemCollected() {
-        return isItemCollected;
-    }
-
-    public void setIsItemCollected(boolean[] isItemCollected) {
-        this.isItemCollected = isItemCollected;
     }
 
     public void saveItemState() {

@@ -7,16 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Preferences;
 
 
-public class HUD {
+public class HUD  {
     private BitmapFont font;
     private int lives;
-    private int score;
-    private float scale = 0.2f;
     private float globalTimer;
     private Texture keyIcon;
     private boolean keyCollected;
@@ -53,7 +49,6 @@ public class HUD {
         font.getData().setScale(2f);
 
         this.lives = 3;
-        this.score = 0;
         this.globalTimer = 0f;
         this.keyCollected = false;
         scoreTimer = 300;

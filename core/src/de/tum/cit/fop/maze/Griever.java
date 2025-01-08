@@ -10,7 +10,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
 import java.util.*;
 
-public class Griever {
+public class Griever implements  Renderable {
     private Map<String, Texture[]> grieverTextures;
     private Texture griever;
     private float grieverStateTime;

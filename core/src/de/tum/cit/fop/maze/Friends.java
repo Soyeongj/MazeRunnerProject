@@ -99,8 +99,7 @@ public class Friends {
             }
         }
     }
-
-    public void render(SpriteBatch batch, Player player, float delta) {
+    public void render(SpriteBatch batch, Player player) {
         for (int i = 0; i < friendsPositions.length; i++) {
             if (!isFriendSaved[i]) {
                 batch.draw(currentTexture, friendsPositions[i].x, friendsPositions[i].y,
@@ -186,7 +185,6 @@ public class Friends {
         }
         updateFollowingPositions(player, delta);
     }
-
 
 
     public void dispose() {

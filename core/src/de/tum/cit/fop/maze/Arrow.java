@@ -1,17 +1,12 @@
 package de.tum.cit.fop.maze;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.Preferences;
 
-public class Arrow {
+public class Arrow implements Renderable {
     private Texture arrowTexture;
     private Texture exitTexture;
     private Vector2 position;
@@ -54,6 +49,8 @@ public class Arrow {
         return nearest;
     }
 
+
+    @Override
     public void render(SpriteBatch batch) {
         batch.draw(exitTexture,
                 position.x - exitTexture.getWidth() / 2,
@@ -82,7 +79,7 @@ public class Arrow {
                 false, false);
 
     }
-
+    @Override
     public void dispose() {
         if (arrowTexture != null) {
             arrowTexture.dispose();
@@ -92,14 +89,4 @@ public class Arrow {
         }
     }
 
-    public void saveArrowState() {
-        Preferences prefs = Gdx.app.getPreferences("arrow");
-        prefs.putFloat("rotation", rotation);
-        prefs.flush();
-    }
-
-    public void loadArrowState() {
-        Preferences prefs = Gdx.app.getPreferences("arrow");
-        rotation = prefs.getFloat("rotation", rotation);
-    }
 }

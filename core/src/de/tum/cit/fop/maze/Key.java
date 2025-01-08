@@ -2,10 +2,10 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 
-public class Key {
+import java.awt.event.KeyListener;
+
+public class Key implements Renderable {
     private Texture keyTexture;
     private float x, y;
     private boolean isCollected;
@@ -54,11 +54,6 @@ public class Key {
             setPosition(-1000, -1000);
             SoundManager.playKeyCollectedSound();
         }
-    }
-
-
-    public void setCollected(boolean collected) {
-        isCollected = collected;
     }
 
     public float getY() {

@@ -8,7 +8,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
-public class Player {
+public class Player implements Renderable {
     private Texture currentTexture;
     private Texture up1, up2, down1, down2, left1, left2, right1, right2, dead;
     private float x, y;
