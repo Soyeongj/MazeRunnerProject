@@ -16,7 +16,7 @@ public class Griever {
     private float grieverStateTime;
     private String fixedGrieverDirection;
     private float monsterX, monsterY;
-    private final float monsterSpeed = 10.0f;
+    private final float monsterSpeed = 15.0f;
     private final float detectionRange = 100.0f;
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f;
