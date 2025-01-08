@@ -21,8 +21,8 @@ public class GameOverScreen implements Screen {
     private final float textOffsetX = 370f;
     private final float textOffsetY = 150f;
 
-    private float fadeAlpha; // Alpha value for fade effect
-    private static final float FADE_SPEED = 0.5f; // Speed of the fade effect
+    private float fadeAlpha;
+    private static final float FADE_SPEED = 0.5f;
     private float finalTime;
 
 
@@ -38,6 +38,7 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void show() {
+        // Reset alpha when the screen is shown
         fadeAlpha = 0f;
     }
 

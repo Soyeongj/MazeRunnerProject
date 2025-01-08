@@ -36,9 +36,9 @@ public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
-    private float currentZoom = 0.1f;
+    private float currentZoom = 0.05f;
     private final float MIN_ZOOM = 0.05f;
-    private final float MAX_ZOOM = 0.2f;
+    private final float MAX_ZOOM = 0.50f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
     private Viewport viewport;
@@ -168,24 +168,6 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
-    private void updateCameraPosition() {
-
-        float playerX = player.getX();
-        float playerY = player.getY();
-
-
-        float cameraHalfWidth = camera.viewportWidth / 2f;
-        float cameraHalfHeight = camera.viewportHeight / 2f;
-
-        int mapWidth = tiledMap.getProperties().get("width", Integer.class) * tiledMap.getProperties().get("tilewidth", Integer.class);
-        int mapHeight = tiledMap.getProperties().get("height", Integer.class) * tiledMap.getProperties().get("tileheight", Integer.class);
-
-        float cameraX = Math.max(cameraHalfWidth, Math.min(playerX, mapWidth - cameraHalfWidth));
-        float cameraY = Math.max(cameraHalfHeight, Math.min(playerY, mapHeight - cameraHalfHeight));
-
-        camera.position.set(cameraX, cameraY, 0);
-    }
-
 
     @Override
     public void render(float delta) {
@@ -212,7 +194,7 @@ public class GameScreen implements Screen {
             wall.checkAndMovePlayer(player, hud.getGlobalTimer(),friends);
         });
 
-        camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
+        camera.position.set(player.getX() +( player.getWidth() / 2 ) -10, player.getY() + (player.getHeight() / 2) -10, 0);
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
@@ -357,6 +339,8 @@ public class GameScreen implements Screen {
             wall.loadWallState();
         }
 
+        hud.loadHUDState();
+
         keys.clear();
         Preferences preferences = Gdx.app.getPreferences("Keys");
         int numberOfKeys = preferences.getInteger("numberOfKeys", 0);
@@ -371,7 +355,7 @@ public class GameScreen implements Screen {
             }
         }
 
-        hud.loadHUDState();
+
     }
 
 
