@@ -1,22 +1,13 @@
 package de.tum.cit.fop.maze;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
-import com.badlogic.gdx.audio.Sound;
 
-import java.util.TimerTask;
-
-
-public class Trap {
-    private Vector2 position;
-    private Rectangle bounds;
+public class Trap extends AbstractGameObject {
     private float livesCoolDown = 0f;
     private float rockFallDuration = 0f;
     public boolean isRockFalling = false;
@@ -27,19 +18,20 @@ public class Trap {
     private static final float fallHeight = 70f;
 
     public Trap(float x, float y, float width, float height, String rockTexturePath) {
-        this.position = new Vector2(x, y);
-        this.bounds = new Rectangle(x, y, width, height);
+        super(x, y, width, height);
         this.rockTexture = new Texture(rockTexturePath);
         this.rockPosition = new Vector2(x, y + fallHeight);
         this.rockStartY = y + fallHeight;
     }
 
-    public boolean isPlayerOnTrap(Vector2 playerPosition) {
+    @Override
+    public boolean isPlayerNear(Vector2 playerPosition) {
         return bounds.contains(playerPosition.x, playerPosition.y);
     }
 
-    public void test(Vector2 playerPosition, HUD hud, Player player, float delta,Friends friends) {
-        if (livesCoolDown <= 0 && isPlayerOnTrap(playerPosition) && !isRockFalling) {
+    @Override
+    public void interact(Vector2 playerPosition, HUD hud, MazeRunnerGame game, Player player, Friends friends, float delta) {
+        if (livesCoolDown <= 0 && isPlayerNear(playerPosition) && !isRockFalling) {
             isRockFalling = true;
             rockFallDuration = 0f;
             rockPosition.y = rockStartY;
@@ -55,8 +47,7 @@ public class Trap {
                 rockPosition.y = position.y;
                 isRockFalling = false;
 
-
-                if (isPlayerOnTrap(playerPosition)) {
+                if (isPlayerNear(playerPosition)) {
                     if (hud.getLives() > 1) {
                         friends.removeLastSavedFriend();
                         hud.decrementLives();

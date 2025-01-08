@@ -254,11 +254,11 @@ public class GameScreen implements Screen {
 
 
         for (Door door : doors) {
-            door.tryToOpen(playerPosition, hud, game);
+            door.interact(playerPosition, hud, game,player,friends,delta);
         }
 
         for (Trap trap : traps) {
-            trap.test(playerPosition,hud,player,delta,friends);
+            trap.interact(playerPosition,hud,game,player,friends,delta);
             trap.render(batch);
 
         }
