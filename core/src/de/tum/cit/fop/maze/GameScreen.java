@@ -36,9 +36,9 @@ public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
-    private float currentZoom = 0.1f;
-    private final float MIN_ZOOM = 0.08f;
-    private final float MAX_ZOOM = 0.2f;
+    private float currentZoom = 0.05f;
+    private final float MIN_ZOOM = 0.05f;
+    private final float MAX_ZOOM = 0.50f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
     private Viewport viewport;
