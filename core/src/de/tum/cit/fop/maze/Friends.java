@@ -133,6 +133,16 @@ public class Friends {
         return false;
     }
 
+    public int checkAndSaveAllFriends(Vector2 playerPosition, float proximity) {
+        int savedFriends = 0;
+        for (int i = 0; i < friendsPositions.length; i++) {
+            if (checkAndSaveFriend(playerPosition, proximity, i)) {
+                savedFriends++;
+            }
+        }
+        return savedFriends;
+    }
+
     public void updateFollowingPositions(Player player, float delta) {
         if (followingFriendsPositions.isEmpty()) {
             lastPlayerPosition = new Vector2(player.getX(), player.getY());
@@ -177,21 +187,7 @@ public class Friends {
         updateFollowingPositions(player, delta);
     }
 
-    public int checkAndSaveAllFriends(Vector2 playerPosition, float proximity) {
-        int savedFriends = 0;
-        for (int i = 0; i < friendsPositions.length; i++) {
-            if (checkAndSaveFriend(playerPosition, proximity, i)) {
-                savedFriends++;
-            }
-        }
-        return savedFriends;
-    }
 
-
-
-    public void setScale(float scale) {
-        this.scale = scale;
-    }
 
     public void dispose() {
         for (Texture friend : friends) {
@@ -207,21 +203,6 @@ public class Friends {
         right2.dispose();
     }
 
-    public Vector2[] getFriendsPositions() {
-        return friendsPositions;
-    }
-
-    public void setFriendsPositions(Vector2[] friendsPositions) {
-        this.friendsPositions = friendsPositions;
-    }
-
-    public boolean[] getIsFriendSaved() {
-        return isFriendSaved;
-    }
-
-    public void setIsFriendSaved(boolean[] isFriendSaved) {
-        this.isFriendSaved = isFriendSaved;
-    }
 
     public boolean removeLastSavedFriend() {
         followingFriendsPositions.remove(followingFriendsPositions.size() - 1);
@@ -272,15 +253,11 @@ public class Friends {
         }
 
         followingFriendsPositions.clear();
-        int followingFriendsCount = preferences.getInteger("followingFriendsCount", 3);  // Default to 3 initial friends
+        int followingFriendsCount = preferences.getInteger("followingFriendsCount", 3);
         for (int i = 0; i < followingFriendsCount; i++) {
             float x = preferences.getFloat("followingFriendPosX_" + i, 0);
             float y = preferences.getFloat("followingFriendPosY_" + i, 0);
             followingFriendsPositions.add(new Vector2(x, y));
         }
     }
-
-
-
-
 }
