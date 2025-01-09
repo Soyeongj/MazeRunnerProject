@@ -22,7 +22,7 @@ public class Door implements NearbyPlayer {
         if (isPlayerNearby(playerPosition)) {
             if (hud.isKeyCollected()) {
                 hud.stopTimer();
-                float finalTime = 1000 + (hud.getFinalTime() * 5) + hud.getLives()* 5 ;
+                float finalTime = 1000 + (hud.getFinalTime() * 5) + hud.getLives()* 15 ;
                 game.setScreen(new GameClearScreen(game, finalTime));
                 SoundManager.playVictorySound();
             }

@@ -22,11 +22,13 @@ public class Friends {
     private List<Vector2> followingFriendsPositions = new ArrayList<>();
     private Vector2[] mapFriendsPositions;
     private boolean[] isMapFriendSaved;
-    private static final float FOLLOWING_DISTANCE = 8f;
+    private static final float FOLLOWING_DISTANCE = 5f;
     private BitmapFont font;
 
     private float scale = 0.2f;
     private Vector2 lastPlayerPosition;
+
+    private int followingFriendsCount;
 
     public Friends(TiledMap map, Player player) {
         friendTexture = new Texture("oldman_right_1.png");
@@ -46,6 +48,9 @@ public class Friends {
 
         mapFriendsPositions = loadFriendPositions(map);
         isMapFriendSaved = new boolean[mapFriendsPositions.length];
+
+        int followingFriendsCount = followingFriendsPositions.size();
+
 
         initializeInitialFollowers(player);
     }
@@ -150,13 +155,15 @@ public class Friends {
         lastPlayerPosition.set(currentPlayerPos);
     }
 
-    public void update(Player player, HUD hud, float interactionRadius, float delta, Array<Griever> grievers) {
+    public void update(Player player, HUD hud, float interactionRadius, float delta, Griever griever,Wall wall) {
         int savedFriends = checkAndSaveAllMapFriends(new Vector2(player.getX(), player.getY()), interactionRadius);
         for (int i = 0; i < savedFriends; i++) {
             hud.incrementLives();
         }
+
         updateFollowingPositions(player, delta);
-        checkFriendCollisionWithGriever(grievers,hud);
+        checkFriendCollisionWithGriever(griever,hud);
+        checkFriendsCollisionWithWall(wall,hud);
     }
 
     public boolean removeLastSavedFriend() {
@@ -196,12 +203,12 @@ public class Friends {
         preferences.flush();
     }
 
-    public void checkFriendCollisionWithGriever(Array<Griever> grievers, HUD hud) {
+    public void checkFriendCollisionWithGriever(Griever griever, HUD hud) {
         for (int i = 0; i < followingFriendsPositions.size(); i++) {
             Vector2 friendPosition = followingFriendsPositions.get(i);
 
-            float diffX = grievers.getMonsterX() - friendPosition.x;
-            float diffY = griever.etMonsterY() - friendPosition.y;
+            float diffX = griever.getMonsterX() - friendPosition.x;
+            float diffY = griever.getMonsterY() - friendPosition.y;
             float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
 
             if (distance < 5f) {
@@ -211,6 +218,43 @@ public class Friends {
             }
         }
     }
+    public List<Vector2> getFollowingFriendsPositions() {
+        return followingFriendsPositions;
+    }
+    public void removeFriendAt(int index) {
+        if (index >= 0 && index < followingFriendsPositions.size()) {
+            followingFriendsPositions.remove(index);
+        }
+    }
+    public void checkFriendsCollisionWithWall(Wall wall, HUD hud) {
+        for (int i = 0; i < followingFriendsPositions.size(); i++) {
+            Vector2 friendPosition = followingFriendsPositions.get(i);
+
+            float wallX = wall.getTargetX() * wall.getLayer().getTileWidth();
+            float wallY = wall.getTargetY() * wall.getLayer().getTileHeight();
+            float wallWidth = wall.getLayer().getTileWidth();
+            float wallHeight = wall.getLayer().getTileHeight();
+
+            if (wall.getX() != wall.getOriginalX() || wall.getY() != wall.getOriginalY() || wall.isAtTarget()) {
+                if (checkCollision(friendPosition.x, friendPosition.y, friendTexture.getWidth() * scale, friendTexture.getHeight() * scale,
+                        wallX, wallY, wallWidth, wallHeight)) {
+                    removeFriendAt(i);
+                    hud.decrementLives();
+                    break;
+                }
+            }
+        }
+    }
+
+    private boolean checkCollision(float x1, float y1, float width1, float height1,
+                                   float x2, float y2, float width2, float height2) {
+        return x1 < x2 + width2 && x1 + width1 > x2 &&
+                y1 < y2 + height2 && y1 + height1 > y2;
+    }
+
+
+
+
 
 
     public void loadFriendState() {
@@ -227,6 +271,10 @@ public class Friends {
             followingFriendsPositions.add(new Vector2(x, y));
         }
 
+    }
+
+    public int getFollowingFriendsCount() {
+        return followingFriendsPositions.size();
     }
 }
 

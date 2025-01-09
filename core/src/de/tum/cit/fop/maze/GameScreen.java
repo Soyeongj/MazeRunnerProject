@@ -220,18 +220,21 @@ public class GameScreen implements Screen {
         boolean runKeyPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT);
 
 
-        player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed);
+        player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed,friends);
         player.render(batch);
+
+
 
         for (Griever griever : grievers) {
             griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player,friends);
             griever.updateMovement(delta);
             griever.render(batch);
-        }
-        for (Wall wall : walls) {
-            if (wall.isGrieverDead() && !wall.hasKeySpawned()) {
-                keys.add(new Key(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y));
-                wall.setKeySpawned(true);
+            for (Wall wall : walls) {
+                if (wall.isGrieverDead() && !wall.hasKeySpawned()) {
+                    keys.add(new Key(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y));
+                    wall.setKeySpawned(true);
+                }
+                friends.update(player, hud, 3f, delta, griever, wall);
             }
         }
 
@@ -273,7 +276,6 @@ public class GameScreen implements Screen {
 
         arrow.update(playerPosition,doors,hud.isKeyCollected());
         arrow.render(batch);
-        friends.update(player, hud, 3f,delta,grievers);
         item.update(player,  3f);
         trapItem.update(player, 7f);
         if (trapItem.isFogActive()) {

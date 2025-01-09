@@ -202,12 +202,45 @@ public class Wall {
 
             isPlayerRemoved = false;
         }
+
     }
 
     private boolean checkCollision(float x1, float y1, float width1, float height1,
                                    float x2, float y2, float width2, float height2) {
         return x1 < x2 + width2 && x1 + width1 > x2 &&
                 y1 < y2 + height2 && y1 + height1 > y2;
+    }
+
+    public TiledMapTileLayer getLayer() {
+        return layer;
+    }
+
+    public int getTargetY() {
+        return targetY;
+    }
+
+    public int getTargetX() {
+        return targetX;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getOriginalX() {
+        return originalX;
+    }
+
+    public int getOriginalY() {
+        return originalY;
+    }
+
+    public boolean isAtTarget() {
+        return isAtTarget;
     }
 
     public Vector2 getKeySpawnPosition() {

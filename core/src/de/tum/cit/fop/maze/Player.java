@@ -12,7 +12,7 @@ public class Player implements Renderable {
     private Texture currentTexture;
     private Texture up1, up2, down1, down2, left1, left2, right1, right2, dead;
     private float x, y;
-    private float speed, runningSpeed;
+    private float speed, runningSpeed, normalSpeed;
     private float runTimer = 0f, cooldownTimer = 0f;
     private boolean isRunning = false, canRun = true;
     private float stateTime = 0f;
@@ -46,6 +46,7 @@ public class Player implements Renderable {
         this.y = startY;
         this.speed = 30.0f;
         this.runningSpeed = 70.0f;
+        this.normalSpeed = speed;
         this.previousX = startX;
         this.previousY = startY;
         this.collisionLayer = collisionLayer;
@@ -66,9 +67,14 @@ public class Player implements Renderable {
         this.bound = new Rectangle();
     }
 
-    public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed) {
+    public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed, Friends friends) {
         previousX = x;
         previousY = y;
+
+        float slowdownFactor = 1 - 0.05f * friends.getFollowingFriendsCount();
+
+
+
 
         if (isSpeedBoosted) {
             speedBoostDuration -= delta;
@@ -107,7 +113,12 @@ public class Player implements Renderable {
             }
         }
 
-        float currentSpeed = isRunning ? runningSpeed : speed;
+        float currentSpeed = speed * slowdownFactor;
+
+        if (isRunning) {
+            currentSpeed = runningSpeed * slowdownFactor;
+        }
+
 
         if (moveUp && y < 478) {
             y += currentSpeed * delta;
@@ -274,7 +285,7 @@ public class Player implements Renderable {
 
     public void resetSpeedBoost() {
         isSpeedBoosted = false;
-        speed = 30f;
+        speed = normalSpeed;
     }
 
     public Rectangle getBound() {
