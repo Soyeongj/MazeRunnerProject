@@ -12,9 +12,9 @@ public class TrapItem extends CollectibleItem {
 
     public TrapItem() {
         super(new Texture[] {
-                new Texture("spike.png"),
-                new Texture("spike.png"),
-                new Texture("spike.png")
+                new Texture("fog.png"),
+                new Texture("fog.png"),
+                new Texture("fog.png")
         }, new Vector2[] {
                 new Vector2(150, 200),
                 new Vector2(300, 350),

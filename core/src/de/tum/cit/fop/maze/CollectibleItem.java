@@ -9,7 +9,7 @@ public abstract class CollectibleItem implements Renderable {
     protected Texture[] textures;
     protected Vector2[] positions;
     protected boolean[] isCollected;
-    protected float scale = 0.2f;
+    protected float scale = 0.4f;
 
     protected CollectibleItem(Texture[] textures, Vector2[] positions) {
         this.textures = textures;
