@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="22" nextobjectid="94">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="26" nextobjectid="111">
  <tileset firstgid="1" name="test tile" tilewidth="16" tileheight="16" tilecount="120" columns="8">
   <properties>
    <property name="blocked" type="bool" value="true"/>
@@ -351,6 +351,23 @@
   <object id="92" x="159.333" y="266.667">
    <properties>
     <property name="trapitem" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="25" name="friend">
+  <object id="107" x="163.333" y="152">
+   <properties>
+    <property name="friend" value="1"/>
+   </properties>
+  </object>
+  <object id="108" x="162" y="134">
+   <properties>
+    <property name="friend" value="1"/>
+   </properties>
+  </object>
+  <object id="109" x="198" y="128.667">
+   <properties>
+    <property name="friend" value="1"/>
    </properties>
   </object>
  </objectgroup>
