@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
  * It extends the LibGDX Screen class and sets up the UI components for the menu.
  */
 public class MenuScreen implements Screen {
-
+    private final MazeRunnerGame game;
     private final Stage stage;
 
     /**
@@ -27,29 +27,105 @@ public class MenuScreen implements Screen {
      * @param game The main game class, used to access global resources and methods.
      */
     public MenuScreen(MazeRunnerGame game) {
-        var camera = new OrthographicCamera();
-        camera.zoom = 1.5f; // Set camera zoom for a closer view
+        this.game = game;
+        OrthographicCamera camera = new OrthographicCamera();
+        camera.setToOrtho(false); // Reset the camera to default orthographic view
+        camera.zoom = 1.0f; // Use default zoom level
 
-        Viewport viewport = new ScreenViewport(camera); // Create a viewport with the camera
-        stage = new Stage(viewport, game.getSpriteBatch()); // Create a stage for UI elements
+        Viewport viewport = new ScreenViewport(camera);
+        stage = new Stage(viewport, game.getSpriteBatch());
 
-        Table table = new Table(); // Create a table for layout
-        table.setFillParent(true); // Make the table fill the stage
-        stage.addActor(table); // Add the table to the stage
+        Table table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
 
-        // Add a label as a title
-        table.add(new Label("Hello World from the Menu!", game.getSkin(), "title")).padBottom(80).row();
+        table.add(new Label("Menu Screen", game.getSkin(), "title")).padBottom(80).row();
+        TextButton map1Button = new TextButton("Play Map 1", game.getSkin());
+        table.add(map1Button).width(300).row();
 
-        // Create and add a button to go to the game screen
-        TextButton goToGameButton = new TextButton("Go To Game", game.getSkin());
-        table.add(goToGameButton).width(300).row();
-        goToGameButton.addListener(new ChangeListener() {
+
+        map1Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.goToGame(); // Change to the game screen when button is pressed
+                game.setCurrentMapPath("map1.tmx");
+                game.setScreen(new GameScreen(game, "map1.tmx"));
             }
         });
+
+        TextButton map2Button = new TextButton("Play Map 2", game.getSkin());
+        table.add(map2Button).width(300).row();
+
+        map2Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map2.tmx");
+                game.setScreen(new GameScreen(game, "map2.tmx"));
+            }
+        });
+
+
+        TextButton map3Button = new TextButton("Play Map 3", game.getSkin());
+        table.add(map3Button).width(300).row();
+
+        map3Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map3.tmx");
+                game.setScreen(new GameScreen(game, "map3.tmx"));
+            }
+        });
+
+        TextButton map4Button = new TextButton("Play Map 4", game.getSkin());
+        table.add(map4Button).width(300).row();
+
+        map4Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map4.tmx");
+                game.setScreen(new GameScreen(game, "map4.tmx"));
+            }
+        });
+
+        TextButton map5Button = new TextButton("Play Map 5", game.getSkin());
+        table.add(map5Button).width(300).row();
+
+        map5Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map5.tmx");
+                game.setScreen(new GameScreen(game, "map5.tmx"));
+            }
+        });
+
+
+        TextButton exitButton = new TextButton("Exit", game.getSkin());
+        table.add(exitButton).width(300).row();
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
+
+        TextButton resumeButton = new TextButton("Continue To Play", game.getSkin());
+        table.add(resumeButton).width(300).row();
+        resumeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String lastMapPath = game.getCurrentMapPath();
+
+                if (lastMapPath == null) {
+                    lastMapPath = "map1.tmx";
+                }
+
+                GameScreen gameScreen = new GameScreen(game, lastMapPath);
+                gameScreen.loadState();
+                game.setScreen(gameScreen);
+            }
+        });
+
     }
+
 
     @Override
     public void render(float delta) {
@@ -71,7 +147,6 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
-        // Set the input processor so the stage can receive input events
         Gdx.input.setInputProcessor(stage);
     }
 
