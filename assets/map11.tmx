@@ -4,7 +4,7 @@
   <properties>
    <property name="blocked" type="bool" value="true"/>
   </properties>
-  <image source="./assets/basictiles.png" width="128" height="240"/>
+  <image source="/fophn2425projectfop-kleague/assets/basictiles.png" width="128" height="240"/>
   <tile id="0">
    <properties>
     <property name="blocked" type="bool" value="false"/>
@@ -54,8 +54,8 @@
    </properties>
   </tile>
  </tileset>
- <tileset firstgid="121" name="exit" tilewidth="16" tileheight="16" tilecount="1" columns="1">
-  <image source="./assets/exit.png" width="16" height="16"/>
+ <tileset firstgid="121" name="exit" tilewidth="16" tileheight="16" tilecount="0" columns="1">
+  <image source="assets/exit.png" width="16" height="16"/>
  </tileset>
  <layer id="10" name="walls" width="30" height="30">
   <data encoding="csv">

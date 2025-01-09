@@ -57,6 +57,7 @@ public class GameScreen implements Screen {
     private Arrow arrow;
     private TrapItem trapItem;
     private ShapeRenderer shapeRenderer;
+    private Friend friend;
 
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
@@ -88,6 +89,7 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         trapItem = new TrapItem(tiledMap);
         shapeRenderer = new ShapeRenderer();
+        this.friend = new Friend(tiledMap);
 
 
         keys = new Array<>();
@@ -259,6 +261,8 @@ public class GameScreen implements Screen {
         friends.render(batch,player);
         item.render(batch);
         trapItem.render(batch);
+        friend.render(batch);
+        friend.update(player,7f,hud);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
 
 
