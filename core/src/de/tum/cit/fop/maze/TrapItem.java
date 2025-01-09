@@ -30,7 +30,6 @@ public class TrapItem extends CollectibleItem {
         isFogActive = true;
         fogEffectStartTime = TimeUtils.millis();
     }
-
     public void updateFogEffect() {
         if (isFogActive) {
             long currentTime = TimeUtils.millis();
