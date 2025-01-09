@@ -38,7 +38,6 @@ public class TrapItem extends CollectibleItem {
             }
         }
     }
-
     public void update(Player player, float interactionRadius) {
         checkAndCollectAll(new Vector2(player.getX(), player.getY()), interactionRadius);
         updateFogEffect();
