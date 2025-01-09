@@ -3,7 +3,14 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+
 
 public abstract class CollectibleItem implements Renderable {
     protected Texture[] textures;
@@ -11,15 +18,34 @@ public abstract class CollectibleItem implements Renderable {
     protected boolean[] isCollected;
     protected float scale = 0.2f;
 
-    protected CollectibleItem(Texture[] textures, Vector2[] positions) {
+    protected CollectibleItem(Texture[] textures, TiledMap map, String layerName) {
         this.textures = textures;
-        this.positions = positions;
-        this.isCollected = new boolean[textures.length];
+        this.positions = loadItemPositions(map, layerName);
+
+        // 아이템 수집 상태 초기화
+        this.isCollected = new boolean[positions.length];
+    }
+
+    private static Vector2[] loadItemPositions(TiledMap map, String layerName) {
+        Array<Vector2> positions = new Array<>();
+        MapObjects objects = map.getLayers().get(layerName).getObjects();
+
+        for (MapObject object : objects) {
+            if (object instanceof RectangleMapObject) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                positions.add(new Vector2(rect.x, rect.y)); // 아이템 좌표 추가
+            } else if (object.getProperties().containsKey("x") && object.getProperties().containsKey("y")) {
+                float x = object.getProperties().get("x", Float.class);
+                float y = object.getProperties().get("y", Float.class);
+                positions.add(new Vector2(x, y));
+            }
+        }
+        return positions.toArray(Vector2.class);
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < positions.length; i++) {
+        for (int i = 0; i < Math.min(textures.length, positions.length); i++) {
             if (!isCollected[i]) {
                 batch.draw(textures[i], positions[i].x, positions[i].y,
                         textures[i].getWidth() * scale, textures[i].getHeight() * scale);

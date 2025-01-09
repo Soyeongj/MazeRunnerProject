@@ -81,12 +81,12 @@ public class GameScreen implements Screen {
         centerCameraOnMap();
         hud = new HUD();
         this.friends = new Friends();
-        this.item = new Item();
+        this.item = new Item(tiledMap);
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         grievers = new Array<>();
         grievers.add(new Griever(160, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
-        trapItem = new TrapItem();
+        trapItem = new TrapItem(tiledMap);
         shapeRenderer = new ShapeRenderer();
 
 
