@@ -36,7 +36,7 @@ public class GameClearScreen implements Screen {
         this.game = game;
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
-        this.gameClearTexture = new Texture("gameclear.jpg");
+        this.gameClearTexture = new Texture("desert.png");
         this.fadeAlpha = 0f;
         font.setColor(Color.WHITE);
         this.finalTime = finalTime;
@@ -84,9 +84,10 @@ public class GameClearScreen implements Screen {
         // Reset the batch color to draw text without transparency
         batch.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(2.5f); // Further increase text size for the options
-        font.draw(batch, "Press ENTER to Go to Menu or ESC to Quit", screenWidth / 2 - textOffsetX, screenHeight / 2 - textOffsetY);
-        font.draw(batch, "Your Score: " + (int) finalTime, screenWidth / 2 - 190, screenHeight / 2 - 230);
+        font.draw(batch, "Press ENTER to Go to Menu or ESC to Quit", screenWidth * 0.2f, screenHeight - 30);
+        font.draw(batch, "Your Score: " + (int) finalTime, screenWidth * 0.2f, screenHeight - 105);
         batch.end();
+
 
 
         // Handle input

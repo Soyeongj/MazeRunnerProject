@@ -34,6 +34,7 @@ import static java.lang.Math.exp;
  */
 public class GameScreen implements Screen {
 
+    private final Texture backgroundTexture;
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
     private float currentZoom = 0.05f;
@@ -111,6 +112,7 @@ public class GameScreen implements Screen {
         arrow = new Arrow();
         SoundManager.initialize();
 
+        backgroundTexture = new Texture(Gdx.files.internal("background.png"));
     }
 
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
@@ -179,6 +181,10 @@ public class GameScreen implements Screen {
         hud.updateTimer(delta);
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
+
+        batch.begin();
+        batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
             zoomCamera(-ZOOM_SPEED);
@@ -381,4 +387,5 @@ public class GameScreen implements Screen {
             griever.dispose();
         }
         arrow.dispose();
+        backgroundTexture.dispose();
     }}
