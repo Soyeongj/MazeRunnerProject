@@ -57,7 +57,6 @@ public class GameScreen implements Screen {
     private Arrow arrow;
     private TrapItem trapItem;
     private ShapeRenderer shapeRenderer;
-    private Friend friend;
 
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
@@ -81,16 +80,14 @@ public class GameScreen implements Screen {
 
         centerCameraOnMap();
         hud = new HUD();
-        this.friends = new Friends();
-        this.item = new Item(tiledMap);
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
+        this.friends = new Friends(tiledMap,player);
+        this.item = new Item(tiledMap);
         grievers = new Array<>();
         grievers.add(new Griever(160, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
         trapItem = new TrapItem(tiledMap);
         shapeRenderer = new ShapeRenderer();
-        this.friend = new Friend(tiledMap);
-
 
         keys = new Array<>();
 
@@ -261,8 +258,6 @@ public class GameScreen implements Screen {
         friends.render(batch,player);
         item.render(batch);
         trapItem.render(batch);
-        friend.render(batch);
-        friend.update(player,7f,hud);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
 
 
@@ -319,7 +314,6 @@ public class GameScreen implements Screen {
         for (Griever griever : grievers) {
             griever.saveGrieverstate();
         }
-        friends.saveFriendsStates();
         item.saveItemState();
         trapItem.saveTrapItemState();
 
@@ -331,7 +325,7 @@ public class GameScreen implements Screen {
         }
 
         hud.saveHUDState();
-
+        friends.saveFriendState();
         Preferences preferences = Gdx.app.getPreferences("Keys");
         preferences.putInteger("numberOfKeys", keys.size);
         for (int i = 0; i < keys.size; i++) {
@@ -350,7 +344,6 @@ public class GameScreen implements Screen {
         for (Griever griever: grievers) {
             griever.loadGrieverstate();
         }
-        friends.loadFriendsStates();
         item.loadItemState();
         trapItem.loadTrapItemState();
 
@@ -377,6 +370,7 @@ public class GameScreen implements Screen {
             }
         }
 
+        friends.loadFriendState();
 
     }
 
@@ -418,7 +412,6 @@ public class GameScreen implements Screen {
         batch.dispose();
         player.dispose();
         hud.dispose();
-        friends.dispose();
         for (Griever griever : grievers) {
             griever.dispose();
         }
