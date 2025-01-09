@@ -18,7 +18,6 @@ public class Item extends CollectibleItem {
                 new Vector2(220, 283)
         });
     }
-
     @Override
     protected void onCollected() {
         SoundManager.playItemCollectedSound();
