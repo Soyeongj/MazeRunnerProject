@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -31,7 +32,7 @@ import java.util.List;
  * It handles the game logic and rendering of the game elements.
  */
 public class GameScreen implements Screen {
-
+    private final Texture backgroundTexture;
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
     private float currentZoom = 0.05f;
@@ -111,7 +112,7 @@ public class GameScreen implements Screen {
 
         arrow = new Arrow();
         SoundManager.initialize();
-
+        backgroundTexture = new Texture(Gdx.files.internal("background.png"));
     }
 
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
@@ -180,6 +181,10 @@ public class GameScreen implements Screen {
         hud.updateTimer(delta);
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
+
+        batch.begin();
+        batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
             zoomCamera(-ZOOM_SPEED);
@@ -414,5 +419,6 @@ public class GameScreen implements Screen {
             griever.dispose();
         }
         arrow.dispose();
+        backgroundTexture.dispose();
 
     }}

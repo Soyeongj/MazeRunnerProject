@@ -22,8 +22,6 @@ public abstract class AbstractGameScreen implements Screen {
     //Screen Layout Constants
     protected final float textureWidthScale = 4.0f;
     protected final float textureHeightScale = 3.0f;
-    protected final float textOffsetX = 370f;
-    protected final float textOffsetY = 150f;
 
     public AbstractGameScreen(MazeRunnerGame game, Texture texture, float finalTime) {
         this.game = game;
@@ -64,8 +62,8 @@ public abstract class AbstractGameScreen implements Screen {
 
         batch.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(2.5f);
-        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth / 2 - textOffsetX, screenHeight / 2 - textOffsetY);
-        drawText("Your Score: " + (int) finalTime, screenWidth / 2 - 190, screenHeight / 2 - 230);
+        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth*0.2f, screenHeight -30);
+        drawText("Your Score: " + (int) finalTime, screenWidth*0.2f, screenHeight -105);
 
         batch.end();
 

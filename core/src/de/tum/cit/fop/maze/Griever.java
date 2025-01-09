@@ -98,7 +98,6 @@ public class Griever implements  Renderable {
 
         // 추적 모드 전환 시 랜덤 상태 초기화
         if (isGrieverFollowingPlayer && !wasFollowingPlayer) {
-            System.out.println("Player entered detection range. Switching to follow mode.");
             isRandomMovement = false;
             currentTarget = null; // 추적을 위한 목표 초기화
         }
@@ -116,7 +115,6 @@ public class Griever implements  Renderable {
                 }
 
                 if (newTarget == null) {
-                    System.out.println("Failed to find valid path, switching to random movement");
                     switchToRandomMovement();
                     return;
                 }
@@ -147,7 +145,6 @@ public class Griever implements  Renderable {
                 monsterY += deltaY;
                 grieverRectangle.setPosition(monsterX, monsterY);
             } else {
-                System.out.println("Collision detected while following the player. Recalculating target.");
                 currentTarget = findNextTargetTowardsPlayer(playerX, playerY);
             }
         } else {
@@ -157,10 +154,8 @@ public class Griever implements  Renderable {
             if (currentTarget == null || reachedTarget()) {
                 currentTarget = findNextTargetWithMinDistance(10f);
                 if (currentTarget == null) {
-                    System.out.println("No valid target found. Griever is stuck.");
                     return;
                 }
-                System.out.println("New target set: " + currentTarget);
             }
 
             Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY).nor();
@@ -172,7 +167,6 @@ public class Griever implements  Renderable {
                 monsterY += deltaY;
                 grieverRectangle.setPosition(monsterX, monsterY);
             } else {
-                System.out.println("Collision detected! Recalculating target.");
                 currentTarget = findNextTargetWithMinDistance(10f);
             }
         }
@@ -217,9 +211,7 @@ public class Griever implements  Renderable {
     private void switchToTemporaryRandomMovement(float delta) {
         currentTarget = findNextTargetWithMinDistance(10f); // 임시 랜덤 목표 설정
         if (currentTarget != null) {
-            System.out.println("Temporarily switched to random movement. New target: " + currentTarget);
         } else {
-            System.out.println("Failed to switch to temporary random movement. Griever is stuck.");
         }
     }
 
@@ -227,9 +219,7 @@ public class Griever implements  Renderable {
         isGrieverFollowingPlayer = false;
         currentTarget = findNextTargetWithMinDistance(10f); // 랜덤 목표 즉시 설정
         if (currentTarget != null) {
-            System.out.println("Switched to random movement. New target: " + currentTarget);
         } else {
-            System.out.println("Failed to switch to random movement. Griever is stuck.");
         }
     }
 
@@ -308,9 +298,7 @@ public class Griever implements  Renderable {
             if (isGrieverInOppositeDirection(playerDirection) && !isGrieverStunned) {
                 isGrieverStunned = true;
                 stunTimer = 0;
-                System.out.println("Griever is stunned!");
             } else {
-                System.out.println("Griever is not stunned: Directions are not opposite.");
             }
         }
     }
@@ -320,7 +308,6 @@ public class Griever implements  Renderable {
                 (fixedGrieverDirection.equals("right") && playerDirection.equals("left")) ||
                 (fixedGrieverDirection.equals("up") && playerDirection.equals("down")) ||
                 (fixedGrieverDirection.equals("down") && playerDirection.equals("up"));
-        System.out.println("Player Direction: " + playerDirection + ", Griever Direction: " + fixedGrieverDirection + ", Opposite: " + result);
         return result;
     }
 
