@@ -14,7 +14,6 @@ public class HUD  {
     private BitmapFont font;
     private int lives;
     private float globalTimer;
-    private Texture keyIcon;
     private boolean keyCollected;
     private String message = "";
     private float messageTimer = 0f;
@@ -32,7 +31,6 @@ public class HUD  {
 
     public HUD() {
 
-        this.keyIcon = new Texture("key.png");
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -158,13 +156,6 @@ public class HUD  {
         return keyCollected;
     }
 
-    public void setKeyCollected(boolean keyCollected) {
-        this.keyCollected = keyCollected;
-    }
-
-    public void setScoreTimer(float scoreTimer) {
-        this.scoreTimer = scoreTimer;
-    }
 
     public float getScoreTimer() {
         return scoreTimer;

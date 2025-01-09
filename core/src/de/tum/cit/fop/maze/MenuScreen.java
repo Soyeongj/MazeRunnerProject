@@ -1,7 +1,6 @@
 package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -98,7 +97,6 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
-        // Set the input processor so the stage can receive input events
         Gdx.input.setInputProcessor(stage);
     }
 

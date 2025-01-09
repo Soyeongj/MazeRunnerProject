@@ -24,9 +24,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
-import static java.lang.Math.exp;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -56,7 +54,6 @@ public class GameScreen implements Screen {
     private Array<Door> doors;
     private Array<Trap> traps;
     private Arrow arrow;
-    private Sound rockSound;
     private TrapItem trapItem;
     private ShapeRenderer shapeRenderer;
 
