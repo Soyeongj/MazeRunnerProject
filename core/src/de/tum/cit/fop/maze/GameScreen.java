@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 
 
@@ -57,6 +58,8 @@ public class GameScreen implements Screen {
     private Array<Trap> traps;
     private Arrow arrow;
     private Sound rockSound;
+    private TrapItem trapItem;
+    private ShapeRenderer shapeRenderer;
 
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
@@ -86,6 +89,8 @@ public class GameScreen implements Screen {
         grievers = new Array<>();
         grievers.add(new Griever(160, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
         batch = new SpriteBatch();
+        trapItem = new TrapItem();
+        shapeRenderer = new ShapeRenderer();
 
 
         keys = new Array<>();
@@ -199,6 +204,8 @@ public class GameScreen implements Screen {
 
         batch.setProjectionMatrix(camera.combined);
 
+
+
         batch.begin();
         mapRenderer.setView(camera);
         mapRenderer.render();
@@ -248,8 +255,9 @@ public class GameScreen implements Screen {
         }
 
         hud.updateScoreTimer(delta);
-        friends.render(batch,player,delta);
+        friends.render(batch,player);
         item.render(batch);
+        trapItem.render(batch);
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
 
 
@@ -266,8 +274,15 @@ public class GameScreen implements Screen {
         arrow.update(playerPosition,doors,hud.isKeyCollected());
         arrow.render(batch);
         friends.update(player, hud, 3f,delta);
-        item.update(player, hud, 3f);
-
+        item.update(player,  3f);
+        trapItem.update(player, 7f);
+        if (trapItem.isFogActive()) {
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0, 0, 0, 0.85f);
+            shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            shapeRenderer.end();
+        }
 
         hud.render(batch, player);
 
@@ -301,6 +316,7 @@ public class GameScreen implements Screen {
         }
         friends.saveFriendsStates();
         item.saveItemState();
+        trapItem.saveTrapItemState();
 
         for (Trap trap : traps) {
             trap.saveTrapState();
@@ -331,6 +347,7 @@ public class GameScreen implements Screen {
         }
         friends.loadFriendsStates();
         item.loadItemState();
+        trapItem.loadTrapItemState();
 
         for (Trap trap : traps) {
             trap.loadTrapState();
@@ -401,4 +418,5 @@ public class GameScreen implements Screen {
             griever.dispose();
         }
         arrow.dispose();
+
     }}

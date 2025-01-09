@@ -53,7 +53,9 @@ public class Item implements Renderable {
         }
         return count;
     }
-    public void update(Player player, HUD hud, float interactionRadius) {
+
+
+    public void update(Player player,  float interactionRadius) {
         int collectedItems = checkAndCollectAllItmes(new Vector2(player.getX(), player.getY()), interactionRadius);
         for (int i = 0; i < collectedItems; i++) {
             player.increaseSpeed(3f);
