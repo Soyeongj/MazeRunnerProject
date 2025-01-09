@@ -26,7 +26,6 @@ public class TrapItem extends CollectibleItem {
     protected void onCollected() {
         activateFogEffect();
     }
-
     public void activateFogEffect() {
         isFogActive = true;
         fogEffectStartTime = TimeUtils.millis();
