@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
  * It extends the LibGDX Screen class and sets up the UI components for the menu.
  */
 public class MenuScreen implements Screen {
-
+    private final MazeRunnerGame game;
     private final Stage stage;
 
     /**
@@ -27,6 +27,7 @@ public class MenuScreen implements Screen {
      * @param game The main game class, used to access global resources and methods.
      */
     public MenuScreen(MazeRunnerGame game) {
+        this.game = game;
         OrthographicCamera camera = new OrthographicCamera();
         camera.setToOrtho(false); // Reset the camera to default orthographic view
         camera.zoom = 1.0f; // Use default zoom level
@@ -39,14 +40,64 @@ public class MenuScreen implements Screen {
         stage.addActor(table);
 
         table.add(new Label("Menu Screen", game.getSkin(), "title")).padBottom(80).row();
-        TextButton goToGameButton = new TextButton("Go To Game", game.getSkin());
-        table.add(goToGameButton).width(300).row();
-        goToGameButton.addListener(new ChangeListener() {
+        TextButton map1Button = new TextButton("Play Map 1", game.getSkin());
+        table.add(map1Button).width(300).row();
+
+
+        map1Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.goToGame();
+                game.setCurrentMapPath("map1.tmx");
+                game.setScreen(new GameScreen(game, "map1.tmx"));
             }
         });
+
+        TextButton map2Button = new TextButton("Play Map 2", game.getSkin());
+        table.add(map2Button).width(300).row();
+
+        map2Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map2.tmx");
+                game.setScreen(new GameScreen(game, "map2.tmx"));
+            }
+        });
+
+
+        TextButton map3Button = new TextButton("Play Map 3", game.getSkin());
+        table.add(map3Button).width(300).row();
+
+        map3Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map3.tmx");
+                game.setScreen(new GameScreen(game, "map3.tmx"));
+            }
+        });
+
+        TextButton map4Button = new TextButton("Play Map 4", game.getSkin());
+        table.add(map4Button).width(300).row();
+
+        map4Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map4.tmx");
+                game.setScreen(new GameScreen(game, "map4.tmx"));
+            }
+        });
+
+        TextButton map5Button = new TextButton("Play Map 5", game.getSkin());
+        table.add(map5Button).width(300).row();
+
+        map5Button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setCurrentMapPath("map5.tmx");
+                game.setScreen(new GameScreen(game, "map5.tmx"));
+            }
+        });
+
+
         TextButton exitButton = new TextButton("Exit", game.getSkin());
         table.add(exitButton).width(300).row();
         exitButton.addListener(new ChangeListener() {
@@ -55,23 +106,31 @@ public class MenuScreen implements Screen {
                 Gdx.app.exit();
             }
         });
+
         TextButton resumeButton = new TextButton("Continue To Play", game.getSkin());
         table.add(resumeButton).width(300).row();
         resumeButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                String lastMapPath = game.getCurrentMapPath(); // 마지막으로 플레이한 맵 경로 가져오기
+
+                if (lastMapPath == null) {
+                    // 마지막 맵 경로가 없으면 초기 상태로 새 게임 시작
+                    lastMapPath = "map1.tmx"; // 기본값 설정
+                    game.setCurrentMapPath(lastMapPath); // 기본 맵 경로 저장
+                }
+
                 Screen currentScreen = game.getScreen();
 
                 if (currentScreen instanceof GameScreen) {
                     GameScreen gameScreen = (GameScreen) currentScreen;
-                    gameScreen.loadState();
+                    gameScreen.loadState(); // 현재 상태 불러오기
                 } else {
-                    GameScreen gameScreen = new GameScreen(game);
-                    gameScreen.loadState();
-                    game.setScreen(gameScreen);
+                    GameScreen gameScreen = new GameScreen(game, lastMapPath); // 마지막 맵으로 GameScreen 생성
+                    gameScreen.loadState(); // 상태 불러오기
+                    game.setScreen(gameScreen); // 화면 설정
                 }
             }
-
         });
 
     }

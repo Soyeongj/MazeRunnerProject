@@ -63,7 +63,7 @@ public class GameScreen implements Screen {
      *
      * @param game The main game class, used to access global resources and methods.
      */
-    public GameScreen(MazeRunnerGame game) {
+    public GameScreen(MazeRunnerGame game, String mapPath) {
         this.game = game;
 
 
@@ -73,7 +73,7 @@ public class GameScreen implements Screen {
 
         camera.zoom = 0.05f;
 
-        tiledMap = new TmxMapLoader().load("map1.tmx");
+        tiledMap = new TmxMapLoader().load(mapPath);
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 

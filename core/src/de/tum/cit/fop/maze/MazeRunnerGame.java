@@ -29,6 +29,8 @@ public class MazeRunnerGame extends Game {
     // Character animation downwards
     private Animation<TextureRegion> characterDownAnimation;
 
+    private String currentMapPath;
+
     /**
      * Constructor for MazeRunnerGame.
      *
@@ -53,7 +55,7 @@ public class MazeRunnerGame extends Game {
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
 
-        goToMenu(); // Navigate to the menu screen
+        setScreen(new MenuScreen(this));
     }
 
     /**
@@ -67,20 +69,13 @@ public class MazeRunnerGame extends Game {
         }
     }
 
-
-
-    /**
-     * Switches to the game screen.
-     */
-    public void goToGame() {
-        this.setScreen(new GameScreen(this)); // Set the current screen to GameScreen
-        if (menuScreen != null) {
-            menuScreen.dispose(); // Dispose the menu screen if it exists
-            menuScreen = null;
-        }
+    public void setCurrentMapPath(String mapPath) {
+        this.currentMapPath = mapPath;
     }
 
-
+    public String getCurrentMapPath() {
+        return currentMapPath;
+    }
 
     /**
      * Loads the character animation from the character.png file.
