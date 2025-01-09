@@ -23,7 +23,7 @@ public class TrapItem extends CollectibleItem {
     }
     @Override
     protected void onCollected() {
-        SoundManager.playItemCollectedSound();
+        SoundManager.playEvilLaughSound();
         activateFogEffect();
     }
     public void activateFogEffect() {

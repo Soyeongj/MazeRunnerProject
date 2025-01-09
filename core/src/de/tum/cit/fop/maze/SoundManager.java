@@ -14,6 +14,7 @@ public class SoundManager {
     private static Sound itemCollectedSound;
     private static Sound gameOverSound;
     private static Sound victorySound;
+    private static Sound evilLaughSound;
 
     public static void initialize() {
         rockSound = audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
@@ -24,6 +25,7 @@ public class SoundManager {
         itemCollectedSound = audio.newSound(Gdx.files.internal("assets/itemCollectedSound.mp3"));
         gameOverSound = audio.newSound(Gdx.files.internal("assets/gameOverSound.mp3"));
         victorySound = audio.newSound(Gdx.files.internal("assets/victorySound.mp3"));
+        evilLaughSound = audio.newSound(Gdx.files.internal("assets/evillaughSound.wav"));
 
 
     }
@@ -73,7 +75,11 @@ public class SoundManager {
             victorySound.play();
         }
     }
-
+    public static void playEvilLaughSound() {
+        if (evilLaughSound != null) {
+            evilLaughSound.play();
+        }
+    }
 
     // 리소스 해제
     public static void dispose() {
@@ -100,6 +106,9 @@ public class SoundManager {
         }
         if (victorySound != null) {
             victorySound.dispose();
+        }
+        if (evilLaughSound != null) {
+            evilLaughSound.dispose();
         }
     }
 }
