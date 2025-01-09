@@ -273,7 +273,7 @@ public class GameScreen implements Screen {
 
         arrow.update(playerPosition,doors,hud.isKeyCollected());
         arrow.render(batch);
-        friends.update(player, hud, 3f,delta);
+        friends.update(player, hud, 3f,delta,grievers);
         item.update(player,  3f);
         trapItem.update(player, 7f);
         if (trapItem.isFogActive()) {

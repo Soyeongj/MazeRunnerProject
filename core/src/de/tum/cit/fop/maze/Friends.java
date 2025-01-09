@@ -150,12 +150,13 @@ public class Friends {
         lastPlayerPosition.set(currentPlayerPos);
     }
 
-    public void update(Player player, HUD hud, float interactionRadius, float delta) {
+    public void update(Player player, HUD hud, float interactionRadius, float delta, Array<Griever> grievers) {
         int savedFriends = checkAndSaveAllMapFriends(new Vector2(player.getX(), player.getY()), interactionRadius);
         for (int i = 0; i < savedFriends; i++) {
             hud.incrementLives();
         }
         updateFollowingPositions(player, delta);
+        checkFriendCollisionWithGriever(grievers,hud);
     }
 
     public boolean removeLastSavedFriend() {
@@ -194,6 +195,23 @@ public class Friends {
 
         preferences.flush();
     }
+
+    public void checkFriendCollisionWithGriever(Array<Griever> grievers, HUD hud) {
+        for (int i = 0; i < followingFriendsPositions.size(); i++) {
+            Vector2 friendPosition = followingFriendsPositions.get(i);
+
+            float diffX = grievers.getMonsterX() - friendPosition.x;
+            float diffY = griever.etMonsterY() - friendPosition.y;
+            float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
+
+            if (distance < 5f) {
+                followingFriendsPositions.remove(i);
+                hud.decrementLives();
+                i--;
+            }
+        }
+    }
+
 
     public void loadFriendState() {
         Preferences preferences = Gdx.app.getPreferences("Friends");
