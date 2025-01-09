@@ -1,57 +1,81 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class CollectibleItem implements Renderable {
-
-    protected Texture[] items;
-    protected Vector2[] itemPositions;
-    protected boolean[] isItemCollected;
+    protected Texture[] textures;
+    protected Vector2[] positions;
+    protected boolean[] isCollected;
     protected float scale = 0.2f;
 
-    public CollectibleItem(Texture[] items, Vector2[] positions) {
-        this.items = items;
-        this.itemPositions = positions;
-        this.isItemCollected = new boolean[items.length];
+    protected CollectibleItem(Texture[] textures, Vector2[] positions) {
+        this.textures = textures;
+        this.positions = positions;
+        this.isCollected = new boolean[textures.length];
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < itemPositions.length; i++) {
-            if (!isItemCollected[i]) {
-                batch.draw(items[i], itemPositions[i].x, itemPositions[i].y,
-                        items[i].getWidth() * scale, items[i].getHeight() * scale);
+        for (int i = 0; i < positions.length; i++) {
+            if (!isCollected[i]) {
+                batch.draw(textures[i], positions[i].x, positions[i].y,
+                        textures[i].getWidth() * scale, textures[i].getHeight() * scale);
             }
         }
     }
 
-    public boolean checkAndCollectItem(Vector2 playerPosition, float proximity, int index) {
-        if (!isItemCollected[index]) {
-            float distance = playerPosition.dst(itemPositions[index]);
+    public boolean checkAndCollect(Vector2 playerPosition, float proximity, int index) {
+        if (!isCollected[index]) {
+            float distance = playerPosition.dst(positions[index]);
             if (distance <= proximity) {
-                isItemCollected[index] = true;
-                itemPositions[index] = new Vector2(-1000, -1000); // Move offscreen
-                applyEffect();
+                isCollected[index] = true;
+                positions[index] = new Vector2(-1000, -1000); // Move offscreen
+                onCollected();
                 return true;
             }
         }
         return false;
     }
 
-    public void checkAndCollectAllItems(Vector2 playerPosition, float proximity) {
-        for (int i = 0; i < itemPositions.length; i++) {
-            checkAndCollectItem(playerPosition, proximity, i);
+    public int checkAndCollectAll(Vector2 playerPosition, float proximity) {
+        int count = 0;
+        for (int i = 0; i < positions.length; i++) {
+            if (checkAndCollect(playerPosition, proximity, i)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    protected abstract void onCollected();
+
+    public void saveState(Preferences preferences, String prefix) {
+        for (int i = 0; i < isCollected.length; i++) {
+            preferences.putBoolean(prefix + "itemCollected" + i, isCollected[i]);
+            preferences.putFloat(prefix + "itemPosX" + i, positions[i].x);
+            preferences.putFloat(prefix + "itemPosY" + i, positions[i].y);
+        }
+        preferences.flush();
+    }
+
+    public void loadState(Preferences preferences, String prefix) {
+        for (int i = 0; i < isCollected.length; i++) {
+            isCollected[i] = preferences.getBoolean(prefix + "itemCollected" + i, false);
+            float x = preferences.getFloat(prefix + "itemPosX" + i, positions[i].x);
+            float y = preferences.getFloat(prefix + "itemPosY" + i, positions[i].y);
+            positions[i] = new Vector2(x, y);
         }
     }
 
-    public abstract void applyEffect();
+
 
     @Override
     public void dispose() {
-        for (Texture item : items) {
-            item.dispose();
+        for (Texture texture : textures) {
+            texture.dispose();
         }
     }
 }
