@@ -22,7 +22,6 @@ public class TrapItem extends CollectibleItem {
                 new Vector2(450, 250)
         });
     }
-
     @Override
     protected void onCollected() {
         activateFogEffect();

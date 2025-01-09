@@ -22,7 +22,6 @@ public class Item extends CollectibleItem {
     protected void onCollected() {
         SoundManager.playItemCollectedSound();
     }
-
     public void update(Player player, float interactionRadius) {
         int collectedItems = checkAndCollectAll(new Vector2(player.getX(), player.getY()), interactionRadius);
         for (int i = 0; i < collectedItems; i++) {
