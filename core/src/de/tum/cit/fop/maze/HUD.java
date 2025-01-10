@@ -130,15 +130,11 @@ public class HUD  {
         messageTimer = 2f;
     }
 
-    public void needKey() {
-        message = "You need a key!";
+    public void needFriend() {
+        message = "You cannot leave without friends!";
         messageTimer = 1f;
     }
 
-    public void pressE() {
-        message = "Press E to open!";
-        messageTimer = 1f;
-    }
 
 
     public int getLives() {

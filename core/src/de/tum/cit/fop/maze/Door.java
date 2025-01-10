@@ -18,13 +18,16 @@ public class Door implements NearbyPlayer {
     }
 
 
-    public void tryToOpen(Vector2 playerPosition, HUD hud, MazeRunnerGame game) {
-        if (isPlayerNearby(playerPosition)) {
-            if (hud.isKeyCollected()) {
+    public void tryToOpen(Vector2 playerPosition, HUD hud, MazeRunnerGame game, Friends friends) {
+        if (isPlayerNearby(playerPosition)&&hud.isKeyCollected()) {
+            if (friends.getFollowingFriendsPositions().size() > 0 ) {
                 hud.stopTimer();
-                float finalTime = 1000 + (hud.getFinalTime() * 5) + hud.getLives()* 15 ;
+                float finalTime = 1000 + (hud.getFinalTime() * 5) + hud.getLives()* 15  ;
                 game.setScreen(new GameClearScreen(game, finalTime));
                 SoundManager.playVictorySound();
+            } else {
+                hud.needFriend();
+
             }
         }
 
