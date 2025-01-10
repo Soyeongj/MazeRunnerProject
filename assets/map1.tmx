@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="28" nextobjectid="116">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="29" nextobjectid="128">
  <tileset firstgid="1" name="test tile" tilewidth="16" tileheight="16" tilecount="120" columns="8">
   <properties>
    <property name="blocked" type="bool" value="true"/>
@@ -79,6 +79,12 @@
  </tileset>
  <tileset firstgid="121" name="exit" tilewidth="16" tileheight="16" tilecount="1" columns="1">
   <image source="exit.png" width="16" height="16"/>
+ </tileset>
+ <tileset firstgid="122" name="grass" tilewidth="16" tileheight="16" tilecount="350" columns="25">
+  <image source="grass.png" width="400" height="224"/>
+ </tileset>
+ <tileset firstgid="472" name="textures" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
+  <image source="textures.png" width="512" height="512"/>
  </tileset>
  <layer id="10" name="walls" width="30" height="30">
   <data encoding="csv">
@@ -427,6 +433,13 @@
     <property name="friend" value="1"/>
    </properties>
   </object>
+  <object id="121" x="56" y="184.667"/>
+  <object id="122" x="432" y="340"/>
+  <object id="123" x="465.333" y="26.6667"/>
+  <object id="124" x="84" y="370.667"/>
+  <object id="125" x="258.667" y="468"/>
+  <object id="126" x="44.6667" y="18.6667"/>
+  <object id="127" x="268" y="270.667"/>
  </objectgroup>
  <objectgroup id="26" name="griever">
   <object id="111" x="160" y="160.666">
