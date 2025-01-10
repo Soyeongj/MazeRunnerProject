@@ -380,14 +380,14 @@ public class Griever implements  Renderable {
         if (currentY < 478 && isGrieverNotStunned()) {
             moveY += speed;
         }
-        if (currentY > 0 && isGrieverNotStunned()) {
+        if (currentY >= 0 && isGrieverNotStunned()) {
             moveY -= speed;
         }
 
         if (currentX < 478.86f && isGrieverNotStunned()) {
             moveX += speed;
         }
-        if (currentX > 0 && isGrieverNotStunned()) {
+        if (currentX >= 0 && isGrieverNotStunned()) {
             moveX -= speed;
         }
 
@@ -395,7 +395,7 @@ public class Griever implements  Renderable {
             setPosition((int) (currentX + moveX), (int) (currentY + moveY));
         }
 
-        if (currentX <= 0 || currentX >= 478.86f || currentY <= 0 || currentY >= 478) {
+        if (currentX < 0 || currentX >= 478.86f || currentY < 0 || currentY >= 478) {
             Vector2 newTarget = findNextTargetTowardsPlayer(playerX, playerY);
             if (newTarget != null) {
                 currentTarget = newTarget;
@@ -404,7 +404,7 @@ public class Griever implements  Renderable {
 
         if (moveX != 0 || moveY != 0) {
             setPosition((int) (currentX + moveX), (int) (currentY + moveY));
-            }
+        }
 
     }
 
