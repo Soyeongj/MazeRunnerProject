@@ -88,7 +88,7 @@ public class GameScreen implements Screen {
 
         centerCameraOnMap();
         hud = new HUD();
-        player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
+        player = new Player(235, 285, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         this.friends = new Friends(tiledMap,player);
         this.item = new Item(tiledMap);
         grievers = Griever.loadGrieversFromTiledMap(tiledMap, pathLayer, path2Layer);
