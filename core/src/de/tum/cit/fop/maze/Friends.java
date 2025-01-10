@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Friends {
-    private Texture friendTexture;
+
     private List<Vector2> followingFriendsPositions = new ArrayList<>();
     private Vector2[] mapFriendsPositions;
     private boolean[] isMapFriendSaved;
@@ -37,7 +37,16 @@ public class Friends {
 
 
     public Friends(TiledMap map, Player player) {
-        friendTexture = new Texture("oldman_right_1.png");
+        right1 = new Texture("oldman_right_1.png");
+        right2 = new Texture("oldman_right_2.png");
+        left1 = new Texture("oldman_left_1.png");
+        left2 = new Texture("oldman_left_2.png");
+        up1= new Texture("oldman_up_1.png");
+        up2 = new Texture("oldman_up_1.png");
+        down1 = new Texture("oldman_down_1.png");
+        down2 = new Texture("oldman_down_2.png");
+
+        currentTexture = down1;
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -86,14 +95,38 @@ public class Friends {
         }
     }
 
+    private void animate(float delta, Texture texture1, Texture texture2) {
+        stateTime += delta;
+        if (stateTime >= walkAnimationTime) {
+            currentTexture = (currentTexture == texture1) ? texture2 : texture1;
+            stateTime = 0f;
+        }
+    }
+
+    private void updateAnimationDirection(Vector2 direction, float delta) {
+        if (Math.abs(direction.x) > Math.abs(direction.y)) {
+            if (direction.x > 0) {
+                animate(delta, right1, right2);
+            } else {
+                animate(delta, left1, left2);
+            }
+        } else {
+            if (direction.y > 0) {
+                animate(delta, up1, up2);
+            } else {
+                animate(delta, down1, down2);
+            }
+        }
+    }
+
 
 
 
     public void render(SpriteBatch batch, Player player) {
         for (int i = 0; i < mapFriendsPositions.length; i++) {
             if (!isMapFriendSaved[i]) {
-                batch.draw(friendTexture, mapFriendsPositions[i].x, mapFriendsPositions[i].y,
-                        friendTexture.getWidth() * scale, friendTexture.getHeight() * scale);
+                batch.draw(currentTexture, mapFriendsPositions[i].x, mapFriendsPositions[i].y,
+                        currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
                 Vector2 playerPosition = new Vector2(player.getX(), player.getY());
                 float distance = playerPosition.dst(mapFriendsPositions[i]);
                 if (distance <= 50) {
@@ -103,8 +136,8 @@ public class Friends {
         }
 
         for (Vector2 pos : followingFriendsPositions) {
-            batch.draw(friendTexture, pos.x, pos.y,
-                    friendTexture.getWidth() * scale, friendTexture.getHeight() * scale);
+            batch.draw(currentTexture, pos.x, pos.y,
+                    currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
         }
     }
 
@@ -144,6 +177,7 @@ public class Friends {
         );
 
         if (movementDirection.len2() > 0) {
+            updateAnimationDirection(movementDirection, delta);
 
             Vector2 firstFriendTarget = new Vector2(player.getX(), player.getY());
             Vector2 firstFriendCurrent = followingFriendsPositions.get(0);
@@ -214,7 +248,7 @@ public class Friends {
             float wallHeight = wall.getLayer().getTileHeight();
 
             if (wall.getX() != wall.getOriginalX() || wall.getY() != wall.getOriginalY() || wall.isAtTarget()) {
-                if (checkCollision(friendPosition.x, friendPosition.y, friendTexture.getWidth() * scale, friendTexture.getHeight() * scale,
+                if (checkCollision(friendPosition.x, friendPosition.y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale,
                         wallX, wallY, wallWidth, wallHeight)) {
                     removeFriendAt(i);
                     hud.decrementLives();
@@ -276,7 +310,7 @@ public class Friends {
     }
 
     public void dispose() {
-        friendTexture.dispose();
+        currentTexture.dispose();
         up1.dispose();
         up2.dispose();
         down1.dispose();

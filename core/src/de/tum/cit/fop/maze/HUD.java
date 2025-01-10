@@ -123,7 +123,6 @@ public class HUD  {
         messageTimer = MESSAGE_DISPLAY_DURATION;
 
         SoundManager.playLostFriendSound();
-
     }
 
     public void stunMessage() {
