@@ -45,6 +45,7 @@ public class GameScreen implements Screen {
     private Viewport viewport;
     private final TiledMap tiledMap;
     private TiledMapTileLayer movingWallsLayer;
+    private TiledMapTileLayer pathLayer, path2Layer;
     private List<Wall> walls;
     private final OrthogonalTiledMapRenderer mapRenderer;
     private Player player;
@@ -81,16 +82,16 @@ public class GameScreen implements Screen {
 
         tiledMap = new TmxMapLoader().load(mapPath);
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
+        pathLayer = (TiledMapTileLayer) tiledMap.getLayers().get("path");
+        path2Layer = (TiledMapTileLayer) tiledMap.getLayers().get("path2");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-
 
         centerCameraOnMap();
         hud = new HUD();
         player = new Player(155, 259, (TiledMapTileLayer) tiledMap.getLayers().get(0));
         this.friends = new Friends(tiledMap,player);
         this.item = new Item(tiledMap);
-        grievers = new Array<>();
-        grievers.add(new Griever(160, 280, (TiledMapTileLayer) tiledMap.getLayers().get("path"), (TiledMapTileLayer) tiledMap.getLayers().get("path2")));
+        grievers = Griever.loadGrieversFromTiledMap(tiledMap, pathLayer, path2Layer);
         batch = new SpriteBatch();
         trapItem = new TrapItem(tiledMap);
         shapeRenderer = new ShapeRenderer();
@@ -241,7 +242,7 @@ public class GameScreen implements Screen {
 
         for (Griever griever : grievers) {
             griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player,friends);
-            griever.updateMovement(delta);
+            griever.updateMovement(delta,player.getX(),player.getY());
             griever.render(batch);
             for (Wall wall : walls) {
                 if (wall.isGrieverDead() && !wall.hasKeySpawned()) {

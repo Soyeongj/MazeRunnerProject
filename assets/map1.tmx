@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="26" nextobjectid="111">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="27" nextobjectid="116">
  <tileset firstgid="1" name="test tile" tilewidth="16" tileheight="16" tilecount="120" columns="8">
   <properties>
    <property name="blocked" type="bool" value="true"/>
@@ -368,6 +368,33 @@
   <object id="109" x="198" y="128.667">
    <properties>
     <property name="friend" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="26" name="griever">
+  <object id="111" x="160.667" y="201.333">
+   <properties>
+    <property name="griever" value="1"/>
+   </properties>
+  </object>
+  <object id="112" x="290.667" y="144">
+   <properties>
+    <property name="griever" value="1"/>
+   </properties>
+  </object>
+  <object id="113" x="266" y="275.333">
+   <properties>
+    <property name="griever" value="1"/>
+   </properties>
+  </object>
+  <object id="114" x="96" y="354.667">
+   <properties>
+    <property name="griever" value="1"/>
+   </properties>
+  </object>
+  <object id="115" x="224.667" y="327.333">
+   <properties>
+    <property name="griever" value="1"/>
    </properties>
   </object>
  </objectgroup>

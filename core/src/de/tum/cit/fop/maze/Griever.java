@@ -4,9 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.utils.Array;
 
 import java.util.*;
 
@@ -17,7 +22,7 @@ public class Griever implements  Renderable {
     private String fixedGrieverDirection;
     private float monsterX, monsterY;
     private final float monsterSpeed = 15.0f;
-    private final float detectionRange = 100.0f;
+    private final float detectionRange = 50.0f;
     private boolean isGrieverFollowingPlayer = false;
     private final float grieverAnimationTime = 0.1f;
     private Rectangle grieverRectangle;
@@ -54,6 +59,33 @@ public class Griever implements  Renderable {
         grieverStateTime = 0f;
         grieverRectangle = new Rectangle(monsterX, monsterY, griever.getWidth(), griever.getHeight());
     }
+
+    public static Array<Griever> loadGrieversFromTiledMap(TiledMap map, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
+        Array<Griever> grievers = new Array<>();
+
+        MapLayer grieverLayer = map.getLayers().get("griever");  // "griever" 레이어에서 그리버 객체 읽기
+        MapObjects objects = grieverLayer.getObjects();
+
+        for (MapObject object : objects) {
+            // "griever" 속성값이 1인 타일만 선택
+            Object grieverProperty = object.getProperties().get("griever");
+            if (grieverProperty != null && "1".equals(grieverProperty.toString())) {
+                float x = Float.parseFloat(object.getProperties().get("x").toString());
+                float y = Float.parseFloat(object.getProperties().get("y").toString());
+
+                // 그리버 객체 생성 후 배열에 추가
+                Griever griever = new Griever(x, y, pathLayer, path2Layer);
+                grievers.add(griever);
+            }
+        }
+
+        return grievers;
+    }
+
+
+
+
+
 
     private boolean isPathTile(float x, float y, TiledMapTileLayer layer) {
         int tileX = (int) (x / layer.getTileWidth());
@@ -338,7 +370,7 @@ public class Griever implements  Renderable {
         }
     }
 
-    public void updateMovement(float delta) {
+    public void updateMovement(float delta, float playerX, float playerY) {
         float currentX = getMonsterX();
         float currentY = getMonsterY();
         float speed = 10 * delta;
@@ -362,6 +394,18 @@ public class Griever implements  Renderable {
         if (moveX != 0 || moveY != 0) {
             setPosition((int) (currentX + moveX), (int) (currentY + moveY));
         }
+
+        if (currentX <= 0 || currentX >= 478.86f || currentY <= 0 || currentY >= 478) {
+            Vector2 newTarget = findNextTargetTowardsPlayer(playerX, playerY);
+            if (newTarget != null) {
+                currentTarget = newTarget;
+            }
+        }
+
+        if (moveX != 0 || moveY != 0) {
+            setPosition((int) (currentX + moveX), (int) (currentY + moveY));
+            }
+
     }
 
 
