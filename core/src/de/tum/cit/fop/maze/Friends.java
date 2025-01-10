@@ -166,41 +166,11 @@ public class Friends {
         checkFriendsCollisionWithWall(wall,hud);
     }
 
-    public boolean removeLastSavedFriend() {
-        if (followingFriendsPositions.isEmpty()) {
-            return false;
+
+    public void removeFriendAt(int index) {
+        if (index >= 0 && index < followingFriendsPositions.size()) {
+            followingFriendsPositions.remove(index);
         }
-
-        Vector2 removedFriendPosition = followingFriendsPositions.remove(followingFriendsPositions.size() - 1);
-
-        for (int i = 0; i < mapFriendsPositions.length; i++) {
-            if (isMapFriendSaved[i]) {
-                Vector2 mapFriendPosition = mapFriendsPositions[i];
-                if (Math.abs(mapFriendPosition.x - removedFriendPosition.x) <= 1f &&
-                        Math.abs(mapFriendPosition.y - removedFriendPosition.y) <= 1f) {
-                    isMapFriendSaved[i] = false;
-                    break;
-                }
-            }
-        }
-
-        return true;
-    }
-
-
-    public void saveFriendState() {
-        Preferences preferences = Gdx.app.getPreferences("Friends");
-        for (int i = 0; i < isMapFriendSaved.length; i++) {
-            preferences.putBoolean("mapFriendSaved_" + i, isMapFriendSaved[i]);
-        }
-
-        preferences.putInteger("followingFriendsCount", followingFriendsPositions.size());
-        for (int i = 0; i < followingFriendsPositions.size(); i++) {
-            preferences.putFloat("friendPosX_" + i, followingFriendsPositions.get(i).x);
-            preferences.putFloat("friendPosY_" + i, followingFriendsPositions.get(i).y);
-        }
-
-        preferences.flush();
     }
 
     public void checkFriendCollisionWithGriever(Griever griever, HUD hud) {
@@ -218,14 +188,11 @@ public class Friends {
             }
         }
     }
-    public List<Vector2> getFollowingFriendsPositions() {
-        return followingFriendsPositions;
-    }
-    public void removeFriendAt(int index) {
-        if (index >= 0 && index < followingFriendsPositions.size()) {
-            followingFriendsPositions.remove(index);
-        }
-    }
+
+
+
+
+
     public void checkFriendsCollisionWithWall(Wall wall, HUD hud) {
         for (int i = 0; i < followingFriendsPositions.size(); i++) {
             Vector2 friendPosition = followingFriendsPositions.get(i);
@@ -255,6 +222,22 @@ public class Friends {
 
 
 
+    public void saveFriendState() {
+        Preferences preferences = Gdx.app.getPreferences("Friends");
+        for (int i = 0; i < isMapFriendSaved.length; i++) {
+            preferences.putBoolean("mapFriendSaved_" + i, isMapFriendSaved[i]);
+        }
+
+        preferences.putInteger("followingFriendsCount", followingFriendsPositions.size());
+        for (int i = 0; i < followingFriendsPositions.size(); i++) {
+            preferences.putFloat("friendPosX_" + i, followingFriendsPositions.get(i).x);
+            preferences.putFloat("friendPosY_" + i, followingFriendsPositions.get(i).y);
+        }
+
+        preferences.flush();
+    }
+
+
 
 
     public void loadFriendState() {
@@ -275,6 +258,10 @@ public class Friends {
 
     public int getFollowingFriendsCount() {
         return followingFriendsPositions.size();
+    }
+
+    public List<Vector2> getFollowingFriendsPositions() {
+        return followingFriendsPositions;
     }
 }
 

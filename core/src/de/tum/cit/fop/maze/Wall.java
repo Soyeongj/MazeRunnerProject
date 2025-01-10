@@ -178,7 +178,7 @@ public class Wall {
 
                 if (hud != null) {
                     if (hud.getLives() > 1) {
-                        friends.removeLastSavedFriend();
+                        friends.removeFriendAt(friends.getFollowingFriendsPositions().size()-1);
                         hud.decrementLives();
                         player.triggerRedEffect();
                     } else {
