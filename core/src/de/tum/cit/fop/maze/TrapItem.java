@@ -24,7 +24,7 @@ public class TrapItem extends CollectibleItem {
 
         // 객체 수만큼 텍스처 배열 생성
         Texture[] textures = new Texture[objectCount];
-        Texture defaultTexture = new Texture("key.png"); // 트랩에 사용할 텍스처
+        Texture defaultTexture = new Texture("bomb.png"); // 트랩에 사용할 텍스처
         for (int i = 0; i < objectCount; i++) {
             textures[i] = defaultTexture; // 모든 객체에 동일한 텍스처 사용
         }
