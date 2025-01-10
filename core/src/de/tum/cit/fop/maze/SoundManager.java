@@ -18,6 +18,7 @@ public class SoundManager {
     private static Sound evilLaughSound;
     private static Music backgroundMusic;
     private static Music menuMusic;
+    private static Sound gameStartSound;
 
     public static void initialize() {
         rockSound = audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
@@ -31,6 +32,7 @@ public class SoundManager {
         evilLaughSound = audio.newSound(Gdx.files.internal("assets/evillaughSound.wav"));
         backgroundMusic = audio.newMusic(Gdx.files.internal("assets/backgroundMusic.wav"));
         menuMusic = audio.newMusic(Gdx.files.internal("assets/menuMusic.mp3"));
+        gameStartSound = audio.newSound(Gdx.files.internal("assets/gameStartSound.mp3"));
 
         backgroundMusic.setLooping(true);
         menuMusic.setLooping(true);
@@ -107,6 +109,11 @@ public class SoundManager {
             menuMusic.stop();
         }
     }
+    public static void playGameStartSound() {
+        if (gameStartSound != null) {
+            gameStartSound.play();
+        }
+    }
 
 
     public static void dispose() {
@@ -142,6 +149,9 @@ public class SoundManager {
         }
         if (menuMusic != null) {
             menuMusic.dispose();
+        }
+        if (gameStartSound != null) {
+            gameStartSound.dispose();
         }
     }
 }

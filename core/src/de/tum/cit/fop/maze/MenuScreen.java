@@ -48,7 +48,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map1.tmx");
-                game.setScreen(new GameScreen(game, "map1.tmx"));
+                game.setScreen(new GameScreen(game, "map1.tmx",true));
             }
         });
 
@@ -59,7 +59,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map2.tmx");
-                game.setScreen(new GameScreen(game, "map2.tmx"));
+                game.setScreen(new GameScreen(game, "map2.tmx",true));
             }
         });
 
@@ -71,7 +71,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map3.tmx");
-                game.setScreen(new GameScreen(game, "map3.tmx"));
+                game.setScreen(new GameScreen(game, "map3.tmx",true));
             }
         });
 
@@ -82,7 +82,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map4.tmx");
-                game.setScreen(new GameScreen(game, "map4.tmx"));
+                game.setScreen(new GameScreen(game, "map4.tmx",true));
             }
         });
 
@@ -93,7 +93,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map5.tmx");
-                game.setScreen(new GameScreen(game, "map5.tmx"));
+                game.setScreen(new GameScreen(game, "map5.tmx",true));
             }
         });
 
@@ -126,7 +126,7 @@ public class MenuScreen implements Screen {
                     GameScreen gameScreen = (GameScreen) currentScreen;
                     gameScreen.loadState(); // 현재 상태 불러오기
                 } else {
-                    GameScreen gameScreen = new GameScreen(game, lastMapPath); // 마지막 맵으로 GameScreen 생성
+                    GameScreen gameScreen = new GameScreen(game, lastMapPath,false); // 마지막 맵으로 GameScreen 생성
                     gameScreen.loadState(); // 상태 불러오기
                     game.setScreen(gameScreen); // 화면 설정
                 }
@@ -157,6 +157,8 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        SoundManager.stopBackgroundMusic();
+        SoundManager.playMenuMusic();
     }
 
     // The following methods are part of the Screen interface but are not used in this screen.

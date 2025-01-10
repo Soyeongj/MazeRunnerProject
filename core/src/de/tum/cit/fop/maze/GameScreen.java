@@ -15,11 +15,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
 
 
 
@@ -57,15 +59,19 @@ public class GameScreen implements Screen {
     private Arrow arrow;
     private TrapItem trapItem;
     private ShapeRenderer shapeRenderer;
+    private final boolean isNewGame;
+    private Texture introImage;
+    private float introDuration = 10.0f;
+    private boolean isShowingIntro;
 
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
      *
      * @param game The main game class, used to access global resources and methods.
      */
-    public GameScreen(MazeRunnerGame game, String mapPath) {
+    public GameScreen(MazeRunnerGame game, String mapPath, boolean isNewGame) {
         this.game = game;
-
+        this.isNewGame = isNewGame;
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(800, 480, camera);
@@ -110,7 +116,6 @@ public class GameScreen implements Screen {
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
 
         arrow = new Arrow();
-        SoundManager.initialize();
         backgroundTexture = new Texture(Gdx.files.internal("background.png"));
     }
 
@@ -172,9 +177,18 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        if (isShowingIntro){
+            ScreenUtils.clear(0,0,0,1);
+            batch.begin();
+            batch.draw(introImage,0,0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            batch.end();
+            return;
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             saveState();
             game.goToMenu();
+            SoundManager.stopBackgroundMusic();
+            SoundManager.playMenuMusic();
         }
 
         hud.updateTimer(delta);
@@ -341,6 +355,7 @@ public class GameScreen implements Screen {
 
     }
 
+
     public void loadState() {
         player.loadPlayerState();
         for (Griever griever: grievers) {
@@ -398,8 +413,24 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        SoundManager.stopMenuMusic();
+        if (isNewGame) {
+            isShowingIntro = true;
+            introImage = new Texture(Gdx.files.internal("intro.png"));
+            SoundManager.playGameStartSound();
 
 
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    isShowingIntro = false;
+                    SoundManager.playBackgroundMusic();
+                }
+            }, introDuration);
+        } else {
+            isShowingIntro = false;
+            SoundManager.playBackgroundMusic();
+        }
     }
 
     @Override
