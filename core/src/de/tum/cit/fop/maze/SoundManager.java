@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 
 import static com.badlogic.gdx.Gdx.audio;
@@ -15,6 +16,8 @@ public class SoundManager {
     private static Sound gameOverSound;
     private static Sound victorySound;
     private static Sound evilLaughSound;
+    private static Music backgroundMusic;
+    private static Music menuMusic;
 
     public static void initialize() {
         rockSound = audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
@@ -26,8 +29,11 @@ public class SoundManager {
         gameOverSound = audio.newSound(Gdx.files.internal("assets/gameOverSound.mp3"));
         victorySound = audio.newSound(Gdx.files.internal("assets/victorySound.mp3"));
         evilLaughSound = audio.newSound(Gdx.files.internal("assets/evillaughSound.wav"));
+        backgroundMusic = audio.newMusic(Gdx.files.internal("assets/backgroundMusic.wav"));
+        menuMusic = audio.newMusic(Gdx.files.internal("assets/menuMusic.mp3"));
 
-
+        backgroundMusic.setLooping(true);
+        menuMusic.setLooping(true);
     }
 
     public static void playRockSound() {
@@ -80,8 +86,29 @@ public class SoundManager {
             evilLaughSound.play();
         }
     }
+    public static void playBackgroundMusic() {
+        if (backgroundMusic != null && !backgroundMusic.isPlaying()) {
+            backgroundMusic.play();
+        }
+    }
+    public static void stopBackgroundMusic() {
+        if(backgroundMusic != null) {
+            backgroundMusic.stop();
+        }
+    }
 
-    // 리소스 해제
+    public static void playMenuMusic() {
+        if (menuMusic != null && !menuMusic.isPlaying()) {
+            menuMusic.play();
+        }
+    }
+    public static void stopMenuMusic() {
+        if(menuMusic != null) {
+            menuMusic.stop();
+        }
+    }
+
+
     public static void dispose() {
         if (rockSound != null) {
             rockSound.dispose();
@@ -109,6 +136,12 @@ public class SoundManager {
         }
         if (evilLaughSound != null) {
             evilLaughSound.dispose();
+        }
+        if (backgroundMusic != null) {
+            backgroundMusic.dispose();
+        }
+        if (menuMusic != null) {
+            menuMusic.dispose();
         }
     }
 }
