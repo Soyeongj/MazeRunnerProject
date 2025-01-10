@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="42" nextobjectid="156">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="42" nextobjectid="158">
  <tileset firstgid="1" name="test tile" tilewidth="16" tileheight="16" tilecount="120" columns="8">
   <properties>
    <property name="blocked" type="bool" value="true"/>
@@ -505,22 +505,22 @@
     <property name="friend" value="1"/>
    </properties>
   </object>
-  <object id="147" x="360" y="78.6667">
-   <properties>
-    <property name="friend" value="1"/>
-   </properties>
-  </object>
-  <object id="148" x="407.333" y="366.667">
-   <properties>
-    <property name="friend" value="1"/>
-   </properties>
-  </object>
   <object id="149" x="17.3333" y="242">
    <properties>
     <property name="friend" value="1"/>
    </properties>
   </object>
   <object id="150" x="402.667" y="34">
+   <properties>
+    <property name="friend" value="1"/>
+   </properties>
+  </object>
+  <object id="156" x="370" y="370.667">
+   <properties>
+    <property name="friend" value="1"/>
+   </properties>
+  </object>
+  <object id="157" x="318.667" y="78.6667">
    <properties>
     <property name="friend" value="1"/>
    </properties>
