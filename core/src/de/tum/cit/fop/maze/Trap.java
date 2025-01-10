@@ -53,7 +53,7 @@ public class Trap implements NearbyPlayer, Renderable {
 
 
                 if (isPlayerNearby(playerPosition)) {
-                    if (hud.getLives() > 1) {
+                    if (hud.getLives() >= 0) {
                         friends.removeFriendAt(friends.getFollowingFriendsPositions().size()-1);
                         hud.decrementLives();
                         player.triggerRedEffect();

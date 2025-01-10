@@ -321,7 +321,7 @@ public class Griever implements  Renderable {
         float distance = (float) Math.sqrt(diffX * diffX + diffY * diffY);
 
         if (LivesCoolDownTimer <= 0 && distance < 5f && this.isGrieverNotStunned()) {
-            if (hud.getLives() > 1) {
+            if (hud.getLives() >= 0) {
                 friends.removeFriendAt(friends.getFollowingFriendsPositions().size()-1);
                 hud.decrementLives();
                 player.triggerRedEffect();

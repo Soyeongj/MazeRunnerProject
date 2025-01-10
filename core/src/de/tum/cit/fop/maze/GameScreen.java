@@ -249,7 +249,7 @@ public class GameScreen implements Screen {
             }
         }
 
-        if (hud.getLives() <= 0 || hud.getScoreTimer() <= 0) {
+        if (hud.getLives() < 0 || hud.getScoreTimer() <= 0) {
             hud.stopTimer();
             float finalTime = 0;
             game.setScreen(new GameOverScreen(game,finalTime));
@@ -419,5 +419,6 @@ public class GameScreen implements Screen {
         }
         arrow.dispose();
         backgroundTexture.dispose();
+        friends.dispose();
 
     }}

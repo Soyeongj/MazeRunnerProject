@@ -30,6 +30,12 @@ public class Friends {
 
     private int followingFriendsCount;
 
+    private float stateTime = 0f;
+    private float walkAnimationTime = 0.1f;
+    private Texture currentTexture;
+    private Texture up1, up2, down1, down2, left1, left2, right1, right2;
+
+
     public Friends(TiledMap map, Player player) {
         friendTexture = new Texture("oldman_right_1.png");
 
@@ -50,6 +56,7 @@ public class Friends {
         isMapFriendSaved = new boolean[mapFriendsPositions.length];
 
         int followingFriendsCount = followingFriendsPositions.size();
+
 
 
         initializeInitialFollowers(player);
@@ -78,6 +85,9 @@ public class Friends {
             followingFriendsPositions.add(initialPosition);
         }
     }
+
+
+
 
     public void render(SpriteBatch batch, Player player) {
         for (int i = 0; i < mapFriendsPositions.length; i++) {
@@ -134,6 +144,7 @@ public class Friends {
         );
 
         if (movementDirection.len2() > 0) {
+
             Vector2 firstFriendTarget = new Vector2(player.getX(), player.getY());
             Vector2 firstFriendCurrent = followingFriendsPositions.get(0);
             followingFriendsPositions.set(0, firstFriendCurrent.lerp(firstFriendTarget, 0.1f));
@@ -262,6 +273,18 @@ public class Friends {
 
     public List<Vector2> getFollowingFriendsPositions() {
         return followingFriendsPositions;
+    }
+
+    public void dispose() {
+        friendTexture.dispose();
+        up1.dispose();
+        up2.dispose();
+        down1.dispose();
+        down2.dispose();
+        left1.dispose();
+        left2.dispose();
+        right1.dispose();
+        right2.dispose();
     }
 }
 
