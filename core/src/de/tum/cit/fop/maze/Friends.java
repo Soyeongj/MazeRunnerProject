@@ -42,7 +42,7 @@ public class Friends {
         left1 = new Texture("oldman_left_1.png");
         left2 = new Texture("oldman_left_2.png");
         up1= new Texture("oldman_up_1.png");
-        up2 = new Texture("oldman_up_1.png");
+        up2 = new Texture("oldman_up_2.png");
         down1 = new Texture("oldman_down_1.png");
         down2 = new Texture("oldman_down_2.png");
 
