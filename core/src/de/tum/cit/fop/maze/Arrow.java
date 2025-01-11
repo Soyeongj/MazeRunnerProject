@@ -7,37 +7,48 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 public class Arrow implements Renderable {
+    //Textures for Arrow and Exit
     private Texture arrowTexture;
     private Texture exitTexture;
+
+    //Arrow position and rotation
     private Vector2 position;
     private float rotation;
 
+
+    //Constructor
     public Arrow() {
         arrowTexture = new Texture("arrow.png");
         exitTexture = new Texture("exit.png");
         position = new Vector2();
     }
 
+    //Arrow Rotation and Position Calculation
     public void update(Vector2 playerPosition, Array<Door> doors,boolean hasKey) {
         if (!hasKey) {
-            return;
+            return; // Exit early if the player does not have the key
         }
+        // Find the nearest door
         Door nearestDoor = findNearestDoor(playerPosition, doors);
         if (nearestDoor != null) {
             Vector2 doorPosition = nearestDoor.getPosition();
 
+            // Calculate rotation angle towards the nearest door
             float dx = doorPosition.x - playerPosition.x;
             float dy = doorPosition.y - playerPosition.y;
             rotation = MathUtils.atan2(dy, dx) * MathUtils.radiansToDegrees;
 
+            // Set arrow's position slightly above the player
             position.set(playerPosition.x, playerPosition.y + 10);
         }
     }
 
+    // Helper Method: Find the Nearest Door to the Player
     private Door findNearestDoor(Vector2 playerPosition, Array<Door> doors) {
         Door nearest = null;
         float minDistance = Float.MAX_VALUE;
 
+        // Iterate through all doors to find the closest one
         for (Door door : doors) {
             float distance = Vector2.dst(playerPosition.x, playerPosition.y,
                     door.getPosition().x, door.getPosition().y);
@@ -46,7 +57,7 @@ public class Arrow implements Renderable {
                 nearest = door;
             }
         }
-        return nearest;
+        return nearest; // Return the closest door found
     }
 
 
@@ -59,7 +70,7 @@ public class Arrow implements Renderable {
                 exitTexture.getHeight() / 2,
                 exitTexture.getWidth(),
                 exitTexture.getHeight(),
-                0.25f, 0.25f, 0, // exit는 회전하지 않음
+                0.25f, 0.25f, 0, //no rotation
                 0, 0,
                 exitTexture.getWidth(),
                 exitTexture.getHeight(),
@@ -72,13 +83,15 @@ public class Arrow implements Renderable {
                 arrowTexture.getHeight()/2,
                 arrowTexture.getWidth(),
                 arrowTexture.getHeight(),
-                0.15f, 0.15f, rotation,
+                0.15f, 0.15f, rotation, //rotation applied
                 0, 0,
                 arrowTexture.getWidth(),
                 arrowTexture.getHeight(),
                 false, false);
 
     }
+
+    //Resource Clean Up
     @Override
     public void dispose() {
         if (arrowTexture != null) {

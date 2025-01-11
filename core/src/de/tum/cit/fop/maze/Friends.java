@@ -19,17 +19,19 @@ import java.util.List;
 
 public class Friends {
 
-    private List<Vector2> followingFriendsPositions = new ArrayList<>();
-    private Vector2[] mapFriendsPositions;
-    private boolean[] isMapFriendSaved;
+    private List<Vector2> followingFriendsPositions = new ArrayList<>(); //A list that tracks the positions of friends who follow the player
+    private Vector2[] mapFriendsPositions; //Positions of friends located on the map, defined in the TiledMap.
+    private boolean[] isMapFriendSaved; // An array that keeps track of whether each friend has been saved by the player
     private static final float FOLLOWING_DISTANCE = 5f;
     private BitmapFont font;
 
+    // Scaling factor for friend textures
     private float scale = 0.2f;
+
+    // Store last position of the player for movement calculations
     private Vector2 lastPlayerPosition;
 
-    private int followingFriendsCount;
-
+    // Variables for animation state
     private float stateTime = 0f;
     private float walkAnimationTime = 0.1f;
     private Texture currentTexture;
@@ -48,6 +50,7 @@ public class Friends {
 
         currentTexture = down1;
 
+        // Initialize font for displaying "help me!"
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 10;
@@ -57,16 +60,13 @@ public class Friends {
 
         this.font = generator.generateFont(parameter);
         generator.dispose();
-
         font.getData().setScale(0.8f);
+
+        // Set the initial last player position
         lastPlayerPosition = new Vector2(player.getX(), player.getY());
 
         mapFriendsPositions = loadFriendPositions(map);
         isMapFriendSaved = new boolean[mapFriendsPositions.length];
-
-        int followingFriendsCount = followingFriendsPositions.size();
-
-
 
         initializeInitialFollowers(player);
     }
@@ -88,6 +88,7 @@ public class Friends {
         return positions.toArray(Vector2.class);
     }
 
+    // Initialize 3 followers behind the player at a distance of FOLLOWING_DISTANCE
     private void initializeInitialFollowers(Player player) {
         for (int i = 0; i < 3; i++) {
             Vector2 initialPosition = new Vector2(player.getX() - (i + 1) * FOLLOWING_DISTANCE, player.getY());
@@ -119,10 +120,8 @@ public class Friends {
         }
     }
 
-
-
-
     public void render(SpriteBatch batch, Player player) {
+        // Render map friends with "help me!" message if player is nearby
         for (int i = 0; i < mapFriendsPositions.length; i++) {
             if (!isMapFriendSaved[i]) {
                 batch.draw(currentTexture, mapFriendsPositions[i].x, mapFriendsPositions[i].y,
@@ -135,11 +134,13 @@ public class Friends {
             }
         }
 
+        // Render the friends following the player
         for (Vector2 pos : followingFriendsPositions) {
             batch.draw(currentTexture, pos.x, pos.y,
                     currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
         }
     }
+    // Check if the player is close enough to a map friend to save them.
 
     public boolean checkAndSaveMapFriend(Vector2 playerPosition, float proximity, int index) {
         if (!isMapFriendSaved[index]) {
@@ -165,6 +166,7 @@ public class Friends {
     }
 
     public void updateFollowingPositions(Player player, float delta) {
+        // If there are no friends following, just update the last position
         if (followingFriendsPositions.isEmpty()) {
             lastPlayerPosition = new Vector2(player.getX(), player.getY());
             return;
@@ -179,10 +181,12 @@ public class Friends {
         if (movementDirection.len2() > 0) {
             updateAnimationDirection(movementDirection, delta);
 
+            // Update the first friend to move towards the player
             Vector2 firstFriendTarget = new Vector2(player.getX(), player.getY());
             Vector2 firstFriendCurrent = followingFriendsPositions.get(0);
             followingFriendsPositions.set(0, firstFriendCurrent.lerp(firstFriendTarget, 0.1f));
 
+            // Update remaining friends to follow the friend in front of them
             for (int i = 1; i < followingFriendsPositions.size(); i++) {
                 Vector2 currentFriendPos = followingFriendsPositions.get(i);
                 Vector2 targetFriendPos = followingFriendsPositions.get(i - 1);
@@ -234,10 +238,6 @@ public class Friends {
         }
     }
 
-
-
-
-
     public void checkFriendsCollisionWithWall(Wall wall, HUD hud) {
         for (int i = 0; i < followingFriendsPositions.size(); i++) {
             Vector2 friendPosition = followingFriendsPositions.get(i);
@@ -264,9 +264,6 @@ public class Friends {
                 y1 < y2 + height2 && y1 + height1 > y2;
     }
 
-
-
-
     public void saveFriendState() {
         Preferences preferences = Gdx.app.getPreferences("Friends");
         for (int i = 0; i < isMapFriendSaved.length; i++) {
@@ -282,8 +279,9 @@ public class Friends {
         preferences.flush();
     }
 
-
-
+    public List<Vector2> getFollowingFriendsPositions() {
+        return followingFriendsPositions;
+    }
 
     public void loadFriendState() {
         Preferences preferences = Gdx.app.getPreferences("Friends");
@@ -299,14 +297,6 @@ public class Friends {
             followingFriendsPositions.add(new Vector2(x, y));
         }
 
-    }
-
-    public int getFollowingFriendsCount() {
-        return followingFriendsPositions.size();
-    }
-
-    public List<Vector2> getFollowingFriendsPositions() {
-        return followingFriendsPositions;
     }
 
     public void dispose() {

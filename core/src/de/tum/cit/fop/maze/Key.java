@@ -11,8 +11,6 @@ public class Key implements Renderable {
     private boolean isCollected;
     private float scale = 0.2f;
     private float proximityRange = 5f;
-    private static final String PREFERENCES_NAME = "KeyState";
-
 
 
     public Key(float x, float y) {
