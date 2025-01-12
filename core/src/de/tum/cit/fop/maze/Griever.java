@@ -8,7 +8,6 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.Array;
@@ -16,31 +15,34 @@ import com.badlogic.gdx.utils.Array;
 import java.util.*;
 
 public class Griever implements  Renderable {
+    // Animation and Texture Related Variables
     private Map<String, Texture[]> grieverTextures;
     private Texture griever;
     private float grieverStateTime;
     private String fixedGrieverDirection;
+    private final float grieverAnimationTime = 0.1f;
+    private final float scale = 0.4f;
+
+    // Position and Movement Related Variables
     private float monsterX, monsterY;
     private final float monsterSpeed = 15.0f;
     private final float detectionRange = 50.0f;
     private boolean isGrieverFollowingPlayer = false;
-    private final float grieverAnimationTime = 0.1f;
-    private Rectangle grieverRectangle;
-    private final float scale = 0.4f;
+    private Vector2 currentTarget;
+    private final Random random = new Random();
+    private boolean isRandomMovement = false;
 
+    // Stun Related Variables
     private boolean isGrieverStunned = false;
     private float stunTimer = 0.0f;
     private final float stunDuration = 3.0f;
 
-    private final Random random = new Random();
-    private boolean isRandomMovement = false;
-
+    // Layer Related Variables
     private final TiledMapTileLayer pathLayer;
     private final TiledMapTileLayer path2Layer;
-    private Vector2 currentTarget;
+
+    //Griever-Damage Related Variables
     private float LivesCoolDownTimer = 0;
-
-
 
     public Griever(float startX, float startY, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
         this.monsterX = startX;
@@ -48,6 +50,10 @@ public class Griever implements  Renderable {
         this.pathLayer = pathLayer;
         this.path2Layer = path2Layer;
 
+        initializeTextures();
+    }
+
+    private void initializeTextures() {
         grieverTextures = new HashMap<>();
         grieverTextures.put("up", new Texture[]{new Texture("monster_up1.png"), new Texture("monster_up2.png")});
         grieverTextures.put("down", new Texture[]{new Texture("monster_down1.png"), new Texture("monster_down2.png")});
@@ -57,8 +63,8 @@ public class Griever implements  Renderable {
         fixedGrieverDirection = "right";
         griever = grieverTextures.get(fixedGrieverDirection)[0];
         grieverStateTime = 0f;
-        grieverRectangle = new Rectangle(monsterX, monsterY, griever.getWidth(), griever.getHeight());
     }
+
 
     public static Array<Griever> loadGrieversFromTiledMap(TiledMap map, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
         Array<Griever> grievers = new Array<>();
@@ -78,40 +84,24 @@ public class Griever implements  Renderable {
                 grievers.add(griever);
             }
         }
-
         return grievers;
     }
 
+    // Main update method orchestrating all update logic
+    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player, Friends friends) {
+        if (handleStunState(delta, hud)) {
+            return;
+        }
 
-
-
-
-
-    private boolean isPathTile(float x, float y, TiledMapTileLayer layer) {
-        int tileX = (int) (x / layer.getTileWidth());
-        int tileY = (int) (y / layer.getTileHeight());
-        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
-        return cell != null && cell.getTile() != null; // 해당 타일이 유효한지 확인
+        updateGrieverState(playerX, playerY);
+        handleMovement(delta, playerX, playerY);
+        updateAnimation(delta);
+        checkStunCondition(playerX, playerY, playerDirection);
+        checkPlayerCollision(player, hud, friends, delta);
     }
 
-    private boolean isPathTile(float x, float y) {
-        return isPathTile(x, y, pathLayer);
-    }
-
-
-    private Vector2 getRandomDirection() {
-        float angle = random.nextFloat() * 360; // Random angle in degrees
-        return new Vector2((float) Math.cos(Math.toRadians(angle)), (float) Math.sin(Math.toRadians(angle))).nor();
-    }
-
-    public boolean isRandomMovement() {
-        return isRandomMovement;
-    }
-
-
-    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player,Friends friends) {
-        grieverRectangle.setSize(griever.getWidth() * scale, griever.getHeight() * scale);
-
+    // Handles stun state and returns true if griever is stunned
+    private boolean handleStunState(float delta, HUD hud) {
         if (isGrieverStunned) {
             stunTimer += delta;
             hud.stunMessage();
@@ -119,95 +109,124 @@ public class Griever implements  Renderable {
                 isGrieverStunned = false;
                 stunTimer = 0;
             }
-            return;
+            return true;
         }
+        return false;
+    }
 
-        float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
+    // Updates griever's state based on player position
+    private void updateGrieverState(float playerX, float playerY) {
+        float distance = calculateDistance(playerX, playerY);
         boolean wasFollowingPlayer = isGrieverFollowingPlayer;
         isGrieverFollowingPlayer = distance <= detectionRange;
 
-
-
-        // 추적 모드 전환 시 랜덤 상태 초기화
         if (isGrieverFollowingPlayer && !wasFollowingPlayer) {
-            isRandomMovement = false;
-            currentTarget = null; // 추적을 위한 목표 초기화
+            resetGrieverState();
         }
+    }
 
-        float deltaX = 0, deltaY = 0;
-
+    // Handles all movement logic
+    private void handleMovement(float delta, float playerX, float playerY) {
         if (isGrieverFollowingPlayer) {
-            if (currentTarget == null || reachedTarget()) {
-                int attempts = 0;
-                Vector2 newTarget = null;
-
-                while (newTarget == null && attempts < 3) {
-                    newTarget = findNextTargetTowardsPlayer(playerX, playerY);
-                    attempts++;
-                }
-
-                if (newTarget == null) {
-                    switchToRandomMovement();
-                    return;
-                }
-
-                currentTarget = newTarget;
-            }
-
-            // 목표 방향으로 이동
-            Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY);
-            float distancetotarget = directionToTarget.len();
-            if (distancetotarget > 1f) { // Add a minimum threshold
-                directionToTarget.nor();
-                deltaX = directionToTarget.x * monsterSpeed * delta;
-                deltaY = directionToTarget.y * monsterSpeed * delta;
-
-                // Only update direction if we're moving significantly
-                if (Math.abs(deltaX) > 0.01f || Math.abs(deltaY) > 0.01f) {
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        fixedGrieverDirection = deltaX > 0 ? "right" : "left";
-                    } else {
-                        fixedGrieverDirection = deltaY > 0 ? "up" : "down";
-                    }
-                }
-            }
-
-            if (isPathTile(monsterX + deltaX, monsterY + deltaY, pathLayer)) {
-                monsterX += deltaX;
-                monsterY += deltaY;
-                grieverRectangle.setPosition(monsterX, monsterY);
-            } else {
-                currentTarget = findNextTargetTowardsPlayer(playerX, playerY);
-            }
+            handlePlayerFollowing(delta, playerX, playerY);
         } else {
-            // 랜덤 움직임
-            isRandomMovement = true;
+            handleRandomMovement(delta);
+        }
+    }
 
-            if (currentTarget == null || reachedTarget()) {
-                currentTarget = findNextTargetWithMinDistance(10f);
-                if (currentTarget == null) {
-                    return;
-                }
-            }
+    // Handles movement when following player
+    private void handlePlayerFollowing(float delta, float playerX, float playerY) {
+        if (currentTarget == null || reachedTarget()) {
+            updateTargetTowardsPlayer(playerX, playerY);
+        }
 
-            Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY).nor();
-            deltaX = directionToTarget.x * monsterSpeed * delta;
-            deltaY = directionToTarget.y * monsterSpeed * delta;
+        if (currentTarget != null) {
+            moveTowardsTarget(delta, pathLayer);
+        }
+    }
 
-            if (isPathTile(monsterX + deltaX, monsterY + deltaY, path2Layer)) {
-                monsterX += deltaX;
-                monsterY += deltaY;
-                grieverRectangle.setPosition(monsterX, monsterY);
-            } else {
-                currentTarget = findNextTargetWithMinDistance(10f);
+    // Handles random movement when not following player
+    private void handleRandomMovement(float delta) {
+        isRandomMovement = true;
+
+        if (currentTarget == null || reachedTarget()) {
+            currentTarget = findNextTargetWithMinDistance(10f);
+            if (currentTarget == null) {
+                return;
             }
         }
 
+        moveTowardsTarget(delta, path2Layer);
+    }
 
+    // Updates target when following player
+    private void updateTargetTowardsPlayer(float playerX, float playerY) {
+        int attempts = 0;
+        Vector2 newTarget = null;
 
-        updateAnimation(delta);
-        checkStunCondition(playerX, playerY, playerDirection);
-        checkPlayerCollision(player,hud,friends,delta);
+        while (newTarget == null && attempts < 3) {
+            newTarget = findNextTargetTowardsPlayer(playerX, playerY);
+            attempts++;
+        }
+
+        if (newTarget == null) {
+            switchToRandomMovement();
+            return;
+        }
+
+        currentTarget = newTarget;
+    }
+
+    // Moves griever towards current target
+    private void moveTowardsTarget(float delta, TiledMapTileLayer currentLayer) {
+        Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY);
+        float distanceToTarget = directionToTarget.len();
+
+        if (distanceToTarget > 1f) {
+            directionToTarget.nor();
+            float deltaX = directionToTarget.x * monsterSpeed * delta;
+            float deltaY = directionToTarget.y * monsterSpeed * delta;
+
+            updateGrieverDirection(deltaX, deltaY);
+
+            if (isPathTile(monsterX + deltaX, monsterY + deltaY, currentLayer)) {
+                monsterX += deltaX;
+                monsterY += deltaY;
+            } else {
+                handleCollision();
+            }
+        }
+    }
+
+    // Updates griever's direction based on movement
+    private void updateGrieverDirection(float deltaX, float deltaY) {
+        if (Math.abs(deltaX) > 0.01f || Math.abs(deltaY) > 0.01f) {
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                fixedGrieverDirection = deltaX > 0 ? "right" : "left";
+            } else {
+                fixedGrieverDirection = deltaY > 0 ? "up" : "down";
+            }
+        }
+    }
+
+    // Handles collision with obstacles
+    private void handleCollision() {
+        if (isGrieverFollowingPlayer) {
+            currentTarget = null;  // Force recalculation of path
+        } else {
+            currentTarget = findNextTargetWithMinDistance(10f);
+        }
+    }
+
+    // Helper method to reset griever state
+    private void resetGrieverState() {
+        isRandomMovement = false;
+        currentTarget = null;
+    }
+
+    // Helper method to calculate distance to player
+    private float calculateDistance(float playerX, float playerY) {
+        return (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
     }
 
     private Vector2 findNextTargetWithMinDistance(float minDistance) {
@@ -237,14 +256,6 @@ public class Griever implements  Renderable {
             }
         }
         return null; // 적절한 목표점을 찾지 못한 경우
-    }
-
-    // 플레이어 방향으로 목표 찾기 실패 시 임시 랜덤 이동으로 전환
-    private void switchToTemporaryRandomMovement(float delta) {
-        currentTarget = findNextTargetWithMinDistance(10f); // 임시 랜덤 목표 설정
-        if (currentTarget != null) {
-        } else {
-        }
     }
 
     private void switchToRandomMovement() {
@@ -314,7 +325,6 @@ public class Griever implements  Renderable {
         return true;
     }
 
-
     private void updateAnimation(float delta) {
         grieverStateTime += delta;
         if (grieverStateTime >= grieverAnimationTime) {
@@ -343,10 +353,7 @@ public class Griever implements  Renderable {
         return result;
     }
 
-    private Texture getGrieverTextureForDirection(String direction) {
-        Texture[] textures = grieverTextures.get(direction);
-        return (griever == textures[0]) ? textures[1] : textures[0];
-    }
+
     public void checkPlayerCollision(Player player, HUD hud, Friends friends, float delta) {
         int diffX = (int) (player.getX() - this.getMonsterX());
         int diffY = (int) (player.getY() - this.getMonsterY());
@@ -409,23 +416,20 @@ public class Griever implements  Renderable {
     }
 
 
-
-
+    //Render Method
     public void render(SpriteBatch batch) {
         batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() * scale);
     }
 
-    public void dispose() {
-        for (Texture[] textures : grieverTextures.values()) {
-            for (Texture texture : textures) {
-                texture.dispose();
-            }
-        }
-    }
-
+    //Setters and Getters
     public void setPosition(float x, float y) {
         this.monsterX = x;
         this.monsterY = y;
+    }
+
+    private Texture getGrieverTextureForDirection(String direction) {
+        Texture[] textures = grieverTextures.get(direction);
+        return (griever == textures[0]) ? textures[1] : textures[0];
     }
 
     public float getMonsterX() {
@@ -439,6 +443,7 @@ public class Griever implements  Renderable {
     public boolean isGrieverNotStunned() {
         return !isGrieverStunned;
     }
+
     public float getWidth() {
         return griever.getWidth();
     }
@@ -448,10 +453,30 @@ public class Griever implements  Renderable {
         return griever.getHeight();
     }
 
-
     public float getScale() {
         return scale;
     }
+
+    public boolean isRandomMovement() {
+        return isRandomMovement;
+    }
+
+    private boolean isPathTile(float x, float y, TiledMapTileLayer layer) {
+        int tileX = (int) (x / layer.getTileWidth());
+        int tileY = (int) (y / layer.getTileHeight());
+        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
+        return cell != null && cell.getTile() != null; // 해당 타일이 유효한지 확인
+    }
+
+
+    public void dispose() {
+        for (Texture[] textures : grieverTextures.values()) {
+            for (Texture texture : textures) {
+                texture.dispose();
+            }
+        }
+    }
+
 
     public void saveGrieverstate() {
         Preferences pref = Gdx.app.getPreferences("grieverstate");

@@ -27,10 +27,6 @@ public class Key implements Renderable {
         }
     }
 
-    public void dispose() {
-        keyTexture.dispose();
-    }
-
     public boolean isCollected() {
         return isCollected;
     }
@@ -70,5 +66,7 @@ public class Key implements Renderable {
         this.x = x;
     }
 
-
+    public void dispose() {
+        keyTexture.dispose();
+    }
 }
