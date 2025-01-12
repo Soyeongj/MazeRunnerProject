@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="50" nextobjectid="217">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="51" nextobjectid="218">
  <tileset firstgid="1" name="test tile" tilewidth="16" tileheight="16" tilecount="120" columns="8">
   <properties>
    <property name="blocked" type="bool" value="true"/>
@@ -30,7 +30,7 @@
    <properties>
     <property name="blocked" type="bool" value="true"/>
     <property name="direction" value="up"/>
-    <property name="mavable" type="bool" value="true"/>
+    <property name="movable" type="bool" value="true"/>
    </properties>
   </tile>
   <tile id="4">
@@ -110,7 +110,7 @@
    <properties>
     <property name="blocked" type="bool" value="true"/>
     <property name="direction" value="left"/>
-    <property name="mavable" type="bool" value="true"/>
+    <property name="movable" type="bool" value="true"/>
    </properties>
   </tile>
   <tile id="96">
@@ -133,6 +133,11 @@
    </properties>
   </tile>
   <tile id="128">
+   <properties>
+    <property name="blocked" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="288">
    <properties>
     <property name="blocked" type="bool" value="true"/>
    </properties>
@@ -166,7 +171,7 @@
    </properties>
   </tile>
  </tileset>
- <layer id="42" name="walls" width="30" height="30" locked="1">
+ <layer id="42" name="walls" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,760,0,0,760,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,760,0,0,
 0,0,0,0,0,0,0,760,0,0,760,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,760,0,0,
@@ -200,7 +205,7 @@
 760,0,0,0,0,0,0,0,0,0,0,0,0,760,0,0,760,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="43" name="path" width="30" height="30" locked="1">
+ <layer id="43" name="path" width="30" height="30">
   <data encoding="csv">
 11,11,11,11,11,11,11,0,11,11,0,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,0,11,11,
 11,11,11,11,11,11,11,0,11,11,0,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,0,11,11,
@@ -234,7 +239,7 @@
 0,11,11,11,11,11,11,11,11,11,11,11,11,0,11,11,0,11,11,11,11,11,11,11,11,11,11,11,11,11
 </data>
  </layer>
- <layer id="49" name="path2" width="30" height="30" locked="1">
+ <layer id="49" name="path2" width="30" height="30">
   <data encoding="csv">
 11,11,11,11,11,11,11,0,11,11,0,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,0,11,11,
 11,11,11,11,11,11,11,0,0,0,0,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,0,11,11,
@@ -268,7 +273,7 @@
 0,11,11,11,11,11,11,11,11,11,11,11,11,0,11,11,0,11,11,11,11,11,11,11,11,11,11,11,11,11
 </data>
  </layer>
- <layer id="14" name="safezone" width="30" height="30" locked="1">
+ <layer id="14" name="safezone" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -302,7 +307,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="27" name="layering" width="30" height="30" locked="1">
+ <layer id="27" name="layering" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -336,7 +341,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="45" name="exits" width="30" height="30" locked="1">
+ <layer id="45" name="exits" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -370,7 +375,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,121,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="46" name="static obstacles" width="30" height="30" locked="1">
+ <layer id="46" name="static obstacles" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -404,7 +409,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,450,0,0,0,0,0
 </data>
  </layer>
- <layer id="47" name="moving walls" width="30" height="30" locked="1">
+ <layer id="47" name="moving walls" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -438,7 +443,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="38" name="item" locked="1">
+ <objectgroup id="38" name="item">
   <object id="170" x="464.631" y="464.611">
    <properties>
     <property name="item" value="1"/>
@@ -465,7 +470,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="39" name="trapitem" locked="1">
+ <objectgroup id="39" name="trapitem">
   <object id="178" x="15.5795" y="31.069">
    <properties>
     <property name="trapitem" value="1"/>
@@ -481,7 +486,7 @@
     <property name="trapitem" value="1"/>
    </properties>
   </object>
-  <object id="203" x="152.628" y="103.721">
+  <object id="203" x="147.383" y="99.0588">
    <properties>
     <property name="trapitem" value="1"/>
    </properties>
@@ -491,7 +496,7 @@
     <property name="trapitem" value="1"/>
    </properties>
   </object>
-  <object id="201" x="410.213" y="195.087">
+  <object id="201" x="411.961" y="195.087">
    <properties>
     <property name="trapitem" value="1"/>
    </properties>
@@ -507,7 +512,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="40" name="friend" locked="1">
+ <objectgroup id="40" name="friend">
   <object id="156" x="287.641" y="416.873">
    <properties>
     <property name="friend" value="1"/>
@@ -534,7 +539,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="41" name="griever" locked="1">
+ <objectgroup id="41" name="griever">
   <object id="153" x="319.875" y="464.2">
    <properties>
     <property name="griever" value="1"/>
@@ -573,6 +578,16 @@
   <object id="216" x="462.978" y="126.808">
    <properties>
     <property name="griever" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="50" name="player">
+  <properties>
+   <property name="player" value="1"/>
+  </properties>
+  <object id="217" x="240" y="191">
+   <properties>
+    <property name="player" value="1"/>
    </properties>
   </object>
  </objectgroup>
