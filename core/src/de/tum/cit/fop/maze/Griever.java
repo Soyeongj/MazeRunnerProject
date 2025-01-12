@@ -44,6 +44,11 @@ public class Griever implements  Renderable {
     //Griever-Damage Related Variables
     private float LivesCoolDownTimer = 0;
 
+    private static final float MAX_X = 478.86f;
+    private static final float MAX_Y = 478f;
+    private static final float MIN_X = 0f;
+    private static final float MIN_Y = 0f;
+
     public Griever(float startX, float startY, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
         this.monsterX = startX;
         this.monsterY = startY;
@@ -177,7 +182,6 @@ public class Griever implements  Renderable {
         currentTarget = newTarget;
     }
 
-    // Moves griever towards current target
     private void moveTowardsTarget(float delta, TiledMapTileLayer currentLayer) {
         Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY);
         float distanceToTarget = directionToTarget.len();
@@ -189,14 +193,25 @@ public class Griever implements  Renderable {
 
             updateGrieverDirection(deltaX, deltaY);
 
-            if (isPathTile(monsterX + deltaX, monsterY + deltaY, currentLayer)) {
-                monsterX += deltaX;
-                monsterY += deltaY;
+            // Calculate new position
+            float newX = monsterX + deltaX;
+            float newY = monsterY + deltaY;
+
+            // Check boundaries and path validity
+            if (isValidPosition(newX, newY) && isPathTile(newX, newY, currentLayer)) {
+                monsterX = newX;
+                monsterY = newY;
             } else {
                 handleCollision();
             }
         }
     }
+
+    // Add method to check if position is within boundaries
+    private boolean isValidPosition(float x, float y) {
+        return x >= MIN_X && x <= MAX_X && y >= MIN_Y && y <= MAX_Y;
+    }
+
 
     // Updates griever's direction based on movement
     private void updateGrieverDirection(float deltaX, float deltaY) {
@@ -375,44 +390,6 @@ public class Griever implements  Renderable {
         if (LivesCoolDownTimer > 0) {
             LivesCoolDownTimer -= delta;
         }
-    }
-
-    public void updateMovement(float delta, float playerX, float playerY) {
-        float currentX = getMonsterX();
-        float currentY = getMonsterY();
-        float speed = 10 * delta;
-        float moveX = 0;
-        float moveY = 0;
-
-        if (currentY < 478 && isGrieverNotStunned()) {
-            moveY += speed;
-        }
-        if (currentY >= 0 && isGrieverNotStunned()) {
-            moveY -= speed;
-        }
-
-        if (currentX < 478.86f && isGrieverNotStunned()) {
-            moveX += speed;
-        }
-        if (currentX >= 0 && isGrieverNotStunned()) {
-            moveX -= speed;
-        }
-
-        if (moveX != 0 || moveY != 0) {
-            setPosition((int) (currentX + moveX), (int) (currentY + moveY));
-        }
-
-        if (currentX < 0 || currentX >= 478.86f || currentY < 0 || currentY >= 478) {
-            Vector2 newTarget = findNextTargetTowardsPlayer(playerX, playerY);
-            if (newTarget != null) {
-                currentTarget = newTarget;
-            }
-        }
-
-        if (moveX != 0 || moveY != 0) {
-            setPosition((int) (currentX + moveX), (int) (currentY + moveY));
-        }
-
     }
 
 
