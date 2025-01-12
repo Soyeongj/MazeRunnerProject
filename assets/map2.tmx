@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="50" nextobjectid="169">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="52" nextobjectid="170">
  <tileset firstgid="1" name="test tile" tilewidth="16" tileheight="16" tilecount="120" columns="8">
   <properties>
    <property name="blocked" type="bool" value="true"/>
@@ -573,6 +573,13 @@
   <object id="168" x="189.333" y="319.333">
    <properties>
     <property name="griever" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="51" name="player">
+  <object id="169" x="240" y="191">
+   <properties>
+    <property name="player" value="1"/>
    </properties>
   </object>
  </objectgroup>

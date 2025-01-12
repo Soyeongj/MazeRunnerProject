@@ -51,7 +51,7 @@ public class Key implements Renderable {
         if (checkProximityToPlayer(player)&& !isCollected) {
             isCollected = true;
             hud.collectKey();
-            setPosition(-1000, -1000);
+            setPosition(-10000, -10000);
             SoundManager.playKeyCollectedSound();
         }
     }
