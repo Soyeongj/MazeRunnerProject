@@ -252,7 +252,8 @@ public class GameScreen implements Screen {
                 }
                 friends.update(player, hud, 3f, delta, griever, wall);
             }
-        }
+            }
+
 
 
         Iterator<Key> keyIterator = keys.iterator();
