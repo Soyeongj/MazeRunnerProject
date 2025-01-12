@@ -4,6 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -19,6 +23,7 @@ public class Player implements Renderable {
     private String direction = "right";
     private float scale = 0.2f;
     private float previousX, previousY;
+    private float startX, startY;
 
     private final float runDuration = 2f;
     private final float cooldownDuration = 4f;
@@ -41,15 +46,12 @@ public class Player implements Renderable {
     private static final String PREFERENCES_NAME = "PlayerState";
 
 
-    public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
-        this.x = startX;
-        this.y = startY;
+    public Player(TiledMapTileLayer collisionLayer) {
         this.speed = 30.0f;
         this.runningSpeed = 70.0f;
         this.normalSpeed = speed;
-        this.previousX = startX;
-        this.previousY = startY;
         this.collisionLayer = collisionLayer;
+
 
         this.up1 = new Texture("boy_up1.png");
         this.up2 = new Texture("boy_up2.png");
@@ -67,13 +69,33 @@ public class Player implements Renderable {
         this.bound = new Rectangle();
     }
 
+    public static Player loadPlayerFromTiledMap(TiledMap map, TiledMapTileLayer collisionLayer) {
+        MapLayer playerLayer = map.getLayers().get("player");
+        Player player = new Player(collisionLayer);
+
+        MapObjects objects = playerLayer.getObjects();
+        for (MapObject object : objects) {
+            Object playerProperty = object.getProperties().get("player");
+            if (playerProperty != null && "1".equals(playerProperty.toString())) {
+                float startX = Float.parseFloat(object.getProperties().get("x").toString());
+                float startY = Float.parseFloat(object.getProperties().get("y").toString());
+
+                player.setX(startX);
+                player.setY(startY);
+                player.setStartX(startX);
+                player.setStartY(startY);
+
+            }
+        }
+        return player;
+    }
+
+
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed, Friends friends) {
         previousX = x;
         previousY = y;
 
         float slowdownFactor = 1 - 0.05f * friends.getFollowingFriendsPositions().size();
-
-
 
 
         if (isSpeedBoosted) {
@@ -222,6 +244,19 @@ public class Player implements Renderable {
         } else {
             batch.draw(currentTexture, x, y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
         }
+    }
+
+    public float getStartX() {
+        return startX;
+    }
+    public float getStartY() {
+        return startY;
+    }
+    public void setStartX(float startX) {
+        this.startX = startX;
+    }
+    public void setStartY(float startY) {
+        this.startY = startY;
     }
 
     public float getX() {

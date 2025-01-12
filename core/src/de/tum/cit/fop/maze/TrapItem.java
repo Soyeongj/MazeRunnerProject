@@ -7,6 +7,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class TrapItem extends CollectibleItem {
     private long fogEffectStartTime = 0;
@@ -17,14 +20,15 @@ public class TrapItem extends CollectibleItem {
         super(generateTextures(map, "trapitem"), map, "trapitem");
     }
 
-    private static Texture[] generateTextures(TiledMap map, String layerName) {
+    private static List<Texture> generateTextures(TiledMap map, String layerName) {
         MapObjects objects = map.getLayers().get(layerName).getObjects();
         int objectCount = objects.getCount();
 
-        Texture[] textures = new Texture[objectCount];
         Texture defaultTexture = new Texture("bomb.png");
+        List<Texture> textures = new ArrayList<>();
+
         for (int i = 0; i < objectCount; i++) {
-            textures[i] = defaultTexture;
+            textures.add(defaultTexture);
         }
         return textures;
     }

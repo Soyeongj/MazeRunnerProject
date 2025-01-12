@@ -15,7 +15,7 @@ public abstract class AbstractGameScreen implements Screen {
     protected final MazeRunnerGame game;
     protected final SpriteBatch batch;
     protected final BitmapFont font;
-    protected final Texture texture;
+    protected Texture texture; // Changed to a field
 
     // Screen Effects and Animation Variables
     protected float fadeAlpha; // controls fade effect (current opacity of the screen content)
@@ -39,7 +39,7 @@ public abstract class AbstractGameScreen implements Screen {
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
         this.font.setColor(Color.WHITE);
-        this.texture = texture;
+        this.texture = texture; // Texture initialized here
         this.fadeAlpha = 0f;
         this.finalTime = finalTime;
 
@@ -78,8 +78,8 @@ public abstract class AbstractGameScreen implements Screen {
         // Draw text
         batch.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(2.5f);
-        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth * 0.2f, screenHeight - 30);
-        drawText("Your Score: " + (int) finalTime, screenWidth * 0.2f, screenHeight - 105);
+        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth * 0.2f, screenHeight - 20);
+        drawText("Your Score: " + (int) finalTime, screenWidth * 0.2f, screenHeight - 85);
 
         batch.end();
 
@@ -103,7 +103,9 @@ public abstract class AbstractGameScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        texture.dispose();
+        if (texture != null) {
+            texture.dispose();
+        }
         font.dispose();
     }
 
