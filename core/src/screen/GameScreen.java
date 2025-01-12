@@ -47,9 +47,9 @@ public class GameScreen implements Screen {
     private final Texture backgroundTexture;
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
-    private float currentZoom = 0.05f;
-    private final float MIN_ZOOM = 0.05f;
-    private final float MAX_ZOOM = 0.50f;
+    private float currentZoom = 0.10f;
+    private final float MIN_ZOOM = 0.10f;
+    private final float MAX_ZOOM = 0.20f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
     private Viewport viewport;
@@ -88,7 +88,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(800, 480, camera);
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
 
-        camera.zoom = 0.05f;
+        camera.zoom = 0.10f;
 
         tiledMap = new TmxMapLoader().load(mapPath);
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
