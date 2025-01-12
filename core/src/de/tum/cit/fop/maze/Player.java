@@ -25,6 +25,7 @@ public class Player implements Renderable {
     private String direction = "right";
     private float scale = 0.2f;
     private float previousX, previousY;
+    private float startX, startY;
 
     private final float runDuration = 2f;
     private final float cooldownDuration = 4f;
@@ -78,11 +79,14 @@ public class Player implements Renderable {
         for (MapObject object : objects) {
             Object playerProperty = object.getProperties().get("player");
             if (playerProperty != null && "1".equals(playerProperty.toString())) {
-                float x = Float.parseFloat(object.getProperties().get("x").toString());
-                float y = Float.parseFloat(object.getProperties().get("y").toString());
+                float startX = Float.parseFloat(object.getProperties().get("x").toString());
+                float startY = Float.parseFloat(object.getProperties().get("y").toString());
 
-                player.setX(x);
-                player.setY(y);
+                player.setX(startX);
+                player.setY(startY);
+                player.setStartX(startX);
+                player.setStartY(startY);
+
             }
         }
         return player;
@@ -244,6 +248,19 @@ public class Player implements Renderable {
         } else {
             batch.draw(currentTexture, x, y, currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
         }
+    }
+
+    public float getStartX() {
+        return startX;
+    }
+    public float getStartY() {
+        return startY;
+    }
+    public void setStartX(float startX) {
+        this.startX = startX;
+    }
+    public void setStartY(float startY) {
+        this.startY = startY;
     }
 
     public float getX() {

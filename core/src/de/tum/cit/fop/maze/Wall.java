@@ -26,7 +26,7 @@ public class Wall {
     public boolean isGrieverDead = false;
     private Vector2 keySpawnPosition = null;
     private HUD hud;
-    private boolean isPlayerRemoved = false;
+
 
     private TiledMapTileLayer.Cell cell;
     private TextureRegion texture;
@@ -65,14 +65,12 @@ public class Wall {
     }
 
     public void render(SpriteBatch batch) {
-        if (!isPlayerRemoved) {
             if (texture != null) {
                 float worldX = x * layer.getTileWidth();
                 float worldY = y * layer.getTileHeight();
                 batch.draw(texture, worldX, worldY, layer.getTileWidth(), layer.getTileHeight());
             }
         }
-    }
 
     public void update(float delta, float globalTimer) {
         float timeSinceLastMove = globalTimer - lastMoveTime;
@@ -173,15 +171,16 @@ public class Wall {
         float wallWidth = layer.getTileWidth();
         float wallHeight = layer.getTileHeight();
 
-        if ((x != originalX || y != originalY || isAtTarget) && !isPlayerRemoved) {
+        if ((x != originalX || y != originalY || isAtTarget)) {
             if (checkCollision(playerX, playerY, player.getWidth() * player.getScale(), player.getHeight() * player.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
 
                 if (hud != null) {
                     if (hud.getLives() >= 0) {
                         friends.removeFriendAt(friends.getFollowingFriendsPositions().size() - 1);
-                        isPlayerRemoved = true;
                         hud.decrementLives();
+                        player.setX(player.getStartX());
+                        player.setY(player.getStartY());
                         player.triggerRedEffect();
                     } else {
                         hud.setLives(0);
@@ -190,17 +189,6 @@ public class Wall {
                 }
             }
         }
-
-        if (isPlayerRemoved && !isAtTarget && x == originalX && y == originalY) {
-            float safeX = 230;
-            float safeY = 250;
-
-            player.setX(safeX);
-            player.setY(safeY);
-
-            isPlayerRemoved = false;
-        }
-
     }
 
     private boolean checkCollision(float x1, float y1, float width1, float height1,
@@ -247,12 +235,6 @@ public class Wall {
 
     public boolean isGrieverDead() {
         return isGrieverDead;
-    }
-    public boolean isPlayerRemoved() {
-        return isPlayerRemoved;
-    }
-    public void setIsPlayerRemoved(boolean isPlayerRemoved) {
-        this.isPlayerRemoved = isPlayerRemoved;
     }
 
     public void setGrieverDead(boolean grieverDead) {
