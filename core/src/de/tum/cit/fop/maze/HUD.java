@@ -27,11 +27,7 @@ public class HUD  {
     private float finalTime;
     private static final String PREFERENCES_NAME = "HUDState";
 
-
-
     public HUD() {
-
-
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
@@ -76,8 +72,6 @@ public class HUD  {
             scoreTimer -= delta;
         }
     }
-
-
     public void stopTimer() {
         isGameRunning = false;
         finalTime = scoreTimer;
@@ -86,11 +80,6 @@ public class HUD  {
 
     public float getFinalTime() {
         return finalTime;
-    }
-
-
-    public void startTimer() {
-        isGameRunning = true;
     }
 
     public void render(SpriteBatch batch, Player player) {
@@ -135,8 +124,6 @@ public class HUD  {
         messageTimer = 1f;
     }
 
-
-
     public int getLives() {
         return lives;
     }
@@ -150,7 +137,6 @@ public class HUD  {
     public boolean isKeyCollected() {
         return keyCollected;
     }
-
 
     public float getScoreTimer() {
         return scoreTimer;

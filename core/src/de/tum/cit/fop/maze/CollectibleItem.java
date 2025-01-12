@@ -11,21 +11,21 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-
 public abstract class CollectibleItem implements Renderable {
-    protected Texture[] textures;
-    protected Vector2[] positions;
-    protected boolean[] isCollected;
-    protected float scale = 0.2f;
+
+    // Core Variables
+    protected Texture[] textures; // Array of textures
+    protected Vector2[] positions; // Array of item positions
+    protected boolean[] isCollected; // Status of each item's collection
+    protected float scale = 0.2f; // Scale(size) for rendering items
 
     protected CollectibleItem(Texture[] textures, TiledMap map, String layerName) {
         this.textures = textures;
         this.positions = loadItemPositions(map, layerName);
-
-        // 아이템 수집 상태 초기화
         this.isCollected = new boolean[positions.length];
     }
 
+    // Helper Method: Load item positions from TiledMap
     private static Vector2[] loadItemPositions(TiledMap map, String layerName) {
         Array<Vector2> positions = new Array<>();
         MapObjects objects = map.getLayers().get(layerName).getObjects();
@@ -33,7 +33,7 @@ public abstract class CollectibleItem implements Renderable {
         for (MapObject object : objects) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                positions.add(new Vector2(rect.x, rect.y)); // 아이템 좌표 추가
+                positions.add(new Vector2(rect.x, rect.y));
             } else if (object.getProperties().containsKey("x") && object.getProperties().containsKey("y")) {
                 float x = object.getProperties().get("x", Float.class);
                 float y = object.getProperties().get("y", Float.class);
@@ -43,9 +43,10 @@ public abstract class CollectibleItem implements Renderable {
         return positions.toArray(Vector2.class);
     }
 
+    // Render Method: Draw uncollected items
     @Override
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < Math.min(textures.length, positions.length); i++) {
+        for (int i = 0; i < Math.min(textures.length, positions.length); i++) { //Math.min is used to avoid IndexOutOfBoundsException
             if (!isCollected[i]) {
                 batch.draw(textures[i], positions[i].x, positions[i].y,
                         textures[i].getWidth() * scale, textures[i].getHeight() * scale);
@@ -53,12 +54,13 @@ public abstract class CollectibleItem implements Renderable {
         }
     }
 
+    // Collect a Single Item
     public boolean checkAndCollect(Vector2 playerPosition, float proximity, int index) {
         if (!isCollected[index]) {
             float distance = playerPosition.dst(positions[index]);
             if (distance <= proximity) {
                 isCollected[index] = true;
-                positions[index] = new Vector2(-1000, -1000); // Move offscreen
+                positions[index] = new Vector2(-1000, -1000);
                 onCollected();
                 return true;
             }
@@ -66,6 +68,7 @@ public abstract class CollectibleItem implements Renderable {
         return false;
     }
 
+    // Check all items and return count of collected items
     public int checkAndCollectAll(Vector2 playerPosition, float proximity) {
         int count = 0;
         for (int i = 0; i < positions.length; i++) {
@@ -76,8 +79,10 @@ public abstract class CollectibleItem implements Renderable {
         return count;
     }
 
+    // Abstract Method
     protected abstract void onCollected();
 
+    // Store collection status and positions in preferences
     public void saveState(Preferences preferences, String prefix) {
         for (int i = 0; i < isCollected.length; i++) {
             preferences.putBoolean(prefix + "itemCollected" + i, isCollected[i]);
@@ -87,6 +92,7 @@ public abstract class CollectibleItem implements Renderable {
         preferences.flush();
     }
 
+    // Restore collection status and positions from preferences
     public void loadState(Preferences preferences, String prefix) {
         for (int i = 0; i < isCollected.length; i++) {
             isCollected[i] = preferences.getBoolean(prefix + "itemCollected" + i, false);
@@ -96,8 +102,7 @@ public abstract class CollectibleItem implements Renderable {
         }
     }
 
-
-
+    // Dispose Resources: Free textures to avoid memory leaks
     @Override
     public void dispose() {
         for (Texture texture : textures) {

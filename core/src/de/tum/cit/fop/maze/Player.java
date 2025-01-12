@@ -71,7 +71,7 @@ public class Player implements Renderable {
         previousX = x;
         previousY = y;
 
-        float slowdownFactor = 1 - 0.05f * friends.getFollowingFriendsCount();
+        float slowdownFactor = 1 - 0.05f * friends.getFollowingFriendsPositions().size();
 
 
 

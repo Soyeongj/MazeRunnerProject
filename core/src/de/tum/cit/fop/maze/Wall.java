@@ -153,7 +153,7 @@ public class Wall {
 
             if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
-                griever.setPosition(-1000, -1000);
+                griever.setPosition(-10000, -10000);
                 keySpawnPosition = new Vector2(grieverX, grieverY);
                 isGrieverDead = true;
 

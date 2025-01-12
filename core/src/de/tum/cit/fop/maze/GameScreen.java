@@ -242,7 +242,6 @@ public class GameScreen implements Screen {
 
         for (Griever griever : grievers) {
             griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player,friends);
-            griever.updateMovement(delta,player.getX(),player.getY());
             griever.render(batch);
             for (Wall wall : walls) {
                 if (wall.isGrieverDead() && !wall.hasKeySpawned()) {

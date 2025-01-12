@@ -11,8 +11,6 @@ public class Key implements Renderable {
     private boolean isCollected;
     private float scale = 0.2f;
     private float proximityRange = 5f;
-    private static final String PREFERENCES_NAME = "KeyState";
-
 
 
     public Key(float x, float y) {
@@ -27,10 +25,6 @@ public class Key implements Renderable {
         if (!isCollected) {
             batch.draw(keyTexture, x, y, keyTexture.getWidth() * scale, keyTexture.getHeight() * scale);
         }
-    }
-
-    public void dispose() {
-        keyTexture.dispose();
     }
 
     public boolean isCollected() {
@@ -72,5 +66,7 @@ public class Key implements Renderable {
         this.x = x;
     }
 
-
+    public void dispose() {
+        keyTexture.dispose();
+    }
 }
