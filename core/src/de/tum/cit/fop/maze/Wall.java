@@ -147,18 +147,13 @@ public class Wall {
         float wallHeight = layer.getTileHeight();
 
         if (x != originalX || y != originalY || isAtTarget) {
-            if (griever.isRandomMovement()) {
-                return;
-            }
-
-            if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
+                 if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
                 griever.setPosition(-10000, -10000);
                 keySpawnPosition = new Vector2(grieverX, grieverY);
                 isGrieverDead = true;
 
                 SoundManager.playMonsterDiedSound();
-
             }
         }
     }
