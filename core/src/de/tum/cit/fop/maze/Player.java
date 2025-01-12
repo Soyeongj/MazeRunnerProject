@@ -4,9 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 
 public class Player implements Renderable {
     private Texture currentTexture;
@@ -41,15 +47,12 @@ public class Player implements Renderable {
     private static final String PREFERENCES_NAME = "PlayerState";
 
 
-    public Player(float startX, float startY, TiledMapTileLayer collisionLayer) {
-        this.x = startX;
-        this.y = startY;
+    public Player(TiledMapTileLayer collisionLayer) {
         this.speed = 30.0f;
         this.runningSpeed = 70.0f;
         this.normalSpeed = speed;
-        this.previousX = startX;
-        this.previousY = startY;
         this.collisionLayer = collisionLayer;
+
 
         this.up1 = new Texture("boy_up1.png");
         this.up2 = new Texture("boy_up2.png");
@@ -66,6 +69,25 @@ public class Player implements Renderable {
 
         this.bound = new Rectangle();
     }
+
+    public static Player loadPlayerFromTiledMap(TiledMap map, TiledMapTileLayer collisionLayer) {
+        MapLayer playerLayer = map.getLayers().get("player");
+        Player player = new Player(collisionLayer);
+
+        MapObjects objects = playerLayer.getObjects();
+        for (MapObject object : objects) {
+            Object playerProperty = object.getProperties().get("player");
+            if (playerProperty != null && "1".equals(playerProperty.toString())) {
+                float x = Float.parseFloat(object.getProperties().get("x").toString());
+                float y = Float.parseFloat(object.getProperties().get("y").toString());
+
+                player.setX(x);
+                player.setY(y);
+            }
+        }
+        return player;
+    }
+
 
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed, Friends friends) {
         previousX = x;

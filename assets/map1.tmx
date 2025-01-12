@@ -549,6 +549,10 @@
   </object>
  </objectgroup>
  <objectgroup id="42" name="player">
-  <object id="158" x="240" y="191"/>
+  <object id="158" x="240" y="191">
+   <properties>
+    <property name="player" value="1"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
