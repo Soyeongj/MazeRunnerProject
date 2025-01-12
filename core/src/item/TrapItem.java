@@ -26,7 +26,7 @@ public class TrapItem extends CollectibleItem {
         MapObjects objects = map.getLayers().get(layerName).getObjects();
         int objectCount = objects.getCount();
 
-        Texture defaultTexture = new Texture("bomb.png");
+        Texture defaultTexture = new Texture("item/bomb.png");
         List<Texture> textures = new ArrayList<>();
 
         for (int i = 0; i < objectCount; i++) {

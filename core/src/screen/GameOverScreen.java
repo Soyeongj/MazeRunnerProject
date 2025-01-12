@@ -6,7 +6,7 @@ import game.MazeRunnerGame;
 public class GameOverScreen extends AbstractGameScreen {
 
     public GameOverScreen(MazeRunnerGame game, float finalTime) {
-        super(game, new Texture("gameover.jpg"), finalTime);
+        super(game, new Texture("screen/gameover.jpg"), finalTime);
     }
 
 }

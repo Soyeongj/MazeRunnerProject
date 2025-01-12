@@ -42,19 +42,19 @@ public class Friends {
 
 
     public Friends(TiledMap map, Player player) {
-        right1 = new Texture("oldman_right_1.png");
-        right2 = new Texture("oldman_right_2.png");
-        left1 = new Texture("oldman_left_1.png");
-        left2 = new Texture("oldman_left_2.png");
-        up1= new Texture("oldman_up_1.png");
-        up2 = new Texture("oldman_up_2.png");
-        down1 = new Texture("oldman_down_1.png");
-        down2 = new Texture("oldman_down_2.png");
+        right1 = new Texture("character/oldman_right_1.png");
+        right2 = new Texture("character/oldman_right_2.png");
+        left1 = new Texture("character/oldman_left_1.png");
+        left2 = new Texture("character/oldman_left_2.png");
+        up1= new Texture("character/oldman_up_1.png");
+        up2 = new Texture("character/oldman_up_2.png");
+        down1 = new Texture("character/oldman_down_1.png");
+        down2 = new Texture("character/oldman_down_2.png");
 
         currentTexture = down1;
 
         // Initialize font for displaying "help me!"
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("screen/font/Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 10;
         parameter.color = Color.WHITE;

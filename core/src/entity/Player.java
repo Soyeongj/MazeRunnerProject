@@ -54,15 +54,15 @@ public class Player implements Renderable {
         this.collisionLayer = collisionLayer;
 
 
-        this.up1 = new Texture("boy_up1.png");
-        this.up2 = new Texture("boy_up2.png");
-        this.down1 = new Texture("boy_down1.png");
-        this.down2 = new Texture("boy_down2.png");
-        this.left1 = new Texture("boy_left1.png");
-        this.left2 = new Texture("boy_left2.png");
-        this.right1 = new Texture("boy_right1.png");
-        this.right2 = new Texture("boy_right2.png");
-        this.dead = new Texture("boydead.png");
+        this.up1 = new Texture("character/boy_up1.png");
+        this.up2 = new Texture("character/boy_up2.png");
+        this.down1 = new Texture("character/boy_down1.png");
+        this.down2 = new Texture("character/boy_down2.png");
+        this.left1 = new Texture("character/boy_left1.png");
+        this.left2 = new Texture("character/boy_left2.png");
+        this.right1 = new Texture("character/boy_right1.png");
+        this.right2 = new Texture("character/boy_right2.png");
+        this.dead = new Texture("character/boydead.png");
 
         this.currentTexture = down1;
         this.isDead = false;

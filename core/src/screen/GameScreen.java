@@ -121,13 +121,13 @@ public class GameScreen implements Screen {
         TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
         doors = createDoorsFromLayer(doorsLayer);
         TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
-        String rockTexture = "assets/rock1.png";
+        String rockTexture = "item/rock.png";
         traps = createTrapsFromLayer(trapLayer, rockTexture);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
 
         arrow = new Arrow();
-        backgroundTexture = new Texture(Gdx.files.internal("background.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("screen/background.png"));
     }
 
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
@@ -430,7 +430,7 @@ public class GameScreen implements Screen {
         SoundManager.stopMenuMusic();
         if (isNewGame) {
             isShowingIntro = true;
-            introImage = new Texture(Gdx.files.internal("intro.png"));
+            introImage = new Texture(Gdx.files.internal("screen/intro.png"));
             SoundManager.playGameStartSound();
 
 

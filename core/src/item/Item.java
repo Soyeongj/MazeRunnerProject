@@ -22,7 +22,7 @@ public class Item extends CollectibleItem {
         MapObjects objects = map.getLayers().get(layerName).getObjects();
         int objectCount = objects.getCount();
 
-        Texture defaultTexture = new Texture("potion_red.png");
+        Texture defaultTexture = new Texture("item/potion_red.png");
         List<Texture> textures = new ArrayList<>();
 
         for (int i = 0; i < objectCount; i++) {

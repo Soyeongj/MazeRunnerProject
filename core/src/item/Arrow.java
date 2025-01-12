@@ -20,7 +20,7 @@ public class Arrow implements Renderable {
 
     //Constructor
     public Arrow() {
-        arrowTexture = new Texture("arrow.png");
+        arrowTexture = new Texture("item/arrow.png");
         exitTexture = new Texture("exit.png");
         position = new Vector2();
     }

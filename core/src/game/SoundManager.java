@@ -21,18 +21,18 @@ public class SoundManager {
     private static Sound gameStartSound;
 
     public static void initialize() {
-        rockSound = audio.newSound(Gdx.files.internal("assets/rockSound.mp3"));
-        lostFreindSound = audio.newSound(Gdx.files.internal("assets/lostFriendSound.mp3"));
-        saveFriendSound = audio.newSound(Gdx.files.internal("assets/saveFriendSound.mp3"));
-        monsterDiedSound = audio.newSound(Gdx.files.internal("assets/monsterDiedSound.mp3"));
-        keyCollectedSound = audio.newSound(Gdx.files.internal("assets/keyCollectedSound.mp3"));
-        itemCollectedSound = audio.newSound(Gdx.files.internal("assets/itemCollectedSound.mp3"));
-        gameOverSound = audio.newSound(Gdx.files.internal("assets/gameOverSound.mp3"));
-        victorySound = audio.newSound(Gdx.files.internal("assets/victorySound.mp3"));
-        evilLaughSound = audio.newSound(Gdx.files.internal("assets/evillaughSound.wav"));
-        backgroundMusic = audio.newMusic(Gdx.files.internal("assets/backgroundMusic.wav"));
-        menuMusic = audio.newMusic(Gdx.files.internal("assets/menuMusic.mp3"));
-        gameStartSound = audio.newSound(Gdx.files.internal("assets/gameStartSound.mp3"));
+        rockSound = audio.newSound(Gdx.files.internal("sound/rockSound.mp3"));
+        lostFreindSound = audio.newSound(Gdx.files.internal("sound/lostFriendSound.mp3"));
+        saveFriendSound = audio.newSound(Gdx.files.internal("sound/saveFriendSound.mp3"));
+        monsterDiedSound = audio.newSound(Gdx.files.internal("sound/monsterDiedSound.mp3"));
+        keyCollectedSound = audio.newSound(Gdx.files.internal("sound/keyCollectedSound.mp3"));
+        itemCollectedSound = audio.newSound(Gdx.files.internal("sound/itemCollectedSound.mp3"));
+        gameOverSound = audio.newSound(Gdx.files.internal("sound/gameOverSound.mp3"));
+        victorySound = audio.newSound(Gdx.files.internal("sound/victorySound.mp3"));
+        evilLaughSound = audio.newSound(Gdx.files.internal("sound/evillaughSound.wav"));
+        backgroundMusic = audio.newMusic(Gdx.files.internal("sound/backgroundMusic.wav"));
+        menuMusic = audio.newMusic(Gdx.files.internal("sound/menuMusic.mp3"));
+        gameStartSound = audio.newSound(Gdx.files.internal("sound/gameStartSound.mp3"));
 
         backgroundMusic.setLooping(true);
         menuMusic.setLooping(true);

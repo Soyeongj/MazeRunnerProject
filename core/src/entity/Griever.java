@@ -62,10 +62,10 @@ public class Griever implements Renderable {
 
     private void initializeTextures() {
         grieverTextures = new HashMap<>();
-        grieverTextures.put("up", new Texture[]{new Texture("monster_up1.png"), new Texture("monster_up2.png")});
-        grieverTextures.put("down", new Texture[]{new Texture("monster_down1.png"), new Texture("monster_down2.png")});
-        grieverTextures.put("left", new Texture[]{new Texture("monster_left1.png"), new Texture("monster_left2.png")});
-        grieverTextures.put("right", new Texture[]{new Texture("monster_right1.png"), new Texture("monster_right2.png")});
+        grieverTextures.put("up", new Texture[]{new Texture("character/monster_up1.png"), new Texture("character/monster_up2.png")});
+        grieverTextures.put("down", new Texture[]{new Texture("character/monster_down1.png"), new Texture("character/monster_down2.png")});
+        grieverTextures.put("left", new Texture[]{new Texture("character/monster_left1.png"), new Texture("character/monster_left2.png")});
+        grieverTextures.put("right", new Texture[]{new Texture("character/monster_right1.png"), new Texture("character/monster_right2.png")});
 
         fixedGrieverDirection = "right";
         griever = grieverTextures.get(fixedGrieverDirection)[0];

@@ -19,7 +19,7 @@ public class Key implements Renderable {
         this.x = x;
         this.y = y;
         this.isCollected = false;
-        keyTexture = new Texture("key.png");
+        keyTexture = new Texture("item/key.png");
 
     }
 
