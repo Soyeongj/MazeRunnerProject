@@ -1,9 +1,11 @@
-package de.tum.cit.fop.maze;
+package item;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-import java.awt.event.KeyListener;
+import entity.Player;
+import render.Renderable;
+import game.SoundManager;
+import game.HUD;
 
 public class Key implements Renderable {
     private Texture keyTexture;

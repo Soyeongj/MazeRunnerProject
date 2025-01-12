@@ -1,10 +1,12 @@
-package de.tum.cit.fop.maze;
+package item;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import map.Door;
+import render.Renderable;
 
 public class Arrow implements Renderable {
     //Textures for Arrow and Exit
@@ -24,7 +26,7 @@ public class Arrow implements Renderable {
     }
 
     //Arrow Rotation and Position Calculation
-    public void update(Vector2 playerPosition, Array<Door> doors,boolean hasKey) {
+    public void update(Vector2 playerPosition, Array<Door> doors, boolean hasKey) {
         if (!hasKey) {
             return; // Exit early if the player does not have the key
         }

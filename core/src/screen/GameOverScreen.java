@@ -1,6 +1,7 @@
-package de.tum.cit.fop.maze;
+package screen;
 
 import com.badlogic.gdx.graphics.Texture;
+import game.MazeRunnerGame;
 
 public class GameOverScreen extends AbstractGameScreen {
 

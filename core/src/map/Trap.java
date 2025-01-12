@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze;
+package map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
@@ -7,6 +7,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
+import entity.Friends;
+import entity.NearbyPlayer;
+import entity.Player;
+import game.HUD;
+import game.SoundManager;
+import render.Renderable;
 
 public class Trap implements NearbyPlayer, Renderable {
     private Vector2 position;

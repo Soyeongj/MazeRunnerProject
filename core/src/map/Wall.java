@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze;
+package map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -7,6 +7,11 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import entity.Friends;
+import entity.Griever;
+import entity.Player;
+import game.HUD;
+import game.SoundManager;
 
 import java.util.ArrayList;
 import java.util.List;

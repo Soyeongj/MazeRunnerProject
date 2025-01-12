@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze;
+package screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import game.MazeRunnerGame;
 
 public abstract class AbstractGameScreen implements Screen {
 

@@ -1,10 +1,12 @@
-package de.tum.cit.fop.maze;
+package item;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
+import entity.Player;
+import game.SoundManager;
 
 import java.util.ArrayList;
 import java.util.List;

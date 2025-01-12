@@ -1,15 +1,16 @@
-package de.tum.cit.fop.maze;
+package game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
+import screen.MenuScreen;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
+import screen.GameScreen;
 
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.

@@ -1,7 +1,13 @@
-package de.tum.cit.fop.maze;
+package map;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import entity.Friends;
+import entity.NearbyPlayer;
+import game.HUD;
+import game.MazeRunnerGame;
+import game.SoundManager;
+import screen.GameClearScreen;
 
 public class Door implements NearbyPlayer {
 

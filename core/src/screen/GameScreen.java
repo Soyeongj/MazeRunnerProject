@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze;
+package screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -19,10 +19,20 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-
-
+import entity.Friends;
+import entity.Griever;
+import entity.Player;
+import game.HUD;
+import game.MazeRunnerGame;
+import game.SoundManager;
+import item.Arrow;
+import item.Item;
+import item.Key;
+import item.TrapItem;
+import map.Door;
+import map.Trap;
+import map.Wall;
 
 
 import java.util.Iterator;
