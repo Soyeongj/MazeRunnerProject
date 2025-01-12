@@ -19,7 +19,11 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
+
+
 
 import java.util.Iterator;
 import java.util.List;
@@ -237,7 +241,7 @@ public class GameScreen implements Screen {
 
 
         for (Griever griever : grievers) {
-            griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player,friends,walls);
+            griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player,friends);
             griever.render(batch);
             for (Wall wall : walls) {
                 if (wall.isGrieverDead() && !wall.hasKeySpawned()) {
