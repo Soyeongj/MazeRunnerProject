@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,11 +23,15 @@ public abstract class AbstractGameScreen implements Screen {
     protected float finalTime; // player's final time(score)
 
     // Screen Layout Constants
-    protected final float textureWidthScale = 4.0f;
-    protected final float textureHeightScale = 3.0f;
+    protected float textureWidthScale = 4.0f;
+    protected float textureHeightScale = 3.0f;
 
-    // HUD (Heads-up Display)
-    private HUD hud; // Add HUD reference here
+    // Camera for screen layout adjustment
+    protected OrthographicCamera screenCamera;
+
+    // Variables for screen size
+    protected float screenWidth;
+    protected float screenHeight;
 
     // Constructor
     public AbstractGameScreen(MazeRunnerGame game, Texture texture, float finalTime) {
@@ -37,7 +42,10 @@ public abstract class AbstractGameScreen implements Screen {
         this.texture = texture;
         this.fadeAlpha = 0f;
         this.finalTime = finalTime;
-        this.hud = new HUD();  // Initialize HUD
+
+        // Initialize camera for dynamic screen resizing
+        screenCamera = new OrthographicCamera();
+        setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
@@ -50,17 +58,15 @@ public abstract class AbstractGameScreen implements Screen {
         // Update fade effect
         if (fadeAlpha < 1f) {
             fadeAlpha += FADE_SPEED * delta;
-            fadeAlpha = Math.min(fadeAlpha, 1f); // Prevent fadeAlpha from exceeding 1f;
+            fadeAlpha = Math.min(fadeAlpha, 1f); // Prevent fadeAlpha from exceeding 1f
         }
 
+        batch.setProjectionMatrix(screenCamera.combined);
         batch.begin();
 
         // Calculate screen and texture dimensions
-        float screenWidth = Gdx.graphics.getWidth();
-        float screenHeight = Gdx.graphics.getHeight();
         float textureWidth = texture.getWidth();
         float textureHeight = texture.getHeight();
-
         float scaledTextureWidth = textureWidth * textureWidthScale;
         float scaledTextureHeight = textureHeight * textureHeightScale;
 
@@ -69,15 +75,11 @@ public abstract class AbstractGameScreen implements Screen {
         batch.draw(texture, (screenWidth - scaledTextureWidth) / 2, (screenHeight - scaledTextureHeight) / 2,
                 scaledTextureWidth, scaledTextureHeight);
 
-        // Draw HUD (pass screenWidth and screenHeight)
-        hud.setScreenDimensions(screenWidth, screenHeight);  // Update HUD with new screen dimensions
-        hud.render(batch, null); // Pass the player or any other necessary object to render, can be null if not needed
-
         // Draw text
         batch.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(2.5f);
-        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth * 0.05f, screenHeight - 120);
-        drawText("Your Score: " + (int) finalTime, screenWidth * 0.05f, screenHeight - 200);
+        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth * 0.2f, screenHeight - 30);
+        drawText("Your Score: " + (int) finalTime, screenWidth * 0.2f, screenHeight - 105);
 
         batch.end();
 
@@ -103,13 +105,19 @@ public abstract class AbstractGameScreen implements Screen {
         batch.dispose();
         texture.dispose();
         font.dispose();
-        hud.dispose(); // Dispose HUD when done
     }
 
     @Override
     public void resize(int width, int height) {
-        // Pass screen size to HUD when resizing
-        hud.setScreenDimensions(width, height);
+        setScreenDimensions(width, height);
+    }
+
+    protected void setScreenDimensions(float width, float height) {
+        this.screenWidth = width;
+        this.screenHeight = height;
+        screenCamera.setToOrtho(false, screenWidth, screenHeight);
+        screenCamera.position.set(screenWidth / 2f, screenHeight / 2f, 0);
+        screenCamera.update();
     }
 
     @Override
