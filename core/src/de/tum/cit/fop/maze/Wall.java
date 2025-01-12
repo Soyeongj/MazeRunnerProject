@@ -23,10 +23,10 @@ public class Wall {
     private boolean isAtTarget = false;
     private TiledMapTileLayer layer;
     private Array<Griever> grievers;
-    private boolean isGrieverDead = false;
+    public boolean isGrieverDead = false;
     private Vector2 keySpawnPosition = null;
     private HUD hud;
-    private boolean isPlayerRemoved = false;
+
 
     private TiledMapTileLayer.Cell cell;
     private TextureRegion texture;
@@ -65,12 +65,12 @@ public class Wall {
     }
 
     public void render(SpriteBatch batch) {
-        if (texture != null) {
-            float worldX = x * layer.getTileWidth();
-            float worldY = y * layer.getTileHeight();
-            batch.draw(texture, worldX, worldY, layer.getTileWidth(), layer.getTileHeight());
+            if (texture != null) {
+                float worldX = x * layer.getTileWidth();
+                float worldY = y * layer.getTileHeight();
+                batch.draw(texture, worldX, worldY, layer.getTileWidth(), layer.getTileHeight());
+            }
         }
-    }
 
     public void update(float delta, float globalTimer) {
         float timeSinceLastMove = globalTimer - lastMoveTime;
@@ -149,7 +149,6 @@ public class Wall {
         if (x != originalX || y != originalY || isAtTarget) {
                  if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
-                griever.setPosition(-10000, -10000);
                 keySpawnPosition = new Vector2(grieverX, grieverY);
                 isGrieverDead = true;
 
@@ -167,37 +166,24 @@ public class Wall {
         float wallWidth = layer.getTileWidth();
         float wallHeight = layer.getTileHeight();
 
-        if ((x != originalX || y != originalY || isAtTarget) && !isPlayerRemoved) {
+        if ((x != originalX || y != originalY || isAtTarget)) {
             if (checkCollision(playerX, playerY, player.getWidth() * player.getScale(), player.getHeight() * player.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
 
                 if (hud != null) {
                     if (hud.getLives() >= 0) {
-                        friends.removeFriendAt(friends.getFollowingFriendsPositions().size()-1);
+                        friends.removeFriendAt(friends.getFollowingFriendsPositions().size() - 1);
                         hud.decrementLives();
+                        player.setX(player.getStartX());
+                        player.setY(player.getStartY());
                         player.triggerRedEffect();
                     } else {
                         hud.setLives(0);
                         player.setDead();
                     }
                 }
-
-                player.setX(-1000);
-                player.setY(-1000);
-                isPlayerRemoved = true;
             }
         }
-
-        if (isPlayerRemoved && !isAtTarget && x == originalX && y == originalY) {
-            float safeX = 230;
-            float safeY = 250;
-
-            player.setX(safeX);
-            player.setY(safeY);
-
-            isPlayerRemoved = false;
-        }
-
     }
 
     private boolean checkCollision(float x1, float y1, float width1, float height1,
