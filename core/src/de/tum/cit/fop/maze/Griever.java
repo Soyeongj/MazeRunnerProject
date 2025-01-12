@@ -44,6 +44,7 @@ public class Griever implements  Renderable {
     //Griever-Damage Related Variables
     private float LivesCoolDownTimer = 0;
 
+    //Boundaries
     private static final float MAX_X = 478.86f;
     private static final float MAX_Y = 478f;
     private static final float MIN_X = 0f;
@@ -93,13 +94,13 @@ public class Griever implements  Renderable {
     }
 
     // Main update method orchestrating all update logic
-    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player, Friends friends) {
+    public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player, Friends friends, List<Wall> walls) {
         if (handleStunState(delta, hud)) {
             return;
         }
 
         updateGrieverState(playerX, playerY);
-        handleMovement(delta, playerX, playerY);
+        handleMovement(delta, playerX, playerY, walls);
         updateAnimation(delta);
         checkStunCondition(playerX, playerY, playerDirection);
         checkPlayerCollision(player, hud, friends, delta);
@@ -131,11 +132,11 @@ public class Griever implements  Renderable {
     }
 
     // Handles all movement logic
-    private void handleMovement(float delta, float playerX, float playerY) {
+    private void handleMovement(float delta, float playerX, float playerY, List<Wall> walls) {
         if (isGrieverFollowingPlayer) {
             handlePlayerFollowing(delta, playerX, playerY);
         } else {
-            handleRandomMovement(delta);
+            handleRandomMovement(delta,walls);
         }
     }
 
@@ -150,18 +151,56 @@ public class Griever implements  Renderable {
         }
     }
 
-    // Handles random movement when not following player
-    private void handleRandomMovement(float delta) {
+    private void handleRandomMovement(float delta, List<Wall> walls) {
         isRandomMovement = true;
 
+        // Check proximity to moving walls
+        for (Wall wall : walls) {
+            float wallX = wall.getX();
+            float wallY = wall.getY();
+
+            // Measure the distance between the Griever and the wall
+            float distanceToWall = Vector2.dst(monsterX, monsterY, wallX, wallY);
+
+
+            // If too close to a moving wall, move away
+            if (distanceToWall <= 15f) {
+                avoidMovingWall(wall);
+                return; // Exit early, as the Griever should avoid the wall
+            }
+        }
+
+        // Proceed with random movement if no walls are too close
         if (currentTarget == null || reachedTarget()) {
             currentTarget = findNextTargetWithMinDistance(10f);
             if (currentTarget == null) {
                 return;
             }
         }
+        moveTowardsTarget(delta, pathLayer);
+    }
 
-        moveTowardsTarget(delta, path2Layer);
+    // Helper method to move the Griever away from a moving wall
+    private void avoidMovingWall(Wall wall) {
+        float wallX = wall.getX();
+        float wallY = wall.getY();
+
+        // Determine the opposite direction from the wall
+        float dx = monsterX - wallX;
+        float dy = monsterY - wallY;
+
+        // Normalize to get a unit vector and scale for a small move
+        Vector2 escapeVector = new Vector2(dx, dy).nor().scl(5f);
+
+        // Update Griever's position to move away from the wall
+        monsterX += escapeVector.x;
+        monsterY += escapeVector.y;
+
+        // Ensure the new position is valid
+        if (!isValidPosition(monsterX, monsterY) || !isPathTile(monsterX, monsterY, path2Layer)) {
+            monsterX -= escapeVector.x; // Revert if invalid move
+            monsterY -= escapeVector.y;
+        }
     }
 
     // Updates target when following player
