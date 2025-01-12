@@ -239,18 +239,21 @@ public class GameScreen implements Screen {
         player.render(batch);
 
 
-
-        for (Griever griever : grievers) {
-            griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player,friends);
+        Iterator<Griever> iterator = grievers.iterator();
+        while (iterator.hasNext()) {
+            Griever griever = iterator.next();
+            griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player, friends);
             griever.render(batch);
             for (Wall wall : walls) {
                 if (wall.isGrieverDead() && !wall.hasKeySpawned()) {
+                    iterator.remove();
                     keys.add(new Key(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y));
                     wall.setKeySpawned(true);
                 }
                 friends.update(player, hud, 3f, delta, griever, wall);
             }
-        }
+            }
+
 
         Iterator<Key> keyIterator = keys.iterator();
         while (keyIterator.hasNext()) {

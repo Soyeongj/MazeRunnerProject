@@ -23,7 +23,7 @@ public class Wall {
     private boolean isAtTarget = false;
     private TiledMapTileLayer layer;
     private Array<Griever> grievers;
-    private boolean isGrieverDead = false;
+    public boolean isGrieverDead = false;
     private Vector2 keySpawnPosition = null;
     private HUD hud;
     private boolean isPlayerRemoved = false;
@@ -65,10 +65,12 @@ public class Wall {
     }
 
     public void render(SpriteBatch batch) {
-        if (texture != null) {
-            float worldX = x * layer.getTileWidth();
-            float worldY = y * layer.getTileHeight();
-            batch.draw(texture, worldX, worldY, layer.getTileWidth(), layer.getTileHeight());
+        if (!isPlayerRemoved) {
+            if (texture != null) {
+                float worldX = x * layer.getTileWidth();
+                float worldY = y * layer.getTileHeight();
+                batch.draw(texture, worldX, worldY, layer.getTileWidth(), layer.getTileHeight());
+            }
         }
     }
 
@@ -153,7 +155,6 @@ public class Wall {
 
             if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
-                griever.setPosition(-10000, -10000);
                 keySpawnPosition = new Vector2(grieverX, grieverY);
                 isGrieverDead = true;
 
@@ -178,7 +179,8 @@ public class Wall {
 
                 if (hud != null) {
                     if (hud.getLives() >= 0) {
-                        friends.removeFriendAt(friends.getFollowingFriendsPositions().size()-1);
+                        friends.removeFriendAt(friends.getFollowingFriendsPositions().size() - 1);
+                        isPlayerRemoved = true;
                         hud.decrementLives();
                         player.triggerRedEffect();
                     } else {
@@ -186,10 +188,6 @@ public class Wall {
                         player.setDead();
                     }
                 }
-
-                player.setX(-1000);
-                player.setY(-1000);
-                isPlayerRemoved = true;
             }
         }
 
@@ -249,6 +247,12 @@ public class Wall {
 
     public boolean isGrieverDead() {
         return isGrieverDead;
+    }
+    public boolean isPlayerRemoved() {
+        return isPlayerRemoved;
+    }
+    public void setIsPlayerRemoved(boolean isPlayerRemoved) {
+        this.isPlayerRemoved = isPlayerRemoved;
     }
 
     public void setGrieverDead(boolean grieverDead) {
