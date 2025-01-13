@@ -52,14 +52,15 @@ public class Trap implements NearbyPlayer, Renderable {
             if (rockPosition.y <= position.y) {
                 rockPosition.y = position.y; // Set the rock position to the ground level
                 isRockFalling = false; // Stop the rock from falling
-                    if (hud.getLives() > 0) {
+                    if (hud.getLives() >= 0) {
                         friends.removeFriendAt(friends.getFollowingFriendsPositions().size() - 1); // Remove last friend
                         hud.decrementLives(); // Decrement the player's lives
                         player.triggerRedEffect(); // Trigger the red effect on the player
-                        livesCoolDown = 3; // Set cooldown to prevent rapid re-triggering
+                        livesCoolDown = 1; // Set cooldown to prevent rapid re-triggering
                     } else {
                         hud.setLives(0);
                         player.setDead();
+                        player.revertToPrevious();
                     }
 
                 Timer.schedule(new Timer.Task() {
