@@ -81,13 +81,13 @@ public class HUD  {
     public float getFinalTime() {
         return finalTime;
     }
-
     public void render(SpriteBatch batch, Player player) {
         batch.setProjectionMatrix(hudCamera.combined);
 
-        font.draw(batch, "Remaining Friends: " + lives, screenWidth * 0.07f, screenHeight - 30);
+        font.draw(batch, "Saved Friends: " + lives, screenWidth * 0.07f, screenHeight - 30);
+        font.draw(batch, "Score: " + (1000 + (int)scoreTimer + (getLives()*150)) , screenWidth * 0.07f, screenHeight - 105);
         font.draw(batch, "Key Collected: " + (keyCollected ? "Yes" : "No"), screenWidth * 0.6f, screenHeight - 39);
-        font.draw(batch, "Time: " +  (int) scoreTimer, screenWidth * 0.6f, screenHeight - 105); // Display timer
+        font.draw(batch, "Time: " +  (int) scoreTimer, screenWidth * 0.6f, screenHeight - 105);
 
 
         if (messageTimer > 0) {
