@@ -629,6 +629,10 @@
   <properties>
    <property name="player" value="1"/>
   </properties>
-  <object id="197" x="240" y="191"/>
+  <object id="197" x="240" y="191">
+   <properties>
+    <property name="player" value="1"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
