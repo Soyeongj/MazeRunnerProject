@@ -35,6 +35,8 @@ public class Wall {
 
     private Map<Griever, Boolean> grieverDeadStates = new HashMap<>();
     private Map<Griever, Vector2> grieverKeySpawnPositions = new HashMap<>();
+    private Map<Griever, Boolean> grieverKeySpawned = new HashMap<>();
+
 
 
     public Wall(int x, int y, String direction, TiledMapTileLayer layer, Array<Griever> grievers, HUD hud) {
@@ -55,6 +57,7 @@ public class Wall {
         for (Griever griever : grievers) {
             grieverDeadStates.put(griever, false);
             grieverKeySpawnPositions.put(griever, null);
+            grieverKeySpawned.put(griever, false);
         }
     }
 
@@ -160,7 +163,7 @@ public class Wall {
                 griever.setPosition(-10000, -10000);
                 grieverKeySpawnPositions.put(griever, new Vector2(grieverX, grieverY));
                 grieverDeadStates.put(griever, true);
-
+                grieverKeySpawned.put(griever, false);
                 SoundManager.playMonsterDiedSound();
             }
         }
@@ -272,17 +275,29 @@ public class Wall {
         return grieverDeadStates.values().stream().allMatch(dead -> dead);
     }
 
+    public boolean hasKeySpawned(Griever griever) {
+        return grieverKeySpawned.getOrDefault(griever, false);
+    }
+
+    public void setKeySpawned(Griever griever, boolean spawned) {
+        grieverKeySpawned.put(griever, spawned);
+    }
+
     public void saveWallState() {
         Preferences pref = Gdx.app.getPreferences("wallState");
-        // Save number of grievers
         pref.putInteger("numGrievers", grievers.size);
 
-        // Save state for each griever
         for (int i = 0; i < grievers.size; i++) {
             Griever griever = grievers.get(i);
             pref.putBoolean("grieverDead_" + i, grieverDeadStates.get(griever));
+            pref.putBoolean("keySpawned_" + i, grieverKeySpawned.get(griever));
+
+            Vector2 spawnPos = grieverKeySpawnPositions.get(griever);
+            if (spawnPos != null) {
+                pref.putFloat("keySpawnX_" + i, spawnPos.x);
+                pref.putFloat("keySpawnY_" + i, spawnPos.y);
+            }
         }
-        pref.putBoolean("isKeySpawned", keySpawned);
         pref.flush();
     }
 
@@ -290,13 +305,17 @@ public class Wall {
         Preferences pref = Gdx.app.getPreferences("wallState");
         int numGrievers = pref.getInteger("numGrievers", 0);
 
-        // Load state for each griever
         for (int i = 0; i < numGrievers && i < grievers.size; i++) {
             Griever griever = grievers.get(i);
-            boolean isDead = pref.getBoolean("grieverDead_" + i, false);
-            grieverDeadStates.put(griever, isDead);
+            grieverDeadStates.put(griever, pref.getBoolean("grieverDead_" + i, false));
+            grieverKeySpawned.put(griever, pref.getBoolean("keySpawned_" + i, false));
+
+            if (pref.contains("keySpawnX_" + i) && pref.contains("keySpawnY_" + i)) {
+                float x = pref.getFloat("keySpawnX_" + i);
+                float y = pref.getFloat("keySpawnY_" + i);
+                grieverKeySpawnPositions.put(griever, new Vector2(x, y));
+            }
         }
-        keySpawned = pref.getBoolean("isKeySpawned", keySpawned);
     }
 
     public Vector2 getFirstDeadGrieverPosition() {
