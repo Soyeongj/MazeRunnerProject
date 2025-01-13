@@ -9,7 +9,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Wall {
     private int x, y;
@@ -23,8 +25,6 @@ public class Wall {
     private boolean isAtTarget = false;
     private TiledMapTileLayer layer;
     private Array<Griever> grievers;
-    private boolean isGrieverDead = false;
-    private Vector2 keySpawnPosition = null;
     private HUD hud;
     private boolean isPlayerRemoved = false;
 
@@ -32,6 +32,9 @@ public class Wall {
     private TextureRegion texture;
 
     private boolean keySpawned = false;
+
+    private Map<Griever, Boolean> grieverDeadStates = new HashMap<>();
+    private Map<Griever, Vector2> grieverKeySpawnPositions = new HashMap<>();
 
 
     public Wall(int x, int y, String direction, TiledMapTileLayer layer, Array<Griever> grievers, HUD hud) {
@@ -47,6 +50,11 @@ public class Wall {
         this.cell = layer.getCell(x, y);
         if (cell != null && cell.getTile() != null) {
             this.texture = cell.getTile().getTextureRegion();
+        }
+
+        for (Griever griever : grievers) {
+            grieverDeadStates.put(griever, false);
+            grieverKeySpawnPositions.put(griever, null);
         }
     }
 
@@ -147,11 +155,11 @@ public class Wall {
         float wallHeight = layer.getTileHeight();
 
         if (x != originalX || y != originalY || isAtTarget) {
-                 if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
+            if (checkCollision(grieverX, grieverY, griever.getWidth() * griever.getScale(), griever.getHeight() * griever.getScale(),
                     wallX, wallY, wallWidth, wallHeight)) {
                 griever.setPosition(-10000, -10000);
-                keySpawnPosition = new Vector2(grieverX, grieverY);
-                isGrieverDead = true;
+                grieverKeySpawnPositions.put(griever, new Vector2(grieverX, grieverY));
+                grieverDeadStates.put(griever, true);
 
                 SoundManager.playMonsterDiedSound();
             }
@@ -238,17 +246,7 @@ public class Wall {
         return isAtTarget;
     }
 
-    public Vector2 getKeySpawnPosition() {
-        return keySpawnPosition;
-    }
 
-    public boolean isGrieverDead() {
-        return isGrieverDead;
-    }
-
-    public void setGrieverDead(boolean grieverDead) {
-        isGrieverDead = grieverDead;
-    }
 
     public boolean hasKeySpawned() {
         return keySpawned;
@@ -258,17 +256,55 @@ public class Wall {
         this.keySpawned = keySpawned;
     }
 
+    public Vector2 getKeySpawnPosition(Griever griever) {
+        return grieverKeySpawnPositions.get(griever);
+    }
 
+    public boolean isGrieverDead(Griever griever) {
+        return grieverDeadStates.getOrDefault(griever, false);
+    }
+
+    public boolean isAnyGrieverDead() {
+        return grieverDeadStates.values().stream().anyMatch(dead -> dead);
+    }
+
+    public boolean areAllGrieversDead() {
+        return grieverDeadStates.values().stream().allMatch(dead -> dead);
+    }
 
     public void saveWallState() {
         Preferences pref = Gdx.app.getPreferences("wallState");
-        pref.putBoolean("grieverDead", isGrieverDead);
-        pref.putBoolean("isKeySpawned",keySpawned);
+        // Save number of grievers
+        pref.putInteger("numGrievers", grievers.size);
+
+        // Save state for each griever
+        for (int i = 0; i < grievers.size; i++) {
+            Griever griever = grievers.get(i);
+            pref.putBoolean("grieverDead_" + i, grieverDeadStates.get(griever));
+        }
+        pref.putBoolean("isKeySpawned", keySpawned);
         pref.flush();
     }
+
     public void loadWallState() {
         Preferences pref = Gdx.app.getPreferences("wallState");
-        isGrieverDead = pref.getBoolean("grieverDead", isGrieverDead);
+        int numGrievers = pref.getInteger("numGrievers", 0);
+
+        // Load state for each griever
+        for (int i = 0; i < numGrievers && i < grievers.size; i++) {
+            Griever griever = grievers.get(i);
+            boolean isDead = pref.getBoolean("grieverDead_" + i, false);
+            grieverDeadStates.put(griever, isDead);
+        }
         keySpawned = pref.getBoolean("isKeySpawned", keySpawned);
+    }
+
+    public Vector2 getFirstDeadGrieverPosition() {
+        for (Griever griever : grievers) {
+            if (grieverDeadStates.get(griever)) {
+                return grieverKeySpawnPositions.get(griever);
+            }
+        }
+        return null;
     }
 }

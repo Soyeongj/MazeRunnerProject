@@ -23,10 +23,10 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 
-
-
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -64,6 +64,7 @@ public class GameScreen implements Screen {
     private Texture introImage;
     private float introDuration = 10.0f;
     private boolean isShowingIntro;
+
 
     /**
      * Constructor for GameScreen. Sets up the camera and Tiled map.
@@ -245,9 +246,9 @@ public class GameScreen implements Screen {
             griever.update(delta, player.getX(), player.getY(), player.getDirection(), hud, player, friends);
             griever.render(batch);
             for (Wall wall : walls) {
-                if (wall.isGrieverDead() && !wall.hasKeySpawned()) {
+                if (wall.isGrieverDead(griever) && !wall.hasKeySpawned()) {
                     iterator.remove();
-                    keys.add(new Key(wall.getKeySpawnPosition().x, wall.getKeySpawnPosition().y));
+                    keys.add(new Key(wall.getKeySpawnPosition(griever).x, wall.getKeySpawnPosition(griever).y));
                     wall.setKeySpawned(true);
                 }
                 friends.update(player, hud, 3f, delta, griever, wall);
