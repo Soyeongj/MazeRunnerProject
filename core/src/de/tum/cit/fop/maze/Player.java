@@ -7,44 +7,49 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.Array;
 
-public class Player implements Renderable {
+public class Player {
+
+    //Textures
     private Texture currentTexture;
     private Texture up1, up2, down1, down2, left1, left2, right1, right2, dead;
+
+    //Positions and Movements
     private float x, y;
-    private float speed, runningSpeed, normalSpeed;
-    private float runTimer = 0f, cooldownTimer = 0f;
-    private boolean isRunning = false, canRun = true;
-    private float stateTime = 0f;
-    private String direction = "right";
-    private float scale = 0.2f;
     private float previousX, previousY;
     private float startX, startY;
 
+    //Speed and Running
+    private float speed, runningSpeed, normalSpeed;
+    private float runTimer = 0f, cooldownTimer = 0f;
+    private boolean isRunning = false, canRun = true;
     private final float runDuration = 2f;
     private final float cooldownDuration = 4f;
+
+    //Animation
+    private float stateTime = 0f;
+    private String direction = "right";
     private final float walkAnimationTime = 0.1f;
 
-    private boolean isDead;
-
+    //Collision
     private TiledMapTileLayer collisionLayer;
     private String blockedKey = "blocked";
 
-    private float redEffectTimer = 0f;
-    private boolean isInRedEffect = false;
-
+    //Speed Up Effect Controls
     private float speedBoostDuration = 0f;
     private float boostedSpeed = 100.0f;
     private boolean isSpeedBoosted = false;
 
-    private Rectangle bound;
+    //VFX Controls
+    private float redEffectTimer = 0f;
+    private boolean isInRedEffect = false;
 
+    //Player states
+    private float scale = 0.2f;
+    private boolean isDead;
     private static final String PREFERENCES_NAME = "PlayerState";
 
 
@@ -53,7 +58,6 @@ public class Player implements Renderable {
         this.runningSpeed = 70.0f;
         this.normalSpeed = speed;
         this.collisionLayer = collisionLayer;
-
 
         this.up1 = new Texture("boy_up1.png");
         this.up2 = new Texture("boy_up2.png");
@@ -68,7 +72,6 @@ public class Player implements Renderable {
         this.currentTexture = down1;
         this.isDead = false;
 
-        this.bound = new Rectangle();
     }
 
     public static Player loadPlayerFromTiledMap(TiledMap map, TiledMapTileLayer collisionLayer) {
@@ -98,9 +101,6 @@ public class Player implements Renderable {
         previousY = y;
 
         float slowdownFactor = 1 - 0.05f * friends.getFollowingFriendsPositions().size();
-
-
-
 
         if (isSpeedBoosted) {
             speedBoostDuration -= delta;
@@ -250,73 +250,6 @@ public class Player implements Renderable {
         }
     }
 
-    public float getStartX() {
-        return startX;
-    }
-    public float getStartY() {
-        return startY;
-    }
-    public void setStartX(float startX) {
-        this.startX = startX;
-    }
-    public void setStartY(float startY) {
-        this.startY = startY;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
-    public float getWidth() {
-        return currentTexture.getWidth();
-    }
-
-    public float getHeight() {
-        return currentTexture.getHeight();
-    }
-
-    public float getScale() {
-        return scale;
-    }
-
-    public String getDirection() {
-        return direction;
-    }
-
-    public void setDirection(String direction) {
-        this.direction = direction;
-    }
-
-    public boolean isDead() {
-        return isDead;
-    }
-
-    public void setTexture(Texture texture) {
-        this.currentTexture = texture;
-    }
-
-    public void setDead() {
-        this.isDead = true;
-        setTexture(dead);
-    }
-
-    public void triggerRedEffect() {
-        isInRedEffect = true;
-        redEffectTimer = 0f;
-    }
-
     public void increaseSpeed(float duration) {
         isSpeedBoosted = true;
         speedBoostDuration = duration;
@@ -325,26 +258,6 @@ public class Player implements Renderable {
     public void resetSpeedBoost() {
         isSpeedBoosted = false;
         speed = normalSpeed;
-    }
-
-    public Rectangle getBound() {
-        return bound;
-    }
-
-    public void setBound(Rectangle bound) {
-        this.bound = bound;
-    }
-
-    public void dispose() {
-        up1.dispose();
-        up2.dispose();
-        down1.dispose();
-        down2.dispose();
-        left1.dispose();
-        left2.dispose();
-        right1.dispose();
-        right2.dispose();
-        dead.dispose();
     }
 
     public void savePlayerState() {
@@ -380,5 +293,59 @@ public class Player implements Renderable {
         canRun = preferences.getBoolean("canRun", canRun);
         runTimer = preferences.getFloat("runTimer", runTimer);
         cooldownTimer = preferences.getFloat("cooldownTimer", cooldownTimer);
+    }
+
+    public void setStartX(float startX) {
+        this.startX = startX;
+    }
+    public void setStartY(float startY) {
+        this.startY = startY;
+    }
+    public float getX() {
+        return x;
+    }
+    public float getY() {
+        return y;
+    }
+    public void setX(float x) {
+        this.x = x;
+    }
+    public void setY(float y) {
+        this.y = y;
+    }
+    public float getWidth() {
+        return currentTexture.getWidth();
+    }
+    public float getHeight() {
+        return currentTexture.getHeight();
+    }
+    public float getScale() {
+        return scale;
+    }
+    public String getDirection() {
+        return direction;
+    }
+    public void setTexture(Texture texture) {
+        this.currentTexture = texture;
+    }
+    public void setDead() {
+        this.isDead = true;
+        setTexture(dead);
+    }
+    public void triggerRedEffect() {
+        isInRedEffect = true;
+        redEffectTimer = 0f;
+    }
+
+    public void dispose() {
+        up1.dispose();
+        up2.dispose();
+        down1.dispose();
+        down2.dispose();
+        left1.dispose();
+        left2.dispose();
+        right1.dispose();
+        right2.dispose();
+        dead.dispose();
     }
 }

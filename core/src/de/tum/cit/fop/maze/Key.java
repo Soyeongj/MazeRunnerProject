@@ -3,15 +3,18 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import java.awt.event.KeyListener;
+public class Key  {
 
-public class Key implements Renderable {
+    //Texture
     private Texture keyTexture;
+
+    //Key Components
     private float x, y;
     private boolean isCollected;
+
+    //Constants
     private float scale = 0.2f;
     private float proximityRange = 5f;
-
 
     public Key(float x, float y) {
         this.x = x;
@@ -36,10 +39,6 @@ public class Key implements Renderable {
         return distance < proximityRange;
     }
 
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
 
     public void update(Player player, HUD hud) {
         if (checkProximityToPlayer(player)&& !isCollected) {
@@ -52,15 +51,12 @@ public class Key implements Renderable {
     public float getY() {
         return y;
     }
-
     public void setY(float y) {
         this.y = y;
     }
-
     public float getX() {
         return x;
     }
-
     public void setX(float x) {
         this.x = x;
     }

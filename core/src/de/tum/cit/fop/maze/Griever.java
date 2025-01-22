@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.*;
 
-public class Griever implements  Renderable {
+public class Griever  {
     // Animation and Texture Related Variables
     private Map<String, Texture[]> grieverTextures;
     private Texture griever;
@@ -156,9 +156,6 @@ public class Griever implements  Renderable {
         return result;
     }
 
-
-
-
     // Handles all movement logic
     private void handleMovement(float delta, float playerX, float playerY) {
         if (isGrieverFollowingPlayer) {
@@ -210,7 +207,6 @@ public class Griever implements  Renderable {
             }
             attempts++;
         }
-
 
         if (closestTarget == null) {
             isGrieverFollowingPlayer = false;
@@ -319,7 +315,6 @@ public class Griever implements  Renderable {
         }
         return null;
     }
-
 
     private void moveTowardsTarget(float delta, TiledMapTileLayer currentLayer) {
         Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY);
@@ -430,47 +425,28 @@ public class Griever implements  Renderable {
         this.monsterX = x;
         this.monsterY = y;
     }
-
     private Texture getGrieverTextureForDirection(String direction) {
         Texture[] textures = grieverTextures.get(direction);
         return (griever == textures[0]) ? textures[1] : textures[0];
     }
-
     public float getMonsterX() {
         return monsterX;
     }
-
     public float getMonsterY() {
         return monsterY;
     }
-
     public boolean isGrieverNotStunned() {
         return !isGrieverStunned;
     }
-
     public float getWidth() {
         return griever.getWidth();
     }
-
-
     public float getHeight() {
         return griever.getHeight();
     }
-
     public float getScale() {
         return scale;
     }
-
-
-
-    public void dispose() {
-        for (Texture[] textures : grieverTextures.values()) {
-            for (Texture texture : textures) {
-                texture.dispose();
-            }
-        }
-    }
-
 
     public void saveGrieverstate() {
         Preferences pref = Gdx.app.getPreferences("grieverstate");
@@ -490,5 +466,13 @@ public class Griever implements  Renderable {
         isGrieverFollowingPlayer = pref.getBoolean("isGrieverFollowing", isGrieverFollowingPlayer);
         isRandomMovement = pref.getBoolean("isRandomMovement", isRandomMovement);
         LivesCoolDownTimer = pref.getFloat("livescooldown", LivesCoolDownTimer);
+    }
+
+    public void dispose() {
+        for (Texture[] textures : grieverTextures.values()) {
+            for (Texture texture : textures) {
+                texture.dispose();
+            }
+        }
     }
 }

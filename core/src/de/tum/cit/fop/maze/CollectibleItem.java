@@ -9,124 +9,149 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class CollectibleItem implements Renderable {
+/**
+ * Abstract base class for collectible items in the maze game.
+ * Handles rendering, collection mechanics, and state persistence.
+ */
+public abstract class CollectibleItem {
+    // Constants
+    private static final float DEFAULT_SCALE = 0.2f;
 
-    // Core Variables
-    protected List<Texture> textures; // Array of textures
-    protected List<Vector2> positions; // Array of item positions
-    protected float scale = 0.2f; // Scale(size) for rendering items
+    // Core components
+    private final List<Texture> textures;
+    private final List<Vector2> positions;
+    private final float scale;
 
     protected CollectibleItem(List<Texture> textures, TiledMap map, String layerName) {
         this.textures = new ArrayList<>(textures);
-        this.positions = loadItemPositions(map, layerName);
+        this.positions = initializePositions(map, layerName);
+        this.scale = DEFAULT_SCALE;
     }
 
-    // Helper Method: Load item positions from TiledMap
-    private List<Vector2> loadItemPositions(TiledMap map, String layerName) {
-        List<Vector2> positions = new ArrayList<>();
-
+    private List<Vector2> initializePositions(TiledMap map, String layerName) {
+        List<Vector2> itemPositions = new ArrayList<>();
         MapObjects objects = map.getLayers().get(layerName).getObjects();
 
         for (MapObject object : objects) {
-            if (object instanceof RectangleMapObject) {
-                Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                positions.add(new Vector2(rect.x, rect.y));
-            } else if (object.getProperties().containsKey("x") && object.getProperties().containsKey("y")) {
-                float x = object.getProperties().get("x", Float.class);
-                float y = object.getProperties().get("y", Float.class);
-                positions.add(new Vector2(x, y));
+            Vector2 position = extractPosition(object);
+            if (position != null) {
+                itemPositions.add(position);
             }
         }
-        return positions;
+
+        return itemPositions;
     }
 
-    // Render Method: Draw uncollected items
-    @Override
+    private Vector2 extractPosition(MapObject object) {
+        if (object instanceof RectangleMapObject) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            return new Vector2(rect.x, rect.y);
+        } else if (object.getProperties().containsKey("x") &&
+                object.getProperties().containsKey("y")) {
+            float x = object.getProperties().get("x", Float.class);
+            float y = object.getProperties().get("y", Float.class);
+            return new Vector2(x, y);
+        }
+        return null;
+    }
+
     public void render(SpriteBatch batch) {
         for (int i = 0; i < positions.size(); i++) {
-            Texture texture = textures.get(i % textures.size()); // Use texture index cyclically if needed
-            Vector2 position = positions.get(i);
-
-            batch.draw(texture,
-                    position.x,
-                    position.y,
-                    texture.getWidth() * scale,
-                    texture.getHeight() * scale);
+            renderSingleItem(batch, i);
         }
     }
 
+    private void renderSingleItem(SpriteBatch batch, int index) {
+        Texture texture = textures.get(index % textures.size());
+        Vector2 position = positions.get(index);
 
-    // Collect a Single Item
+        float width = texture.getWidth() * scale;
+        float height = texture.getHeight() * scale;
+
+        batch.draw(texture, position.x, position.y, width, height);
+    }
+
+
     public boolean checkAndCollect(Vector2 playerPosition, float proximity, int index) {
         Iterator<Vector2> iterator = positions.iterator();
+        int currentIndex = 0;
+
         while (iterator.hasNext()) {
             Vector2 position = iterator.next();
-            float distance = playerPosition.dst(position);
-
-            if (distance <= proximity) {
-                iterator.remove(); // ArrayList에서 해당 요소 삭제
-                onCollected();     // 수집 시 수행할 동작
+            if (isWithinCollectionRange(playerPosition, position, proximity)) {
+                iterator.remove();
+                onCollected();
                 return true;
             }
+            currentIndex++;
         }
         return false;
     }
 
-    // Check all items and return count of collected items
     public int checkAndCollectAll(Vector2 playerPosition, float proximity) {
-        int count = 0;
+        int collectedCount = 0;
         Iterator<Vector2> iterator = positions.iterator();
 
         while (iterator.hasNext()) {
             Vector2 position = iterator.next();
-            if (playerPosition.dst(position) <= proximity) {
-                iterator.remove(); // Remove collected item
-                onCollected(); // Trigger custom behavior
-                count++;
+            if (isWithinCollectionRange(playerPosition, position, proximity)) {
+                iterator.remove();
+                onCollected();
+                collectedCount++;
             }
         }
 
-        return count;
+        return collectedCount;
     }
 
-    // Abstract Method
+
+    private boolean isWithinCollectionRange(Vector2 playerPos, Vector2 itemPos, float proximity) {
+        return playerPos.dst(itemPos) <= proximity;
+    }
+
+
     protected abstract void onCollected();
 
-    // Store collection status and positions in preferences
+
     public void saveState(Preferences preferences, String prefix) {
         preferences.putInteger(prefix + "itemCount", positions.size());
 
         for (int i = 0; i < positions.size(); i++) {
-            preferences.putFloat(prefix + "itemPosX" + i, positions.get(i).x);
-            preferences.putFloat(prefix + "itemPosY" + i, positions.get(i).y);
+            Vector2 position = positions.get(i);
+            savePosition(preferences, prefix, i, position);
         }
 
         preferences.flush();
     }
 
-    // Restore collection status and positions from preferences
+
+    private void savePosition(Preferences preferences, String prefix, int index, Vector2 position) {
+        preferences.putFloat(prefix + "itemPosX" + index, position.x);
+        preferences.putFloat(prefix + "itemPosY" + index, position.y);
+    }
+
+
     public void loadState(Preferences preferences, String prefix) {
-        int itemCount = preferences.getInteger(prefix + "itemCount", 0);
         positions.clear();
+        int itemCount = preferences.getInteger(prefix + "itemCount", 0);
 
         for (int i = 0; i < itemCount; i++) {
-            float x = preferences.getFloat(prefix + "itemPosX" + i, 0);
-            float y = preferences.getFloat(prefix + "itemPosY" + i, 0);
-            positions.add(new Vector2(x, y));
+            loadPosition(preferences, prefix, i);
         }
     }
 
-    // Dispose Resources: Free textures to avoid memory leaks
-    @Override
+    private void loadPosition(Preferences preferences, String prefix, int index) {
+        float x = preferences.getFloat(prefix + "itemPosX" + index, 0);
+        float y = preferences.getFloat(prefix + "itemPosY" + index, 0);
+        positions.add(new Vector2(x, y));
+    }
+
     public void dispose() {
-        for (Texture texture : textures) {
-            texture.dispose();
-        }
+        textures.forEach(Texture::dispose);
     }
 }

@@ -8,17 +8,22 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
 
-public class Trap implements NearbyPlayer, Renderable {
+public class Trap  {
+    //Positions
     private Vector2 position;
     private Rectangle bounds;
-    private float livesCoolDown = 0f; // Cooldown timer for the trap's effect (lives decrement) to prevent rapid reactivation
-    private float rockFallDuration = 0f;
-    public boolean isRockFalling = false;
+
+    //Rock Falling Controls
     private Texture rockTexture;
     private Vector2 rockPosition;
+    private float rockFallDuration = 0f;
+    public boolean isRockFalling = false;
     private float rockStartY;
     private static final float fallSpeed = 300f; // Constant speed for the rock's fall
     private static final float fallHeight = 70f; // The height from which the rock will fall
+
+    //Damage Controls
+    private float livesCoolDown = 0f; // Cooldown timer for the trap's effect (lives decrement) to prevent rapid reactivation
 
     public Trap(float x, float y, float width, float height, String rockTexturePath) {
         this.position = new Vector2(x, y);
@@ -28,7 +33,6 @@ public class Trap implements NearbyPlayer, Renderable {
         this.rockStartY = y + fallHeight; // The rock's starting Y position before falling
     }
 
-    @Override
     public boolean isPlayerNearby(Vector2 playerPosition) {
         return bounds.contains(playerPosition.x, playerPosition.y);
     }
@@ -83,10 +87,6 @@ public class Trap implements NearbyPlayer, Renderable {
         }
     }
 
-    public void dispose() {
-        rockTexture.dispose();
-    }
-
     public void saveTrapState() {
         Preferences prefs = Gdx.app.getPreferences("trap");
         prefs.putFloat("positionX", position.x);
@@ -102,4 +102,9 @@ public class Trap implements NearbyPlayer, Renderable {
         livesCoolDown = prefs.getFloat("lcd", livesCoolDown);
         isRockFalling = prefs.getBoolean("isRockFalling", isRockFalling);
     }
+
+    public void dispose() {
+        rockTexture.dispose();
+    }
+
 }

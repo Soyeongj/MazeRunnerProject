@@ -19,14 +19,10 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -34,24 +30,34 @@ import java.util.Map;
  * It handles the game logic and rendering of the game elements.
  */
 public class GameScreen implements Screen {
-    private final Texture backgroundTexture;
     private final MazeRunnerGame game;
+
+    //Display and Rendering Components
+    private final Texture backgroundTexture;
     private final OrthographicCamera camera;
+    private Viewport viewport;
+    private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
+    private final OrthogonalTiledMapRenderer mapRenderer;
+    private Texture introImage;
+
+    //Camera Controls
     private float currentZoom = 0.10f;
     private final float MIN_ZOOM = 0.10f;
     private final float MAX_ZOOM = 0.20f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
-    private Viewport viewport;
+
+    //Map and Level Elements
     private final TiledMap tiledMap;
     private TiledMapTileLayer movingWallsLayer;
     private TiledMapTileLayer pathLayer, path2Layer;
+
+    //Game Entities
     private List<Wall> walls;
-    private final OrthogonalTiledMapRenderer mapRenderer;
     private Player player;
     private Friends friends;
     private HUD hud;
-    private SpriteBatch batch;
     private Array<Griever> grievers;
     private Array<Key> keys;
     private Item item;
@@ -59,9 +65,9 @@ public class GameScreen implements Screen {
     private Array<Trap> traps;
     private Arrow arrow;
     private TrapItem trapItem;
-    private ShapeRenderer shapeRenderer;
+
+    //Intro controls
     private final boolean isNewGame;
-    private Texture introImage;
     private float introDuration = 10.0f;
     private boolean isShowingIntro;
 
@@ -72,53 +78,58 @@ public class GameScreen implements Screen {
      * @param game The main game class, used to access global resources and methods.
      */
     public GameScreen(MazeRunnerGame game, String mapPath, boolean isNewGame) {
+        // Core game initialization
         this.game = game;
         this.isNewGame = isNewGame;
+        this.batch = new SpriteBatch();
+        this.shapeRenderer = new ShapeRenderer();
+        this.backgroundTexture = new Texture(Gdx.files.internal("background.png"));
 
-        camera = new OrthographicCamera();
-        viewport = new FitViewport(800, 480, camera);
-        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+        // Camera and viewport setup
+        this.camera = new OrthographicCamera();
+        this.viewport = new FitViewport(800, 480, camera);
+        this.camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+        this.camera.zoom = 0.10f;
+        this.camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        this.lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
 
-        camera.zoom = 0.10f;
+        // Map initialization
+        this.tiledMap = new TmxMapLoader().load(mapPath);
+        this.mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        tiledMap = new TmxMapLoader().load(mapPath);
+        // Layer initialization
         TiledMapTileLayer wallsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("walls");
-        pathLayer = (TiledMapTileLayer) tiledMap.getLayers().get("path");
-        path2Layer = (TiledMapTileLayer) tiledMap.getLayers().get("path2");
-        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-
-        centerCameraOnMap();
-        hud = new HUD();
-        player = Player.loadPlayerFromTiledMap(tiledMap, wallsLayer);
-        this.friends = new Friends(tiledMap,player);
-        this.item = new Item(tiledMap);
-        grievers = Griever.loadGrieversFromTiledMap(tiledMap, pathLayer, path2Layer);
-        batch = new SpriteBatch();
-        trapItem = new TrapItem(tiledMap);
-        shapeRenderer = new ShapeRenderer();
-
-        keys = new Array<>();
-
-        movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
+        this.pathLayer = (TiledMapTileLayer) tiledMap.getLayers().get("path");
+        this.path2Layer = (TiledMapTileLayer) tiledMap.getLayers().get("path2");
+        this.movingWallsLayer = tiledMap.getLayers().get("moving walls") instanceof TiledMapTileLayer
                 ? (TiledMapTileLayer) tiledMap.getLayers().get("moving walls")
                 : null;
+        TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
+        TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
 
+        // UI elements
+        this.hud = new HUD();
+        this.arrow = new Arrow();
+
+        // Player and character initialization
+        this.player = Player.loadPlayerFromTiledMap(tiledMap, wallsLayer);
+        this.friends = new Friends(tiledMap, player);
+        this.grievers = Griever.loadGrieversFromTiledMap(tiledMap, pathLayer, path2Layer);
+
+        // Game objects initialization
+        this.item = new Item(tiledMap);
+        this.trapItem = new TrapItem(tiledMap);
+        this.keys = new Array<>();
+        this.doors = createDoorsFromLayer(doorsLayer);
+        this.traps = createTrapsFromLayer(trapLayer, "assets/rock1.png");
+
+        // Moving walls setup (depends on grievers and HUD)
         if (movingWallsLayer != null) {
-            walls = Wall.createWallsFromLayer(movingWallsLayer, grievers, hud);
+            this.walls = Wall.createWallsFromLayer(movingWallsLayer, grievers, hud);
         }
 
-
-
-        TiledMapTileLayer doorsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("exits");
-        doors = createDoorsFromLayer(doorsLayer);
-        TiledMapTileLayer trapLayer = (TiledMapTileLayer) tiledMap.getLayers().get("static obstacles");
-        String rockTexture = "assets/rock1.png";
-        traps = createTrapsFromLayer(trapLayer, rockTexture);
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        lastPosition = new Vector3(camera.position.x, camera.position.y, 0);
-
-        arrow = new Arrow();
-        backgroundTexture = new Texture(Gdx.files.internal("background.png"));
+        // Final camera setup
+        centerCameraOnMap();
     }
 
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
@@ -179,6 +190,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+
         if (isShowingIntro){
             ScreenUtils.clear(0,0,0,1);
             batch.begin();
@@ -195,7 +207,7 @@ public class GameScreen implements Screen {
 
         hud.updateTimer(delta);
 
-        ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
+        ScreenUtils.clear(0, 0, 0, 1);
 
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -208,19 +220,15 @@ public class GameScreen implements Screen {
             zoomCamera(ZOOM_SPEED);
         }
 
-        float currentGlobalTime = hud.getGlobalTimer();
-
         walls.forEach(wall -> {
             wall.update(delta, hud.getGlobalTimer());
-            wall.checkAndMovePlayer(player, hud.getGlobalTimer(),friends);
+            wall.checkAndMovePlayer(player,friends);
         });
 
         camera.position.set(player.getX() +( player.getWidth() / 2 ) -10, player.getY() + (player.getHeight() / 2) -10, 0);
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
-
-
 
         batch.begin();
         mapRenderer.setView(camera);
@@ -235,10 +243,8 @@ public class GameScreen implements Screen {
         boolean moveRight = Gdx.input.isKeyPressed(Input.Keys.D);
         boolean runKeyPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT);
 
-
         player.update(delta, moveUp, moveDown, moveLeft, moveRight, runKeyPressed,friends);
         player.render(batch);
-
 
         Iterator<Griever> iterator = grievers.iterator();
         while (iterator.hasNext()) {
@@ -258,7 +264,6 @@ public class GameScreen implements Screen {
                 friends.update(player, hud, 3f, delta, griever, wall);
             }
         }
-
 
         Iterator<Key> keyIterator = keys.iterator();
         while (keyIterator.hasNext()) {
@@ -280,25 +285,23 @@ public class GameScreen implements Screen {
         }
 
         hud.updateScoreTimer(delta);
+
         friends.render(batch,player);
         item.render(batch);
         trapItem.render(batch);
+
         Vector2 playerPosition = new Vector2(player.getX(), player.getY());
-
-
         for (Door door : doors) {
             door.tryToOpen(playerPosition, hud, game, friends);
         }
-
         for (Trap trap : traps) {
             trap.fallRock(playerPosition,hud,player,delta,friends);
             trap.render(batch);
-
         }
-
         arrow.update(playerPosition,doors,hud.isKeyCollected());
         arrow.render(batch);
-        item.update(player,  3f);
+
+        item.update(player,  7f);
         trapItem.update(player, 7f);
         if (trapItem.isFogActive()) {
             shapeRenderer.setProjectionMatrix(camera.combined);
@@ -331,8 +334,6 @@ public class GameScreen implements Screen {
         lastPosition.set(camera.position);
     }
 
-
-
     public void saveState() {
         player.savePlayerState();
         for (Griever griever : grievers) {
@@ -358,11 +359,9 @@ public class GameScreen implements Screen {
             preferences.putFloat("key_" + i + "_y", key.getY());
             preferences.putBoolean("key_" + i + "_collected", key.isCollected());
         }
+
         preferences.flush();
-
-
     }
-
 
     public void loadState() {
         player.loadPlayerState();
@@ -396,10 +395,7 @@ public class GameScreen implements Screen {
         }
 
         friends.loadFriendState();
-
     }
-
-
 
     @Override
     public void resize(int width, int height) {
@@ -414,7 +410,6 @@ public class GameScreen implements Screen {
     @Override
     public void pause() {
     }
-
     @Override
     public void resume() {
     }
@@ -445,7 +440,6 @@ public class GameScreen implements Screen {
     public void hide() {
     }
 
-
     @Override
     public void dispose() {
         tiledMap.dispose();
@@ -459,5 +453,5 @@ public class GameScreen implements Screen {
         arrow.dispose();
         backgroundTexture.dispose();
         friends.dispose();
-
-    }}
+    }
+}

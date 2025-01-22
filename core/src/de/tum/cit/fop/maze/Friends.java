@@ -17,6 +17,11 @@ import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages friends in the maze game, including their positions, animations,
+ * following behavior, and interactions with other game elements.
+ */
+
 public class Friends {
 
     private List<Vector2> followingFriendsPositions = new ArrayList<>(); //A list that tracks the positions of friends who follow the player
@@ -311,4 +316,3 @@ public class Friends {
         right2.dispose();
     }
 }
-

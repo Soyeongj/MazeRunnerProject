@@ -11,21 +11,32 @@ import com.badlogic.gdx.Preferences;
 
 
 public class HUD  {
-    private BitmapFont font;
-    private int lives;
-    private float globalTimer;
-    private boolean keyCollected;
-    private String message = "";
-    private float messageTimer = 0f;
+    //Constants
     private static final float MESSAGE_DISPLAY_DURATION = 4f;
+    private static final String PREFERENCES_NAME = "HUDState";
+
+    //Font and Display
+    private BitmapFont font;
     private OrthographicCamera hudCamera;
 
-    private float screenWidth;
-    private float screenHeight;
-    private float scoreTimer;
+    //Game State Variables
+    private int lives;
+    private float globalTimer;
     private boolean isGameRunning = true;
     private float finalTime;
-    private static final String PREFERENCES_NAME = "HUDState";
+    private float scoreTimer;
+    private boolean keyCollected;
+
+
+    //Screen Dimensions
+    private float screenWidth;
+    private float screenHeight;
+
+    //Messages
+    private String message = "";
+    private float messageTimer = 0f;
+
+
 
     public HUD() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
@@ -39,7 +50,6 @@ public class HUD  {
         parameter.minFilter = Texture.TextureFilter.Linear;
         parameter.magFilter = Texture.TextureFilter.Linear;
         generator.dispose();
-
         font.getData().setScale(2f);
 
         this.lives = 3;
@@ -61,10 +71,6 @@ public class HUD  {
 
     public void updateTimer(float delta) {
         globalTimer += delta;
-    }
-
-    public float getGlobalTimer() {
-        return globalTimer;
     }
 
     public void updateScoreTimer(float delta) {
@@ -89,22 +95,14 @@ public class HUD  {
         font.draw(batch, "Key Collected: " + (keyCollected ? "Yes" : "No"), screenWidth * 0.6f, screenHeight - 30);
         font.draw(batch, "Time: " +  (int) scoreTimer, screenWidth * 0.6f, screenHeight - 105);
 
-
         if (messageTimer > 0) {
             font.draw(batch, message, player.getX(), player.getY() + player.getHeight() + 10);
             messageTimer -= Gdx.graphics.getDeltaTime();
         }
-
     }
-
-    public void setLives(int lives) {
-        this.lives = lives;
-    }
-
     public void incrementLives() {
         this.lives++;
     }
-
 
     public void decrementLives() {
         this.lives--;
@@ -122,28 +120,6 @@ public class HUD  {
     public void needFriend() {
         message = "You cannot leave without friends!";
         messageTimer = 1f;
-    }
-
-    public int getLives() {
-        return lives;
-    }
-
-    public void collectKey() {
-        if (!keyCollected) {
-            keyCollected = true;
-        }
-    }
-
-    public boolean isKeyCollected() {
-        return keyCollected;
-    }
-
-    public float getScoreTimer() {
-        return scoreTimer;
-    }
-
-    public void dispose() {
-        font.dispose();
     }
 
     public void saveHUDState() {
@@ -165,5 +141,30 @@ public class HUD  {
         isGameRunning = preferences.getBoolean("isGameRunning", isGameRunning);
         finalTime = preferences.getFloat("finalTime", finalTime);
         globalTimer = preferences.getFloat("globalTimer", globalTimer);
+    }
+
+    public float getGlobalTimer() {
+        return globalTimer;
+    }
+    public float getScoreTimer() {
+        return scoreTimer;
+    }
+    public int getLives() {
+        return lives;
+    }
+    public void collectKey() {
+        if (!keyCollected) {
+            keyCollected = true;
+        }
+    }
+    public boolean isKeyCollected() {
+        return keyCollected;
+    }
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
+    public void dispose() {
+        font.dispose();
     }
 }

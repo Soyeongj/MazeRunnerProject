@@ -19,10 +19,8 @@ public class Item extends CollectibleItem {
     private static List<Texture> generateTextures(TiledMap map, String layerName) {
         MapObjects objects = map.getLayers().get(layerName).getObjects();
         int objectCount = objects.getCount();
-
         Texture defaultTexture = new Texture("potion_red.png");
         List<Texture> textures = new ArrayList<>();
-
         for (int i = 0; i < objectCount; i++) {
             textures.add(defaultTexture);
         }

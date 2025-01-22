@@ -9,87 +9,105 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * Abstract base class for game screens implementing common functionality
+ * for rendering, screen management, and user input handling.
+ */
 public abstract class AbstractGameScreen implements Screen {
+    // Constants
+    private static final float FADE_SPEED = 0.5f;
+    private static final float DEFAULT_TEXTURE_WIDTH_SCALE = 4.0f;
+    private static final float DEFAULT_TEXTURE_HEIGHT_SCALE = 3.0f;
+    private static final float FONT_SCALE = 2.5f;
 
-    // Core Game Components
+    // Screen Components
     protected final MazeRunnerGame game;
     protected final SpriteBatch batch;
     protected final BitmapFont font;
-    protected Texture texture; // Changed to a field
 
-    // Screen Effects and Animation Variables
-    protected float fadeAlpha; // controls fade effect (current opacity of the screen content)
-    private static final float FADE_SPEED = 0.5f; // speed of fade animation
-    protected float finalTime; // player's final time(score)
-
-    // Screen Layout Constants
-    protected float textureWidthScale = 4.0f;
-    protected float textureHeightScale = 3.0f;
-
-    // Camera for screen layout adjustment
-    protected OrthographicCamera screenCamera;
-
-    // Variables for screen size
+    // Screen Properties
+    protected final OrthographicCamera camera;
     protected float screenWidth;
     protected float screenHeight;
 
-    // Constructor
-    public AbstractGameScreen(MazeRunnerGame game, Texture texture, float finalTime) {
+    // Visual Assets
+    protected Texture backgroundTexture;
+    protected float textureWidthScale;
+    protected float textureHeightScale;
+
+    // Game State
+    protected float fadeAlpha;
+    protected final float finalTime;
+
+    public AbstractGameScreen(MazeRunnerGame game, Texture backgroundTexture, float finalTime) {
         this.game = game;
-        this.batch = new SpriteBatch();
-        this.font = new BitmapFont();
-        this.font.setColor(Color.WHITE);
-        this.texture = texture; // Texture initialized here
-        this.fadeAlpha = 0f;
+        this.backgroundTexture = backgroundTexture;
         this.finalTime = finalTime;
 
-        // Initialize camera for dynamic screen resizing
-        screenCamera = new OrthographicCamera();
+        // Initialize graphics components
+        this.batch = new SpriteBatch();
+        this.font = initializeFont();
+        this.camera = new OrthographicCamera();
+
+        // Set default scales
+        this.textureWidthScale = DEFAULT_TEXTURE_WIDTH_SCALE;
+        this.textureHeightScale = DEFAULT_TEXTURE_HEIGHT_SCALE;
+
+        // Initialize screen
         setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
-    @Override
-    public void show() {
-        fadeAlpha = 0f; // Reset fade effect when screen becomes active
+    private BitmapFont initializeFont() {
+        BitmapFont font = new BitmapFont();
+        font.setColor(Color.WHITE);
+        font.getData().setScale(FONT_SCALE);
+        return font;
     }
 
     @Override
     public void render(float delta) {
-        // Update fade effect
-        if (fadeAlpha < 1f) {
-            fadeAlpha += FADE_SPEED * delta;
-            fadeAlpha = Math.min(fadeAlpha, 1f); // Prevent fadeAlpha from exceeding 1f
-        }
+        updateFade(delta);
+        renderScreen();
+        handleInput();
+    }
 
-        batch.setProjectionMatrix(screenCamera.combined);
+    private void updateFade(float delta) {
+        if (fadeAlpha < 1f) {
+            fadeAlpha = Math.min(fadeAlpha + FADE_SPEED * delta, 1f);
+        }
+    }
+
+    private void renderScreen() {
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        // Calculate screen and texture dimensions
-        float textureWidth = texture.getWidth();
-        float textureHeight = texture.getHeight();
-        float scaledTextureWidth = textureWidth * textureWidthScale;
-        float scaledTextureHeight = textureHeight * textureHeightScale;
-
-        // Draw background texture with fade effect
-        batch.setColor(1f, 1f, 1f, fadeAlpha); // The fadeAlpha determines the transparency level of the content being drawn.
-        batch.draw(texture, (screenWidth - scaledTextureWidth) / 2, (screenHeight - scaledTextureHeight) / 2,
-                scaledTextureWidth, scaledTextureHeight);
-
-        // Draw text
-        batch.setColor(1f, 1f, 1f, 1f);
-        font.getData().setScale(2.5f);
-        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth * 0.2f, screenHeight - 20);
-        drawText("Your Score: " + (int) finalTime, screenWidth * 0.2f, screenHeight - 85);
+        renderBackground();
+        renderUI();
 
         batch.end();
+    }
 
-        // Handle Input after fade completes
+    private void renderBackground() {
+        float scaledWidth = backgroundTexture.getWidth() * textureWidthScale;
+        float scaledHeight = backgroundTexture.getHeight() * textureHeightScale;
+        float x = (screenWidth - scaledWidth) / 2;
+        float y = (screenHeight - scaledHeight) / 2;
+
+        batch.setColor(1f, 1f, 1f, fadeAlpha);
+        batch.draw(backgroundTexture, x, y, scaledWidth, scaledHeight);
+        batch.setColor(1f, 1f, 1f, 1f);
+    }
+
+    private void renderUI() {
+        drawText("Press ENTER to Go to Menu or ESC to Quit", screenWidth * 0.2f, screenHeight - 20);
+        drawText("Your Score: " + (int) finalTime, screenWidth * 0.2f, screenHeight - 85);
+    }
+
+    private void handleInput() {
         if (fadeAlpha >= 1f) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 game.goToMenu();
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
                 Gdx.app.exit();
             }
         }
@@ -99,14 +117,16 @@ public abstract class AbstractGameScreen implements Screen {
         font.draw(batch, text, x, y);
     }
 
-    // Resource Clean Up
-    @Override
-    public void dispose() {
-        batch.dispose();
-        if (texture != null) {
-            texture.dispose();
-        }
-        font.dispose();
+    protected void setScreenDimensions(float width, float height) {
+        this.screenWidth = width;
+        this.screenHeight = height;
+        updateCamera();
+    }
+
+    private void updateCamera() {
+        camera.setToOrtho(false, screenWidth, screenHeight);
+        camera.position.set(screenWidth / 2f, screenHeight / 2f, 0);
+        camera.update();
     }
 
     @Override
@@ -114,23 +134,22 @@ public abstract class AbstractGameScreen implements Screen {
         setScreenDimensions(width, height);
     }
 
-    protected void setScreenDimensions(float width, float height) {
-        this.screenWidth = width;
-        this.screenHeight = height;
-        screenCamera.setToOrtho(false, screenWidth, screenHeight);
-        screenCamera.position.set(screenWidth / 2f, screenHeight / 2f, 0);
-        screenCamera.update();
+    @Override
+    public void show() {
+        fadeAlpha = 0f;
     }
 
     @Override
-    public void pause() {
+    public void dispose() {
+        batch.dispose();
+        font.dispose();
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+        }
     }
 
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void hide() {
-    }
+    // Unused Screen interface methods
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
 }

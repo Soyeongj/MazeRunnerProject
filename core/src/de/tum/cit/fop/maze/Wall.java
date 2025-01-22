@@ -14,30 +14,36 @@ import java.util.List;
 import java.util.Map;
 
 public class Wall {
+
+    //Positions
     private int x, y;
     private int originalX, originalY;
     private int targetX, targetY;
+
+    //Moving Walls and Player Collision Controls
     private String direction;
     private float lastMoveTime = 0f;
     private static final float MOVE_INTERVAL = 5.0f;
     private static final float STAY_DURATION = 0.3f;
     private float stayTimer = 0f;
     private boolean isAtTarget = false;
-    private TiledMapTileLayer layer;
-    private Array<Griever> grievers;
-    private HUD hud;
     private boolean isPlayerRemoved = false;
 
-    private TiledMapTileLayer.Cell cell;
-    private TextureRegion texture;
 
-    private boolean keySpawned = false;
+    //Game Entities
+    private Array<Griever> grievers;
+    private HUD hud;
 
+    //Griever and Key State Controls
     private Map<Griever, Boolean> grieverDeadStates = new HashMap<>();
     private Map<Griever, Vector2> grieverKeySpawnPositions = new HashMap<>();
     private Map<Griever, Boolean> grieverKeySpawned = new HashMap<>();
+    private boolean keySpawned = false;
 
-
+    //Textures
+    private TiledMapTileLayer layer;
+    private TiledMapTileLayer.Cell cell;
+    private TextureRegion texture;
 
     public Wall(int x, int y, String direction, TiledMapTileLayer layer, Array<Griever> grievers, HUD hud) {
         this.x = x;
@@ -169,7 +175,7 @@ public class Wall {
         }
     }
 
-    public void checkAndMovePlayer(Player player, float globalTimer, Friends friends) {
+    public void checkAndMovePlayer(Player player, Friends friends) {
         float playerX = player.getX();
         float playerY = player.getY();
 
@@ -220,65 +226,36 @@ public class Wall {
     public TiledMapTileLayer getLayer() {
         return layer;
     }
-
     public int getTargetY() {
         return targetY;
     }
-
     public int getTargetX() {
         return targetX;
     }
-
     public int getX() {
         return x;
     }
-
     public int getY() {
         return y;
     }
-
     public int getOriginalX() {
         return originalX;
     }
-
     public int getOriginalY() {
         return originalY;
     }
-
     public boolean isAtTarget() {
         return isAtTarget;
     }
-
-
-
-    public boolean hasKeySpawned() {
-        return keySpawned;
-    }
-
-    public void setKeySpawned(boolean keySpawned) {
-        this.keySpawned = keySpawned;
-    }
-
     public Vector2 getKeySpawnPosition(Griever griever) {
         return grieverKeySpawnPositions.get(griever);
     }
-
     public boolean isGrieverDead(Griever griever) {
         return grieverDeadStates.getOrDefault(griever, false);
     }
-
-    public boolean isAnyGrieverDead() {
-        return grieverDeadStates.values().stream().anyMatch(dead -> dead);
-    }
-
-    public boolean areAllGrieversDead() {
-        return grieverDeadStates.values().stream().allMatch(dead -> dead);
-    }
-
     public boolean hasKeySpawned(Griever griever) {
         return grieverKeySpawned.getOrDefault(griever, false);
     }
-
     public void setKeySpawned(Griever griever, boolean spawned) {
         grieverKeySpawned.put(griever, spawned);
     }
@@ -316,14 +293,5 @@ public class Wall {
                 grieverKeySpawnPositions.put(griever, new Vector2(x, y));
             }
         }
-    }
-
-    public Vector2 getFirstDeadGrieverPosition() {
-        for (Griever griever : grievers) {
-            if (grieverDeadStates.get(griever)) {
-                return grieverKeySpawnPositions.get(griever);
-            }
-        }
-        return null;
     }
 }
