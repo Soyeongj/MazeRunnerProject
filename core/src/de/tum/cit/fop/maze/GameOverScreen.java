@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class GameOverScreen extends AbstractGameScreen {
 
     public GameOverScreen(MazeRunnerGame game, float finalTime) {
-        super(game, new Texture("gameover.jpg"), finalTime);
+        super(game, new Texture("game-over.jpg"), finalTime);
     }
 
 }
