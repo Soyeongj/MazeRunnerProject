@@ -448,26 +448,26 @@ public class Griever  {
         return scale;
     }
 
-    public void saveGrieverstate() {
+    public void saveGrieverstate(int index) {
         Preferences pref = Gdx.app.getPreferences("grieverstate");
-        pref.putFloat("x", monsterX);
-        pref.putFloat("y", monsterY);
-        pref.putBoolean("isGrieverStunned", isGrieverStunned);
-        pref.putBoolean("isGrieverFollowing",isGrieverFollowingPlayer);
-        pref.putBoolean("isGrieverRandom",isRandomMovement);
-        pref.putFloat("livescooldown",LivesCoolDownTimer);
+        pref.putFloat("x_" + index, monsterX);
+        pref.putFloat("y_" + index, monsterY);
+        pref.putBoolean("isGrieverStunned_" + index, isGrieverStunned);
+        pref.putBoolean("isGrieverFollowing_" + index, isGrieverFollowingPlayer);
+        pref.putBoolean("isGrieverRandom_" + index, isRandomMovement);
+        pref.putFloat("livescooldown_" + index, LivesCoolDownTimer);
         pref.flush();
     }
-    public void loadGrieverstate() {
-        Preferences pref = Gdx.app.getPreferences("grieverstate");
-        monsterX = pref.getFloat("x", monsterX);
-        monsterY = pref.getFloat("y", monsterY);
-        isGrieverStunned = pref.getBoolean("isGrieverStunned", isGrieverStunned);
-        isGrieverFollowingPlayer = pref.getBoolean("isGrieverFollowing", isGrieverFollowingPlayer);
-        isRandomMovement = pref.getBoolean("isRandomMovement", isRandomMovement);
-        LivesCoolDownTimer = pref.getFloat("livescooldown", LivesCoolDownTimer);
-    }
 
+    public void loadGrieverstate(int index) {
+        Preferences pref = Gdx.app.getPreferences("grieverstate");
+        monsterX = pref.getFloat("x_" + index, monsterX);
+        monsterY = pref.getFloat("y_" + index, monsterY);
+        isGrieverStunned = pref.getBoolean("isGrieverStunned_" + index, isGrieverStunned);
+        isGrieverFollowingPlayer = pref.getBoolean("isGrieverFollowing_" + index, isGrieverFollowingPlayer);
+        isRandomMovement = pref.getBoolean("isGrieverRandom_" + index, isRandomMovement);
+        LivesCoolDownTimer = pref.getFloat("livescooldown_" + index, LivesCoolDownTimer);
+    }
     public void dispose() {
         for (Texture[] textures : grieverTextures.values()) {
             for (Texture texture : textures) {

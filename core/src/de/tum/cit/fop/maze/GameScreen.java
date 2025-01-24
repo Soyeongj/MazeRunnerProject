@@ -333,11 +333,10 @@ public class GameScreen implements Screen {
         );
         lastPosition.set(camera.position);
     }
+
     public void saveState() {
         player.savePlayerState();
-        for (Griever griever : grievers) {
-            griever.saveGrieverstate();
-        }
+
         item.saveItemState();
         trapItem.saveTrapItemState();
 
@@ -350,6 +349,9 @@ public class GameScreen implements Screen {
 
         hud.saveHUDState();
         friends.saveFriendState();
+        for (int i = 0; i < grievers.size; i++) {
+            grievers.get(i).saveGrieverstate(i);
+        }
         Preferences preferences = Gdx.app.getPreferences("Keys");
         preferences.putInteger("numberOfKeys", keys.size);
         for (int i = 0; i < keys.size; i++) {
@@ -364,9 +366,7 @@ public class GameScreen implements Screen {
 
     public void loadState() {
         player.loadPlayerState();
-        for (Griever griever: grievers) {
-            griever.loadGrieverstate();
-        }
+
         item.loadItemState();
         trapItem.loadTrapItemState();
 
@@ -379,6 +379,10 @@ public class GameScreen implements Screen {
 
         hud.loadHUDState();
 
+
+        for (int i = 0; i < grievers.size; i++) {
+            grievers.get(i).loadGrieverstate(i);
+        }
         keys.clear();
         Preferences preferences = Gdx.app.getPreferences("Keys");
         int numberOfKeys = preferences.getInteger("numberOfKeys", 0);
@@ -416,24 +420,24 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         SoundManager.stopMenuMusic();
-
         if (isNewGame) {
-            // Pass the selected map to the IntroScreen
-            String mapPath = game.getCurrentMapPath(); // Get the current map path, which should be set elsewhere
+            isShowingIntro = true;
+            introImage = new Texture(Gdx.files.internal("intro.png"));
+            SoundManager.playGameStartSound();
 
-            // If no map path is selected, default to a specific map
-            if (mapPath == null || mapPath.isEmpty()) {
-                mapPath = "map1.tmx"; // Default map if none is selected
-            }
 
-            // Initialize the IntroScreen with the map path
-            final IntroScreen introScreen = new IntroScreen(game, mapPath);
-            game.setScreen(introScreen); // Show the IntroScreen
-
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    isShowingIntro = false;
+                    SoundManager.playBackgroundMusic();
+                }
+            }, introDuration);
+        } else {
+            isShowingIntro = false;
             SoundManager.playBackgroundMusic();
         }
     }
-
 
     @Override
     public void hide() {

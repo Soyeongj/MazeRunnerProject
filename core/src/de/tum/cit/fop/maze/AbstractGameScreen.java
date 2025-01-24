@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 /**
  * Abstract base class for game screens implementing common functionality
@@ -95,7 +94,6 @@ public abstract class AbstractGameScreen implements Screen {
         float y = (screenHeight - scaledHeight) / 2;
 
         batch.setColor(1f, 1f, 1f, fadeAlpha);
-        ScreenUtils.clear(0,0,0,1);
         batch.draw(backgroundTexture, x, y, scaledWidth, scaledHeight);
         batch.setColor(1f, 1f, 1f, 1f);
     }
