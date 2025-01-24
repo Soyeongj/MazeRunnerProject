@@ -48,6 +48,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map1.tmx");
+
                 game.setScreen(new GameScreen(game, "map1.tmx",true));
             }
         });

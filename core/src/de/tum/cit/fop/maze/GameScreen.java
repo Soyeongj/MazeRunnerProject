@@ -418,7 +418,16 @@ public class GameScreen implements Screen {
         SoundManager.stopMenuMusic();
 
         if (isNewGame) {
-            final IntroScreen introScreen = new IntroScreen(game, new Texture("intro.png"));
+            // Pass the selected map to the IntroScreen
+            String mapPath = game.getCurrentMapPath(); // Get the current map path, which should be set elsewhere
+
+            // If no map path is selected, default to a specific map
+            if (mapPath == null || mapPath.isEmpty()) {
+                mapPath = "map1.tmx"; // Default map if none is selected
+            }
+
+            // Initialize the IntroScreen with the map path
+            final IntroScreen introScreen = new IntroScreen(game, mapPath);
             game.setScreen(introScreen); // Show the IntroScreen
 
             SoundManager.playBackgroundMusic();
