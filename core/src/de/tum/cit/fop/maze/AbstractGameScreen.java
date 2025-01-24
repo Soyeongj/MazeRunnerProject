@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 /**
  * Abstract base class for game screens implementing common functionality
@@ -80,7 +81,7 @@ public abstract class AbstractGameScreen implements Screen {
     private void renderScreen() {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-
+        ScreenUtils.clear(Color.BLACK);
         renderBackground();
         renderUI();
 
