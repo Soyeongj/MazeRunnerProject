@@ -317,23 +317,12 @@ public class GameScreen implements Screen {
     }
 
     private void zoomCamera(float amount) {
-        Vector3 beforeZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        camera.unproject(beforeZoom);
 
         currentZoom = MathUtils.clamp(currentZoom + amount, MIN_ZOOM, MAX_ZOOM);
         camera.zoom = currentZoom;
 
-        Vector3 afterZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        camera.unproject(afterZoom);
-
-        camera.position.add(
-                beforeZoom.x - afterZoom.x,
-                beforeZoom.y - afterZoom.y,
-                0
-        );
         lastPosition.set(camera.position);
     }
-
     public void saveState() {
         player.savePlayerState();
         for (Griever griever : grievers) {

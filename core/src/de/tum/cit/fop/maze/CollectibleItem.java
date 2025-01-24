@@ -77,22 +77,6 @@ public abstract class CollectibleItem {
     }
 
 
-    public boolean checkAndCollect(Vector2 playerPosition, float proximity, int index) {
-        Iterator<Vector2> iterator = positions.iterator();
-        int currentIndex = 0;
-
-        while (iterator.hasNext()) {
-            Vector2 position = iterator.next();
-            if (isWithinCollectionRange(playerPosition, position, proximity)) {
-                iterator.remove();
-                onCollected();
-                return true;
-            }
-            currentIndex++;
-        }
-        return false;
-    }
-
     public int checkAndCollectAll(Vector2 playerPosition, float proximity) {
         int collectedCount = 0;
         Iterator<Vector2> iterator = positions.iterator();

@@ -67,7 +67,4 @@ public class TrapItem extends CollectibleItem {
     public void loadTrapItemState() {
         loadState(Gdx.app.getPreferences("TrapItem"), "TrapItem");
     }
-
-
-
 }
