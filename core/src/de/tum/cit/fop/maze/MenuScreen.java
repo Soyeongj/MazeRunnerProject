@@ -113,23 +113,22 @@ public class MenuScreen implements Screen {
         resumeButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                String lastMapPath = game.getCurrentMapPath(); // 마지막으로 플레이한 맵 경로 가져오기
+                String lastMapPath = game.getCurrentMapPath();
 
                 if (lastMapPath == null) {
-                    // 마지막 맵 경로가 없으면 초기 상태로 새 게임 시작
-                    lastMapPath = "map1.tmx"; // 기본값 설정
-                    game.setCurrentMapPath(lastMapPath); // 기본 맵 경로 저장
+                    lastMapPath = "map1.tmx";
+                    game.setCurrentMapPath(lastMapPath);
                 }
 
                 Screen currentScreen = game.getScreen();
 
                 if (currentScreen instanceof GameScreen) {
                     GameScreen gameScreen = (GameScreen) currentScreen;
-                    gameScreen.loadState(); // 현재 상태 불러오기
+                    gameScreen.loadState();
                 } else {
-                    GameScreen gameScreen = new GameScreen(game, lastMapPath,false); // 마지막 맵으로 GameScreen 생성
-                    gameScreen.loadState(); // 상태 불러오기
-                    game.setScreen(gameScreen); // 화면 설정
+                    GameScreen gameScreen = new GameScreen(game, lastMapPath,false);
+                    gameScreen.loadState();
+                    game.setScreen(gameScreen);
                 }
             }
         });
@@ -138,6 +137,11 @@ public class MenuScreen implements Screen {
 
 
     @Override
+    /**
+     * Renders the menu screen by clearing the screen and updating and drawing the UI stage.
+     *
+     * @param delta The time in seconds since the last render, used for managing frame rate and smooth animations.
+     */
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the screen
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f)); // Update the stage
@@ -145,17 +149,31 @@ public class MenuScreen implements Screen {
     }
 
     @Override
+    /**
+     * Resizes the stage viewport when the screen is resized.
+     * This ensures the stage elements are properly scaled when the window size changes.
+     *
+     * @param width  The new width of the screen.
+     * @param height The new height of the screen.
+     */
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true); // Update the stage viewport on resize
     }
 
     @Override
     public void dispose() {
-        // Dispose of the stage when screen is disposed
+        /**
+         * Disposes of the resources used by the menu screen, particularly the stage.
+         * This is called when the screen is no longer needed, freeing up memory.
+         */
         stage.dispose();
     }
 
     @Override
+    /**
+     * Initializes the input processor and handles the background music when the menu screen is displayed.
+     * This method is called when the menu screen is shown, allowing for input and music to be managed.
+     */
     public void show() {
         Gdx.input.setInputProcessor(stage);
         SoundManager.stopBackgroundMusic();

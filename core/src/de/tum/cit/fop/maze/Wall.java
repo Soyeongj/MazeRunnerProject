@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents a moving wall in the game maze that can interact with player, friends and grievers.
+ * Handles wall movement, collision detection, and state management.
+ */
+
 public class Wall {
 
     //Positions
@@ -45,6 +50,16 @@ public class Wall {
     private TiledMapTileLayer.Cell cell;
     private TextureRegion texture;
 
+    /**
+     * Constructs a Wall object with initial position and game properties.
+     *
+     * @param x Initial x-coordinate of the wall
+     * @param y Initial y-coordinate of the wall
+     * @param direction Movement direction of the wall
+     * @param layer Tiled map layer containing the wall
+     * @param grievers List of grievers in the game
+     * @param hud Heads-up display for game state tracking
+     */
     public Wall(int x, int y, String direction, TiledMapTileLayer layer, Array<Griever> grievers, HUD hud) {
         this.x = x;
         this.y = y;
@@ -67,6 +82,14 @@ public class Wall {
         }
     }
 
+    /**
+     * Creates wall objects from a tiled map layer with moving wall properties.
+     *
+     * @param movingWallsLayer The tiled map layer containing wall tiles
+     * @param grievers List of grievers in the game
+     * @param hud Heads-up display for game state
+     * @return List of Wall objects created from the layer
+     */
     public static List<Wall> createWallsFromLayer(TiledMapTileLayer movingWallsLayer, Array<Griever> grievers, HUD hud) {
         List<Wall> walls = new ArrayList<>();
         for (int x = 0; x < movingWallsLayer.getWidth(); x++) {
@@ -81,6 +104,11 @@ public class Wall {
         return walls;
     }
 
+    /**
+     *  Renders the wall's texture at its current position.
+     *
+     * @param batch SpriteBatch used for drawing the wall's texture
+     */
     public void render(SpriteBatch batch) {
         if (texture != null) {
             float worldX = x * layer.getTileWidth();
@@ -89,6 +117,12 @@ public class Wall {
         }
     }
 
+    /**
+     * Updates wall movement and checks for collisions with game entities.
+     *
+     * @param delta Time since last frame
+     * @param globalTimer Overall game timer
+     */
     public void update(float delta, float globalTimer) {
         float timeSinceLastMove = globalTimer - lastMoveTime;
 
@@ -112,6 +146,10 @@ public class Wall {
         }
     }
 
+    /**
+     * Moves the wall in its predefined direction,
+     * updating its position on the map layer.
+     */
     private void move() {
         Cell cell = layer.getCell(x, y);
         if (cell == null) return;
@@ -154,6 +192,12 @@ public class Wall {
         y = originalY;
     }
 
+    /**
+     * Checks collision between a wall and a specific griever,
+     * removing the griever if collision occurs.
+     *
+     * @param griever The griever to check for collision
+     */
     private void checkAndMoveGriever(Griever griever) {
         float grieverX = griever.getMonsterX();
         float grieverY = griever.getMonsterY();
@@ -175,6 +219,12 @@ public class Wall {
         }
     }
 
+    /**
+     * Checks and handles collision between the wall and a player.
+     *
+     * @param player The game player
+     * @param friends Player's friends(lives) in the game
+     */
     public void checkAndMovePlayer(Player player, Friends friends) {
         float playerX = player.getX();
         float playerY = player.getY();
@@ -217,49 +267,142 @@ public class Wall {
 
     }
 
+    /**
+     * Checks for rectangular collision between two game objects.
+     *
+     * @param x1 X-coordinate of first object
+     * @param y1 Y-coordinate of first object
+     * @param width1 Width of first object
+     * @param height1 Height of first object
+     * @param x2 X-coordinate of second object
+     * @param y2 Y-coordinate of second object
+     * @param width2 Width of second object
+     * @param height2 Height of second object
+     * @return True if objects overlap, false otherwise
+     */
     private boolean checkCollision(float x1, float y1, float width1, float height1,
                                    float x2, float y2, float width2, float height2) {
         return x1 < x2 + width2 && x1 + width1 > x2 &&
                 y1 < y2 + height2 && y1 + height1 > y2;
     }
 
+
+    /**
+     * Gets the TiledMapTileLayer associated with the wall.
+     *
+     * @return The TiledMapTileLayer containing the wall
+     */
     public TiledMapTileLayer getLayer() {
         return layer;
     }
+
+    /**
+     * Gets the target Y-coordinate of the wall's movement.
+     *
+     * @return The target Y-coordinate
+     */
     public int getTargetY() {
         return targetY;
     }
+
+    /**
+     * Gets the target X-coordinate of the wall's movement.
+     *
+     * @return The target X-coordinate
+     */
     public int getTargetX() {
         return targetX;
     }
+
+    /**
+     * Gets the current X-coordinate of the wall.
+     *
+     * @return The current X-coordinate
+     */
     public int getX() {
         return x;
     }
+
+    /**
+     * Gets the current Y-coordinate of the wall.
+     *
+     * @return The current Y-coordinate
+     */
     public int getY() {
         return y;
     }
+
+    /**
+     * Gets the original X-coordinate of the wall before it started moving.
+     *
+     * @return The original X-coordinate
+     */
     public int getOriginalX() {
         return originalX;
     }
+
+    /**
+     * Gets the original Y-coordinate of the wall before it started moving.
+     *
+     * @return The original Y-coordinate
+     */
     public int getOriginalY() {
         return originalY;
     }
+
+    /**
+     * Checks if the wall is currently at its target position.
+     *
+     * @return True if the wall is at its target position, false otherwise
+     */
     public boolean isAtTarget() {
         return isAtTarget;
     }
+
+    /**
+     * Gets the spawn position of the key for a specific griever.
+     *
+     * @param griever The griever to get the key spawn position for
+     * @return The key spawn position as a Vector2, or null if not set
+     */
     public Vector2 getKeySpawnPosition(Griever griever) {
         return grieverKeySpawnPositions.get(griever);
     }
+
+    /**
+     * Checks if a griever is dead.
+     *
+     * @param griever The griever to check
+     * @return True if the griever is dead, false otherwise
+     */
     public boolean isGrieverDead(Griever griever) {
         return grieverDeadStates.getOrDefault(griever, false);
     }
+
+    /**
+     * Checks if a key has spawned for a specific griever.
+     *
+     * @param griever The griever to check if the key has spawned for
+     * @return True if the key has spawned, false otherwise
+     */
     public boolean hasKeySpawned(Griever griever) {
         return grieverKeySpawned.getOrDefault(griever, false);
     }
+
+    /**
+     * Sets whether a key has been spawned for a specific griever.
+     *
+     * @param griever The griever to set the key spawn state for
+     * @param spawned True if the key has spawned, false otherwise
+     */
     public void setKeySpawned(Griever griever, boolean spawned) {
         grieverKeySpawned.put(griever, spawned);
     }
 
+    /**
+     * Saves the current state of walls, including griever and key states.
+     * Stores information in game preferences for potential game restoration.
+     */
     public void saveWallState() {
         Preferences pref = Gdx.app.getPreferences("wallState");
         pref.putInteger("numGrievers", grievers.size);
@@ -278,6 +421,10 @@ public class Wall {
         pref.flush();
     }
 
+    /**
+     * Loads previously saved wall state from game preferences.
+     * Restores griever and key states to their previous configuration.
+     */
     public void loadWallState() {
         Preferences pref = Gdx.app.getPreferences("wallState");
         int numGrievers = pref.getInteger("numGrievers", 0);

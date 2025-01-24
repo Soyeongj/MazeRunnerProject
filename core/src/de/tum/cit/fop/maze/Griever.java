@@ -14,6 +14,11 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.*;
 
+/**
+ * The Griever class represents an enemy character (Griever) in the maze.
+ * It is responsible for the Griever's movement, animation, detection of the player,
+ * and interactions such as being stunned.
+ */
 public class Griever  {
     // Animation and Texture Related Variables
     private Map<String, Texture[]> grieverTextures;
@@ -49,6 +54,14 @@ public class Griever  {
     private static final float MIN_X = 0f;
     private static final float MIN_Y = 0f;
 
+    /**
+     * Constructs a Griever at the given starting position.
+     *
+     * @param startX      The starting X-coordinate of the Griever.
+     * @param startY      The starting Y-coordinate of the Griever.
+     * @param pathLayer   The path layer used for collision detection.
+     * @param path2Layer  The second path layer for movement calculations.
+     */
     public Griever(float startX, float startY, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
         this.monsterX = startX;
         this.monsterY = startY;
@@ -58,6 +71,9 @@ public class Griever  {
         initializeTextures();
     }
 
+    /**
+     * Initializes the textures for the Griever's animations for different directions.
+     */
     private void initializeTextures() {
         grieverTextures = new HashMap<>();
         grieverTextures.put("up", new Texture[]{new Texture("monster_up1.png"), new Texture("monster_up2.png")});
@@ -70,8 +86,15 @@ public class Griever  {
         grieverStateTime = 0f;
     }
 
-    // Updates griever's direction based on movement for animation
-    private void updateGrieverDirection(float deltaX, float deltaY) {
+    /**
+     * Updates the Griever's direction based on its movement.
+     * This method determines whether the Griever should be moving up, down, left, or right
+     * depending on the changes in the X and Y coordinates.
+     *
+     * @param deltaX The change in the X-coordinate (horizontal movement).
+     * @param deltaY The change in the Y-coordinate (vertical movement).
+     */
+     private void updateGrieverDirection(float deltaX, float deltaY) {
         if (Math.abs(deltaX) > 0.01f || Math.abs(deltaY) > 0.01f) {
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 fixedGrieverDirection = deltaX > 0 ? "right" : "left";
@@ -81,6 +104,12 @@ public class Griever  {
         }
     }
 
+    /**
+     * Updates the Griever's animation by switching the texture based on the current direction.
+     * This method ensures that the Griever's texture changes at a set animation rate.
+     *
+     * @param delta The time in seconds since the last update, used to control the animation timing.
+     */
     private void updateAnimation(float delta) {
         grieverStateTime += delta;
         if (grieverStateTime >= grieverAnimationTime) {
@@ -89,7 +118,15 @@ public class Griever  {
         }
     }
 
-
+    /**
+     * Loads all Griever objects from the provided TiledMap, creating instances of Griever
+     * based on the map's properties and adding them to an array.
+     *
+     * @param map The TiledMap containing the game world and Griever data.
+     * @param pathLayer The first path layer used for Griever's movement logic.
+     * @param path2Layer The second path layer used for Griever's movement logic.
+     * @return An array of Griever instances loaded from the map.
+     */
     public static Array<Griever> loadGrieversFromTiledMap(TiledMap map, TiledMapTileLayer pathLayer, TiledMapTileLayer path2Layer) {
         Array<Griever> grievers = new Array<>();
 
@@ -110,7 +147,18 @@ public class Griever  {
         return grievers;
     }
 
-    // Main update method orchestrating all update logic
+    /**
+     * The main update method orchestrates all the update logic for the Griever.
+     * It handles stun state, movement, animation, and checks for collisions with the player.
+     *
+     * @param delta The time in seconds since the last update.
+     * @param playerX The X-coordinate of the player.
+     * @param playerY The Y-coordinate of the player.
+     * @param playerDirection The direction the player is currently facing.
+     * @param hud The HUD (Heads Up Display) that tracks game progress.
+     * @param player The Player instance, for collision detection and interactions.
+     * @param friends The Friends instance, to manage the state of the player's friends.
+     */
     public void update(float delta, float playerX, float playerY, String playerDirection, HUD hud, Player player, Friends friends) {
         if (handleStunState(delta, hud)) {
             return;
@@ -123,8 +171,14 @@ public class Griever  {
         checkPlayerCollision(player, hud, friends, delta);
     }
 
-    // Handles stun state and returns true if griever is stunned
-    private boolean handleStunState(float delta, HUD hud) {
+    /**
+     * Handles the Griever's stun state. If the Griever is stunned, it updates the stun timer
+     * and displays a message. Returns true if the Griever is currently stunned.
+     *
+     * @param delta The time in seconds since the last update.
+     * @param hud The HUD to display the stun message.
+     * @return true if the Griever is stunned, false otherwise.
+     */    private boolean handleStunState(float delta, HUD hud) {
         if (isGrieverStunned) {
             stunTimer += delta;
             hud.stunMessage();
@@ -137,6 +191,14 @@ public class Griever  {
         return false;
     }
 
+    /**
+     * Checks if the Griever is within stun range of the player and if the player is facing
+     * the Griever in the opposite direction. If so, the Griever becomes stunned.
+     *
+     * @param playerX The X-coordinate of the player.
+     * @param playerY The Y-coordinate of the player.
+     * @param playerDirection The direction the player is currently facing.
+     */
     private void checkStunCondition(float playerX, float playerY, String playerDirection) {
         float distance = (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
         if (distance <= 10f) {
@@ -148,6 +210,12 @@ public class Griever  {
         }
     }
 
+    /**
+     * Checks if the Griever is facing the player in the opposite direction.
+     *
+     * @param playerDirection The direction the player is facing.
+     * @return true if the Griever is facing the opposite direction of the player, false otherwise.
+     */
     private boolean isGrieverInOppositeDirection(String playerDirection) {
         boolean result = (fixedGrieverDirection.equals("left") && playerDirection.equals("right")) ||
                 (fixedGrieverDirection.equals("right") && playerDirection.equals("left")) ||
@@ -156,7 +224,13 @@ public class Griever  {
         return result;
     }
 
-    // Handles all movement logic
+    /**
+     * Handles all movement logic of the Griever, including whether it is following the player or moving randomly.
+     *
+     * @param delta The time in seconds since the last update.
+     * @param playerX The X-coordinate of the player.
+     * @param playerY The Y-coordinate of the player.
+     */
     private void handleMovement(float delta, float playerX, float playerY) {
         if (isGrieverFollowingPlayer) {
             handlePlayerFollowing(delta, playerX, playerY);
@@ -165,8 +239,14 @@ public class Griever  {
         }
     }
 
-    // Handles movement when following player
-    private void handlePlayerFollowing(float delta, float playerX, float playerY) {
+    /**
+     * Handles movement when the Griever is following the player.
+     * Updates the Griever's target and moves it towards the player.
+     *
+     * @param delta The time in seconds since the last update.
+     * @param playerX The X-coordinate of the player.
+     * @param playerY The Y-coordinate of the player.
+     */    private void handlePlayerFollowing(float delta, float playerX, float playerY) {
         if (currentTarget == null || reachedTarget()) {
             updateTargetTowardsPlayer(playerX, playerY);
         }
@@ -176,8 +256,13 @@ public class Griever  {
         }
     }
 
-    // Updates target tile when following player
-    private void updateTargetTowardsPlayer(float playerX, float playerY) {
+    /**
+     * Updates the Griever's target to move towards the player's position.
+     * The method tries to find the closest valid path tile to follow the player.
+     *
+     * @param playerX The X-coordinate of the player.
+     * @param playerY The Y-coordinate of the player.
+     */    private void updateTargetTowardsPlayer(float playerX, float playerY) {
         Vector2[] directions = {
                 new Vector2(1, 0), new Vector2(-1, 0),
                 new Vector2(0, 1), new Vector2(0, -1)
@@ -216,8 +301,14 @@ public class Griever  {
         currentTarget = closestTarget;
     }
 
-    // Updates griever's state based on player position
-    private void updateGrieverState(float playerX, float playerY) {
+    /**
+     * Updates the Griever's state based on the player's position. Determines whether the Griever
+     * should be following the player or moving randomly based on the distance between the Griever
+     * and the player.
+     *
+     * @param playerX The X-coordinate of the player.
+     * @param playerY The Y-coordinate of the player.
+     */    private void updateGrieverState(float playerX, float playerY) {
         float distance = calculateDistance(playerX, playerY);
         boolean wasFollowingPlayer = isGrieverFollowingPlayer;
         isGrieverFollowingPlayer = distance <= detectionRange;
@@ -237,6 +328,13 @@ public class Griever  {
             }
         }
     }
+
+    /**
+     * Finds the nearest valid tile in the path2Layer within a maximum search radius.
+     * The search is done in 45-degree increments around the Griever's current position.
+     *
+     * @return A Vector2 representing the coordinates of the nearest valid tile, or null if no valid tile is found.
+     */
     private Vector2 findNearestPath2Tile() {
         float searchRadius = path2Layer.getTileWidth();
         final float MAX_SEARCH_RADIUS = path2Layer.getTileWidth() * 10;
@@ -259,8 +357,12 @@ public class Griever  {
 
 
 
-    // Handles random movement when not following player
-    private void handleRandomMovement(float delta) {
+    /**
+     * Handles the Griever's random movement when it is not following the player.
+     * It calculates a random target tile to move towards and checks if the Griever is in a valid path tile.
+     *
+     * @param delta The time in seconds since the last update.
+     */    private void handleRandomMovement(float delta) {
         isRandomMovement = true;
 
         // if it's not in path2 layer
@@ -287,8 +389,13 @@ public class Griever  {
     }
 
 
-    //finds target tile for random movement
-    private Vector2 findNextTargetWithMinDistance(float minDistance) {
+    /**
+     * Finds the next target tile for random movement, ensuring the target is at least a minimum distance
+     * away from the Griever's current position.
+     *
+     * @param minDistance The minimum distance the target tile should be away from the Griever's current position.
+     * @return A Vector2 representing the coordinates of the target tile, or null if no valid target is found.
+     */    private Vector2 findNextTargetWithMinDistance(float minDistance) {
         List<Vector2> directions = Arrays.asList(
                 new Vector2(1, 0),
                 new Vector2(-1, 0),
@@ -316,6 +423,12 @@ public class Griever  {
         return null;
     }
 
+    /**
+     * Moves the Griever towards a specified target tile on the given layer.
+     *
+     * @param delta The time in seconds since the last update.
+     * @param currentLayer The layer on which the Griever should move.
+     */
     private void moveTowardsTarget(float delta, TiledMapTileLayer currentLayer) {
         Vector2 directionToTarget = new Vector2(currentTarget.x - monsterX, currentTarget.y - monsterY);
         float distanceToTarget = directionToTarget.len();
@@ -338,14 +451,21 @@ public class Griever  {
             }
         }
     }
-    // Add method to check if position is within boundaries
-    private boolean isValidPosition(float x, float y) {
+
+    /**
+     * Checks if the specified position (x, y) is within the valid boundaries defined by the game.
+     *
+     * @param x The X-coordinate to check.
+     * @param y The Y-coordinate to check.
+     * @return true if the position is within the valid boundaries, false otherwise.
+     */    private boolean isValidPosition(float x, float y) {
         return x >= MIN_X && x <= MAX_X && y >= MIN_Y && y <= MAX_Y;
     }
 
 
-    // Handles collision with obstacles
-    private void handleCollision() {
+    /**
+     * Handles collision with obstacles. The Griever will either recalculate its path or move to a random target.
+     */    private void handleCollision() {
         if (isGrieverFollowingPlayer) {
             currentTarget = null;  // Force recalculation of path
         } else {
@@ -354,19 +474,35 @@ public class Griever  {
     }
 
 
-    // Helper method to calculate distance to player
-    private float calculateDistance(float playerX, float playerY) {
+    /**
+     * Helper method to calculate the distance between the Griever and the player.
+     *
+     * @param playerX The X-coordinate of the player.
+     * @param playerY The Y-coordinate of the player.
+     * @return The calculated distance.
+     */    private float calculateDistance(float playerX, float playerY) {
         return (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
     }
 
-
+    /**
+     * Checks if the Griever has reached its target tile.
+     *
+     * @return true if the Griever has reached the target, false otherwise.
+     */
     private boolean reachedTarget() {
         float tolerance = 2f;
         return Math.abs(monsterX - currentTarget.x) < tolerance &&
                 Math.abs(monsterY - currentTarget.y) < tolerance;
     }
 
-
+    /**
+     * Checks if a given position (x, y) is a valid path tile on the specified layer.
+     *
+     * @param x The X-coordinate to check.
+     * @param y The Y-coordinate to check.
+     * @param layer The TiledMapTileLayer to check for path tiles.
+     * @return true if the position is a valid path tile, false otherwise.
+     */
     private boolean isPathTile(float x, float y, TiledMapTileLayer layer) {
         int tileX = (int) (x / layer.getTileWidth());
         int tileY = (int) (y / layer.getTileHeight());
@@ -374,7 +510,15 @@ public class Griever  {
         return cell != null && cell.getTile() != null;
     }
 
-
+    /**
+     * Checks if the path between the current position and the target position is clear, meaning there are no obstacles.
+     *
+     * @param startX The starting X-coordinate.
+     * @param startY The starting Y-coordinate.
+     * @param endX The target X-coordinate.
+     * @param endY The target Y-coordinate.
+     * @return true if the path is clear, false otherwise.
+     */
     private boolean isPathClear(float startX, float startY, float endX, float endY) {
         float steps = 30;
         for (int i = 0; i <= steps; i++) {
@@ -389,8 +533,15 @@ public class Griever  {
         return true;
     }
 
-
-
+    /**
+     * Checks if the Griever collides with the player. If a collision occurs, the player loses a life,
+     * and the Griever performs the appropriate actions.
+     *
+     * @param player The player instance.
+     * @param hud The HUD (Heads Up Display) to manage player lives.
+     * @param friends The Friends instance to manage the state of the player's friends.
+     * @param delta The time in seconds since the last update.
+     */
     public void checkPlayerCollision(Player player, HUD hud, Friends friends, float delta) {
         int diffX = (int) (player.getX() - this.getMonsterX());
         int diffY = (int) (player.getY() - this.getMonsterY());
@@ -415,8 +566,13 @@ public class Griever  {
     }
 
 
-    //Render Method
-    public void render(SpriteBatch batch) {
+    /**
+     * Renders the Griever at its current position using the specified SpriteBatch.
+     * The Griever's texture is drawn at the current monsterX and monsterY coordinates,
+     * with scaling applied to the texture's width and height.
+     *
+     * @param batch The SpriteBatch used for rendering the Griever's texture.
+     */    public void render(SpriteBatch batch) {
         batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() * scale);
     }
 
@@ -448,6 +604,12 @@ public class Griever  {
         return scale;
     }
 
+    /**
+     * Saves the current state of the Griever (position, stunned state, following state, random movement state,
+     * and lives cooldown) to the preferences file.
+     *
+     * @param index The index used to differentiate between different Griever states in the preferences file.
+     */
     public void saveGrieverstate(int index) {
         Preferences pref = Gdx.app.getPreferences("grieverstate");
         pref.putFloat("x_" + index, monsterX);
@@ -459,6 +621,12 @@ public class Griever  {
         pref.flush();
     }
 
+    /**
+     * Loads the Griever's state (position, stunned state, following state, random movement state,
+     * and lives cooldown) from the preferences file based on the given index.
+     *
+     * @param index The index used to load the specific Griever state from the preferences file.
+     */
     public void loadGrieverstate(int index) {
         Preferences pref = Gdx.app.getPreferences("grieverstate");
         monsterX = pref.getFloat("x_" + index, monsterX);
@@ -468,6 +636,12 @@ public class Griever  {
         isRandomMovement = pref.getBoolean("isGrieverRandom_" + index, isRandomMovement);
         LivesCoolDownTimer = pref.getFloat("livescooldown_" + index, LivesCoolDownTimer);
     }
+
+
+    /**
+     * Disposes of all textures related to the Griever to free up memory when no longer needed.
+     * This method iterates over all Griever textures and disposes of them.
+     */
     public void dispose() {
         for (Texture[] textures : grieverTextures.values()) {
             for (Texture texture : textures) {

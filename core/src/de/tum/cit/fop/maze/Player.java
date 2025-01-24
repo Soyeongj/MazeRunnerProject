@@ -11,6 +11,12 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 
+
+/**
+ * The Player class represents the player character in the game, including its movement, animation, collision detection,
+ * state management (e.g., speed boosts), and rendering. It handles user input for player movement, running,
+ * speed boosting, and special effects like red visual effects and death.
+ */
 public class Player {
 
     //Textures
@@ -52,7 +58,12 @@ public class Player {
     private boolean isDead;
     private static final String PREFERENCES_NAME = "PlayerState";
 
-
+    /**
+     * Constructs a new Player with the specified collision layer.
+     * Initializes the player's textures and sets the initial state.
+     *
+     * @param collisionLayer The collision layer used to detect collisions with the environment.
+     */
     public Player(TiledMapTileLayer collisionLayer) {
         this.speed = 30.0f;
         this.runningSpeed = 70.0f;
@@ -74,6 +85,13 @@ public class Player {
 
     }
 
+    /**
+     * Loads the player's initial state from the TiledMap by reading its position from the "player" layer.
+     *
+     * @param map The TiledMap containing the player’s initial position.
+     * @param collisionLayer The collision layer for detecting collisions.
+     * @return The initialized Player object.
+     */
     public static Player loadPlayerFromTiledMap(TiledMap map, TiledMapTileLayer collisionLayer) {
         MapLayer playerLayer = map.getLayers().get("player");
         Player player = new Player(collisionLayer);
@@ -95,6 +113,18 @@ public class Player {
         return player;
     }
 
+    /**
+     * Updates the player's state each frame, including movement, running, and effects.
+     * Handles player input for movement and manages the player’s speed and animations.
+     *
+     * @param delta The delta time between frames.
+     * @param moveUp Whether the player is moving up.
+     * @param moveDown Whether the player is moving down.
+     * @param moveLeft Whether the player is moving left.
+     * @param moveRight Whether the player is moving right.
+     * @param runKeyPressed Whether the player is pressing the run key.
+     * @param friends The Friends object to manage following friends.
+     */
 
     public void update(float delta, boolean moveUp, boolean moveDown, boolean moveLeft, boolean moveRight, boolean runKeyPressed, Friends friends) {
         previousX = x;
@@ -182,11 +212,21 @@ public class Player {
         }
     }
 
+    /**
+     * Reverts the player's position to the previous valid position after a collision.
+     */
     public void revertToPrevious() {
         x = previousX;
         y = previousY;
     }
 
+    /**
+     * Checks if the player is colliding with a blocked cell at the specified coordinates.
+     *
+     * @param x The x-coordinate to check.
+     * @param y The y-coordinate to check.
+     * @return True if the cell is blocked, false otherwise.
+     */
     private boolean isCellBlocked(float x, float y) {
         TiledMapTileLayer.Cell cell = collisionLayer.getCell(
                 (int) (x / collisionLayer.getTileWidth()),
@@ -195,6 +235,11 @@ public class Player {
         return cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey(blockedKey);
     }
 
+    /**
+     * Checks if the player is colliding with the right side.
+     *
+     * @return True if there is a collision on the right side, false otherwise.
+     */
     private boolean collidesRight() {
         for (float step = 0; step < 1; step += collisionLayer.getTileHeight() / 2) {
             if (isCellBlocked(x + currentTexture.getWidth() * scale, y + step)) {
@@ -204,6 +249,11 @@ public class Player {
         return false;
     }
 
+    /**
+     * Checks if the player is colliding with the left side.
+     *
+     * @return True if there is a collision on the left side, false otherwise.
+     */
     private boolean collidesLeft() {
         for (float step = 0; step < 1; step += collisionLayer.getTileHeight() / 2) {
             if (isCellBlocked(x, y + step)) {
@@ -213,6 +263,11 @@ public class Player {
         return false;
     }
 
+    /**
+     * Checks if the player is colliding with the top side.
+     *
+     * @return True if there is a collision on the top side, false otherwise.
+     */
     private boolean collidesTop() {
         for (float step = 0; step < 1; step += collisionLayer.getTileWidth() / 2) {
             if (isCellBlocked(x + step, y + currentTexture.getHeight() * scale)) {
@@ -222,6 +277,11 @@ public class Player {
         return false;
     }
 
+    /**
+     * Checks if the player is colliding with the bottom side.
+     *
+     * @return True if there is a collision on the bottom side, false otherwise.
+     */
     private boolean collidesBottom() {
         for (float step = 0; step < 1; step += collisionLayer.getTileWidth() / 2) {
             if (isCellBlocked(x + step, y)) {
@@ -231,6 +291,13 @@ public class Player {
         return false;
     }
 
+    /**
+     * Animates the player's movement by alternating between two textures.
+     *
+     * @param delta The delta time between frames.
+     * @param texture1 The first texture to alternate to.
+     * @param texture2 The second texture to alternate to.
+     */
     private void animate(float delta, Texture texture1, Texture texture2) {
         stateTime += delta;
         if (stateTime >= walkAnimationTime) {
@@ -239,6 +306,12 @@ public class Player {
         }
     }
 
+    /**
+     * Renders the player on the screen.
+     * If the player is in a red effect, applies a visual pulse effect.
+     *
+     * @param batch The SpriteBatch used to render the player.
+     */
     public void render(SpriteBatch batch) {
         if (isInRedEffect) {
             float pulse = 0.5f + 0.5f * MathUtils.sin(redEffectTimer * 5);
@@ -250,16 +323,27 @@ public class Player {
         }
     }
 
+    /**
+     * Increases the player's speed for a given duration.
+     *
+     * @param duration The duration for the speed boost in seconds.
+     */
     public void increaseSpeed(float duration) {
         isSpeedBoosted = true;
         speedBoostDuration = duration;
     }
 
+    /**
+     * Resets the player's speed to normal after the speed boost duration expires.
+     */
     public void resetSpeedBoost() {
         isSpeedBoosted = false;
         speed = normalSpeed;
     }
 
+    /**
+     * Saves the player's current state (position, speed, effect timers, etc.) to persistent storage.
+     */
     public void savePlayerState() {
         Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
         preferences.putFloat("x", x);
@@ -278,6 +362,10 @@ public class Player {
         preferences.flush();
     }
 
+
+    /**
+     * Loads the player's state from persistent storage and restores it.
+     */
     public void loadPlayerState() {
         Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
         x = preferences.getFloat("x", x);
@@ -295,6 +383,7 @@ public class Player {
         cooldownTimer = preferences.getFloat("cooldownTimer", cooldownTimer);
     }
 
+    // Getter and Setter methods for player position and state
     public void setStartX(float startX) {
         this.startX = startX;
     }
@@ -337,6 +426,9 @@ public class Player {
         redEffectTimer = 0f;
     }
 
+    /**
+     * Disposes of the player’s resources (textures) to free up memory when the player is no longer needed.
+     */
     public void dispose() {
         up1.dispose();
         up2.dispose();

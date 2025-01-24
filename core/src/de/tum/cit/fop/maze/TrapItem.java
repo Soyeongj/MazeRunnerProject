@@ -10,16 +10,32 @@ import com.badlogic.gdx.utils.TimeUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * The TrapItem class represents a collectible item in the game that triggers a special trap effect,
+ * such as a fog effect, when collected by the player.
+ */
 public class TrapItem extends CollectibleItem {
     private long fogEffectStartTime = 0;
     private boolean isFogActive = false;
     private static final long FOG_DURATION = 3000; // Duration for how long the fog effect lasts
 
+    /**
+     * Constructs a TrapItem object using the provided map.
+     * Initializes the textures and sets up the item.
+     *
+     * @param map The TiledMap used to generate textures and set up the item
+     */
     public TrapItem(TiledMap map) {
         super(generateTextures(map, "trapitem"), map, "trapitem");
     }
 
+    /**
+     * Generates a list of textures for the TrapItem based on the map layer.
+     *
+     * @param map       The TiledMap containing the trap item objects
+     * @param layerName The name of the layer in the map
+     * @return A list of textures representing the trap item
+     */
     private static List<Texture> generateTextures(TiledMap map, String layerName) {
         MapObjects objects = map.getLayers().get(layerName).getObjects();
         int objectCount = objects.getCount();
@@ -33,16 +49,26 @@ public class TrapItem extends CollectibleItem {
         return textures;
     }
 
-
+    /**
+     * Called when the TrapItem is collected. Plays the sound and activates the fog effect.
+     */
     @Override
     protected void onCollected() {
         SoundManager.playEvilLaughSound();
         activateFogEffect();
     }
+
+    /**
+     * Activates the fog effect, marking it as active and setting the start time.
+     */
     public void activateFogEffect() {
         isFogActive = true;
         fogEffectStartTime = TimeUtils.millis();
     }
+
+    /**
+     * Updates the fog effect, deactivating it once the duration has passed.
+     */
     public void updateFogEffect() {
         if (isFogActive) {
             long currentTime = TimeUtils.millis();
@@ -51,19 +77,37 @@ public class TrapItem extends CollectibleItem {
             }
         }
     }
+
+    /**
+     * Updates the TrapItem by checking for player collection and updating the fog effect.
+     *
+     * @param player            The player interacting with the TrapItem
+     * @param interactionRadius The radius within which the player can collect the item
+     */
     public void update(Player player, float interactionRadius) {
         checkAndCollectAll(new Vector2(player.getX(), player.getY()), interactionRadius);
         updateFogEffect();
     }
 
+    /**
+     * Checks if the fog effect is currently active.
+     *
+     * @return True if the fog effect is active, false otherwise
+     */
     public boolean isFogActive() {
         return isFogActive;
     }
 
+    /**
+     * Saves the current state of the TrapItem, including the fog effect status.
+     */
     public void saveTrapItemState() {
         saveState(Gdx.app.getPreferences("TrapItem"), "TrapItem");
     }
 
+    /**
+     * Loads the saved state of the TrapItem, restoring the fog effect status.
+     */
     public void loadTrapItemState() {
         loadState(Gdx.app.getPreferences("TrapItem"), "TrapItem");
     }

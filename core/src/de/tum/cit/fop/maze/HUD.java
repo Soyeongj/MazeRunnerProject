@@ -9,7 +9,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.Preferences;
 
-
+/**
+ * The HUD (Heads-Up Display) class manages and renders the game's user interface elements.
+ * It handles information such as the player's lives, score, collected keys, and timers,
+ * as well as displaying messages to the player.
+ */
 public class HUD  {
     //Constants
     private static final float MESSAGE_DISPLAY_DURATION = 4f;
@@ -36,8 +40,9 @@ public class HUD  {
     private String message = "";
     private float messageTimer = 0f;
 
-
-
+    /**
+     * Constructor for the HUD class. Initializes the font, camera, and game state variables.
+     */
     public HUD() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -61,6 +66,12 @@ public class HUD  {
         setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
+    /**
+     * Sets the dimensions of the screen and updates the HUD camera accordingly.
+     *
+     * @param width  The width of the screen.
+     * @param height The height of the screen.
+     */
     public void setScreenDimensions(float width, float height) {
         this.screenWidth = width;
         this.screenHeight = height;
@@ -69,24 +80,50 @@ public class HUD  {
         hudCamera.update();
     }
 
+    /**
+     * Updates the global timer, which tracks the time elapsed in the game.
+     *
+     * @param delta The time in seconds since the last frame.
+     */
     public void updateTimer(float delta) {
         globalTimer += delta;
     }
 
+    /**
+     * Updates the score timer, which tracks the remaining time before the game ends.
+     *
+     * @param delta The time in seconds since the last frame.
+     */
     public void updateScoreTimer(float delta) {
         if (isGameRunning) {
             scoreTimer -= delta;
         }
     }
+
+    /**
+     * Stops the timer and records the final time when the game ends.
+     */
     public void stopTimer() {
         isGameRunning = false;
         finalTime = scoreTimer;
 
     }
-
+    /**
+     * Gets the final time when the game ends.
+     *
+     * @return The final time as a float.
+     */
     public float getFinalTime() {
         return finalTime;
     }
+
+    /**
+     * Renders the HUD elements such as lives, score, key collected status, and timer.
+     * It also displays messages if applicable.
+     *
+     * @param batch  The SpriteBatch used for rendering the HUD.
+     * @param player The player object, used to display messages near the player.
+     */
     public void render(SpriteBatch batch, Player player) {
         batch.setProjectionMatrix(hudCamera.combined);
 
@@ -100,10 +137,17 @@ public class HUD  {
             messageTimer -= Gdx.graphics.getDeltaTime();
         }
     }
+
+    /**
+     * Increments the number of lives by 1.
+     */
     public void incrementLives() {
         this.lives++;
     }
 
+    /**
+     * Decrements the number of lives by 1 and displays a message.
+     */
     public void decrementLives() {
         this.lives--;
         message = "You lost a friend.";
@@ -112,16 +156,26 @@ public class HUD  {
         SoundManager.playLostFriendSound();
     }
 
+    /**
+     * Displays a message indicating that the player stunned a griever.
+     */
     public void stunMessage() {
         message = "You stunned griever!";
         messageTimer = 2f;
     }
 
+    /**
+     * Displays a message indicating that the player cannot leave without friends.
+     */
     public void needFriend() {
         message = "You cannot leave without friends!";
         messageTimer = 1f;
     }
 
+    /**
+     * Saves the current state of the HUD (lives, score timer, key collected, etc.)
+     * to the preferences for persistence between sessions.
+     */
     public void saveHUDState() {
         Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
         preferences.putInteger("lives", lives);
@@ -133,6 +187,9 @@ public class HUD  {
         preferences.flush();
     }
 
+    /**
+     * Loads the saved state of the HUD from preferences.
+     */
     public void loadHUDState() {
         Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
         lives = preferences.getInteger("lives", lives);
@@ -164,6 +221,9 @@ public class HUD  {
         this.lives = lives;
     }
 
+    /**
+     * Disposes of the resources used by the HUD, such as the font.
+     */
     public void dispose() {
         font.dispose();
     }

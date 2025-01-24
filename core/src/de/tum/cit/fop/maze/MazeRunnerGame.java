@@ -62,11 +62,6 @@ public class MazeRunnerGame extends Game {
     }
 
     /**
-     * Loads the character animation from the character.png file.
-     */
-
-
-    /**
      * Cleans up resources when the game is disposed.
      */
     @Override
