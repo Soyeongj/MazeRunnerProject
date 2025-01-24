@@ -18,22 +18,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Manages friends in the maze game, including their positions, animations,
- * following behavior, and interactions with other game elements.
+ * Manages the "friends" in the maze game. Friends are either on the map waiting
+ * to be saved or following the player after being saved. This class handles
+ * their rendering, movement, saving, and interaction with the player and other entities.
+ *
+ * Friends can collide with walls or be caught by a Griever, affecting the player's lives.
+ * It also manages saving and loading friend states.
+ *
  */
-
 public class Friends {
 
-    private List<Vector2> followingFriendsPositions = new ArrayList<>(); //A list that tracks the positions of friends who follow the player
-    private Vector2[] mapFriendsPositions; //Positions of friends located on the map, defined in the TiledMap.
-    private boolean[] isMapFriendSaved; // An array that keeps track of whether each friend has been saved by the player
+    private List<Vector2> followingFriendsPositions = new ArrayList<>();
+    private Vector2[] mapFriendsPositions;
+    private boolean[] isMapFriendSaved;
     private static final float FOLLOWING_DISTANCE = 5f;
     private BitmapFont font;
-
-    // Scaling factor for friend textures
     private float scale = 0.2f;
-
-    // Store last position of the player for movement calculations
     private Vector2 lastPlayerPosition;
 
     // Variables for animation state
@@ -42,7 +42,12 @@ public class Friends {
     private Texture currentTexture;
     private Texture up1, up2, down1, down2, left1, left2, right1, right2;
 
-
+    /**
+     * Constructs a Friends instance, initializing friends' textures, positions, and states.
+     *
+     * @param map    the TiledMap containing the friends' positions
+     * @param player the player object for initial friend placement
+     */
     public Friends(TiledMap map, Player player) {
         right1 = new Texture("oldman_right_1.png");
         right2 = new Texture("oldman_right_2.png");
@@ -55,7 +60,7 @@ public class Friends {
 
         currentTexture = down1;
 
-        // Initialize font for displaying "help me!"
+        // Initialize font for rendering "help me!" messages
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel Game.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 10;
@@ -67,15 +72,19 @@ public class Friends {
         generator.dispose();
         font.getData().setScale(0.8f);
 
-        // Set the initial last player position
+        // Initialize player-related positions and map friends
         lastPlayerPosition = new Vector2(player.getX(), player.getY());
-
         mapFriendsPositions = loadFriendPositions(map);
         isMapFriendSaved = new boolean[mapFriendsPositions.length];
-
         initializeInitialFollowers(player);
     }
 
+    /**
+     * Loads the positions of friends from the TiledMap layer.
+     *
+     * @param map the TiledMap containing the friend layer
+     * @return an array of Vector2 representing friend positions
+     */
     private Vector2[] loadFriendPositions(TiledMap map) {
         Array<Vector2> positions = new Array<>();
         MapLayer friendsLayer = map.getLayers().get("friend");
@@ -93,7 +102,11 @@ public class Friends {
         return positions.toArray(Vector2.class);
     }
 
-    // Initialize 3 followers behind the player at a distance of FOLLOWING_DISTANCE
+    /**
+     * Initializes a set number of friends to follow the player at the start of the game.
+     *
+     * @param player the player object for initial positioning
+     */
     private void initializeInitialFollowers(Player player) {
         for (int i = 0; i < 3; i++) {
             Vector2 initialPosition = new Vector2(player.getX() - (i + 1) * FOLLOWING_DISTANCE, player.getY());
@@ -101,6 +114,14 @@ public class Friends {
         }
     }
 
+    /**
+     * Updates the animation state by alternating between two textures based on a time threshold.
+     * This method is used to create a walking animation effect for the character.
+     *
+     * @param delta     the time in seconds since the last frame
+     * @param texture1  the first texture for the animation frame
+     * @param texture2  the second texture for the animation frame
+     */
     private void animate(float delta, Texture texture1, Texture texture2) {
         stateTime += delta;
         if (stateTime >= walkAnimationTime) {
@@ -109,6 +130,14 @@ public class Friends {
         }
     }
 
+    /**
+     * Determines the direction of movement based on the given direction vector
+     * and updates the animation accordingly. It selects the appropriate textures
+     * for the animation based on whether the movement is horizontal or vertical.
+     *
+     * @param direction the direction vector of the movement
+     * @param delta     the time in seconds since the last frame
+     */
     private void updateAnimationDirection(Vector2 direction, float delta) {
         if (Math.abs(direction.x) > Math.abs(direction.y)) {
             if (direction.x > 0) {
@@ -125,8 +154,14 @@ public class Friends {
         }
     }
 
+    /**
+     * Renders all friends, including map friends and followers.
+     * Displays "help me!" above unsaved map friends when the player is nearby.
+     *
+     * @param batch  the SpriteBatch used for rendering
+     * @param player the player object for proximity calculations
+     */
     public void render(SpriteBatch batch, Player player) {
-        // Render map friends with "help me!" message if player is nearby
         for (int i = 0; i < mapFriendsPositions.length; i++) {
             if (!isMapFriendSaved[i]) {
                 batch.draw(currentTexture, mapFriendsPositions[i].x, mapFriendsPositions[i].y,
@@ -145,8 +180,17 @@ public class Friends {
                     currentTexture.getWidth() * scale, currentTexture.getHeight() * scale);
         }
     }
-    // Check if the player is close enough to a map friend to save them.
 
+    /**
+     * Checks if the player is within the specified proximity to a map friend at the given index.
+     * If the friend is within range and has not been saved, they are marked as saved,
+     * added to the list of following friends, and a sound effect is played.
+     *
+     * @param playerPosition the current position of the player
+     * @param proximity      the maximum distance within which a friend can be saved
+     * @param index          the index of the map friend to check
+     * @return true if the friend was saved, false otherwise
+     */
     public boolean checkAndSaveMapFriend(Vector2 playerPosition, float proximity, int index) {
         if (!isMapFriendSaved[index]) {
             float distance = playerPosition.dst(mapFriendsPositions[index]);
@@ -160,6 +204,15 @@ public class Friends {
         return false;
     }
 
+    /**
+     * Iterates through all map friends to check if they are within the specified proximity to the player.
+     * Marks any nearby unsaved friends as saved, adds them to the list of following friends,
+     * and increments the count of saved friends.
+     *
+     * @param playerPosition the current position of the player
+     * @param proximity      the maximum distance within which friends can be saved
+     * @return the number of friends saved during this check
+     */
     public int checkAndSaveAllMapFriends(Vector2 playerPosition, float proximity) {
         int savedFriends = 0;
         for (int i = 0; i < mapFriendsPositions.length; i++) {
@@ -170,6 +223,14 @@ public class Friends {
         return savedFriends;
     }
 
+    /**
+     * Updates the positions of friends following the player based on the player's movement.
+     * The first friend moves towards the player, while subsequent friends follow the friend
+     * directly in front of them. If no friends are following, the last player position is updated.
+     *
+     * @param player the player whose movement the friends follow
+     * @param delta  the time elapsed since the last frame
+     */
     public void updateFollowingPositions(Player player, float delta) {
         // If there are no friends following, just update the last position
         if (followingFriendsPositions.isEmpty()) {
@@ -209,6 +270,17 @@ public class Friends {
         lastPlayerPosition.set(currentPlayerPos);
     }
 
+    /**
+     * Updates the positions of friends following the player, checking for collisions
+     * with other game entities such as Grievers or walls.
+     *
+     * @param player            the player object for movement calculations
+     * @param hud               the HUD for managing game statistics
+     * @param interactionRadius the radius within which friends can be saved
+     * @param delta             the time elapsed since the last frame
+     * @param griever           the Griever object for collision detection
+     * @param wall              the Wall object for collision detection
+     */
     public void update(Player player, HUD hud, float interactionRadius, float delta, Griever griever,Wall wall) {
         int savedFriends = checkAndSaveAllMapFriends(new Vector2(player.getX(), player.getY()), interactionRadius);
         for (int i = 0; i < savedFriends; i++) {
@@ -220,13 +292,24 @@ public class Friends {
         checkFriendsCollisionWithWall(wall,hud);
     }
 
-
+    /**
+     * Removes a friend at the specified index from the list of friends following the player.
+     *
+     * @param index the index of the friend to remove
+     */
     public void removeFriendAt(int index) {
         if (index >= 0 && index < followingFriendsPositions.size()) {
             followingFriendsPositions.remove(index);
         }
     }
 
+    /**
+     * Checks for collisions between friends following the player and the Griever.
+     * If a collision is detected, the friend is removed, and the player's lives are decremented.
+     *
+     * @param griever the Griever object representing the monster
+     * @param hud     the HUD object for managing game statistics, such as player lives
+     */
     public void checkFriendCollisionWithGriever(Griever griever, HUD hud) {
         for (int i = 0; i < followingFriendsPositions.size(); i++) {
             Vector2 friendPosition = followingFriendsPositions.get(i);
@@ -243,6 +326,13 @@ public class Friends {
         }
     }
 
+    /**
+     * Checks for collisions between friends following the player and moving walls.
+     * If a collision is detected, the friend is removed, and the player's lives are decremented.
+     *
+     * @param wall the Wall object representing the moving wall
+     * @param hud  the HUD object for managing game statistics, such as player lives
+     */
     public void checkFriendsCollisionWithWall(Wall wall, HUD hud) {
         for (int i = 0; i < followingFriendsPositions.size(); i++) {
             Vector2 friendPosition = followingFriendsPositions.get(i);
@@ -263,12 +353,28 @@ public class Friends {
         }
     }
 
+    /**
+     * Checks for a collision between two rectangular objects.
+     *
+     * @param x1      the x-coordinate of the first rectangle
+     * @param y1      the y-coordinate of the first rectangle
+     * @param width1  the width of the first rectangle
+     * @param height1 the height of the first rectangle
+     * @param x2      the x-coordinate of the second rectangle
+     * @param y2      the y-coordinate of the second rectangle
+     * @param width2  the width of the second rectangle
+     * @param height2 the height of the second rectangle
+     * @return true if the rectangles overlap, false otherwise
+     */
     private boolean checkCollision(float x1, float y1, float width1, float height1,
                                    float x2, float y2, float width2, float height2) {
         return x1 < x2 + width2 && x1 + width1 > x2 &&
                 y1 < y2 + height2 && y1 + height1 > y2;
     }
 
+    /**
+     * Saves the state of all friends (both map friends and followers) to preferences.
+     */
     public void saveFriendState() {
         Preferences preferences = Gdx.app.getPreferences("Friends");
         for (int i = 0; i < isMapFriendSaved.length; i++) {
@@ -288,6 +394,9 @@ public class Friends {
         return followingFriendsPositions;
     }
 
+    /**
+     * Loads the state of all friends (both map friends and followers) from preferences.
+     */
     public void loadFriendState() {
         Preferences preferences = Gdx.app.getPreferences("Friends");
         for (int i = 0; i < isMapFriendSaved.length; i++) {
@@ -304,6 +413,9 @@ public class Friends {
 
     }
 
+    /**
+     * Releases resources used by the Friends class, including textures and fonts.
+     */
     public void dispose() {
         currentTexture.dispose();
         up1.dispose();

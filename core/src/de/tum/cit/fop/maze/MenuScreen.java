@@ -48,9 +48,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map1.tmx");
-
-                game.setScreen(new GameScreen(game, "map1.tmx",true));
-            }
+                game.setScreen(new IntroScreen(game, "map1.tmx"));            }
         });
 
         TextButton map2Button = new TextButton("Play Map 2", game.getSkin());
@@ -60,8 +58,8 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map2.tmx");
-                game.setScreen(new GameScreen(game, "map2.tmx",true));
-            }
+                game.setScreen(new IntroScreen(game, "map2.tmx"));}
+
         });
 
 
@@ -72,7 +70,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map3.tmx");
-                game.setScreen(new GameScreen(game, "map3.tmx",true));
+                game.setScreen(new IntroScreen(game, "map3.tmx"));;
             }
         });
 
@@ -83,7 +81,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map4.tmx");
-                game.setScreen(new GameScreen(game, "map4.tmx",true));
+                game.setScreen(new IntroScreen(game, "map4.tmx"));;
             }
         });
 
@@ -94,7 +92,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setCurrentMapPath("map5.tmx");
-                game.setScreen(new GameScreen(game, "map5.tmx",true));
+                game.setScreen(new IntroScreen(game, "map5.tmx"));;
             }
         });
 
@@ -126,7 +124,7 @@ public class MenuScreen implements Screen {
                     GameScreen gameScreen = (GameScreen) currentScreen;
                     gameScreen.loadState();
                 } else {
-                    GameScreen gameScreen = new GameScreen(game, lastMapPath,false);
+                    GameScreen gameScreen = new GameScreen(game, lastMapPath);
                     gameScreen.loadState();
                     game.setScreen(gameScreen);
                 }

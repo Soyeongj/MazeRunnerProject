@@ -15,7 +15,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
@@ -44,7 +43,7 @@ public class GameScreen implements Screen {
     //Camera Controls
     private float currentZoom = 0.10f;
     private final float MIN_ZOOM = 0.10f;
-    private final float MAX_ZOOM = 0.20f;
+    private final float MAX_ZOOM = 0.3f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
 
@@ -66,10 +65,6 @@ public class GameScreen implements Screen {
     private Arrow arrow;
     private TrapItem trapItem;
 
-    //Intro controls
-    private final boolean isNewGame;
-    private float introDuration = 10.0f;
-    private boolean isShowingIntro;
 
 
     /**
@@ -77,10 +72,9 @@ public class GameScreen implements Screen {
      *
      * @param game The main game class, used to access global resources and methods.
      */
-    public GameScreen(MazeRunnerGame game, String mapPath, boolean isNewGame) {
+    public GameScreen(MazeRunnerGame game, String mapPath) {
         // Core game initialization
         this.game = game;
-        this.isNewGame = isNewGame;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
         this.backgroundTexture = new Texture(Gdx.files.internal("background.png"));
@@ -132,6 +126,12 @@ public class GameScreen implements Screen {
         centerCameraOnMap();
     }
 
+    /**
+     * Creates an array of Door objects from the specified TiledMapTileLayer.
+     *
+     * @param layer the TiledMapTileLayer containing the door tiles
+     * @return an Array of Door objects created from the layer
+     */
     private Array<Door> createDoorsFromLayer(TiledMapTileLayer layer) {
         Array<Door> doors = new Array<>();
 
@@ -152,6 +152,13 @@ public class GameScreen implements Screen {
         return doors;
     }
 
+    /**
+     * Creates an array of Trap objects from the specified TiledMapTileLayer.
+     *
+     * @param layer the TiledMapTileLayer containing the trap tiles
+     * @param rockTexture the texture to be applied to the traps
+     * @return an Array of Trap objects created from the layer
+     */
     private Array<Trap> createTrapsFromLayer(TiledMapTileLayer layer, String rockTexture) {
         Array<Trap> traps = new Array<>();
         for (int x = 0; x < layer.getWidth(); x++) {
@@ -187,17 +194,15 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
-
+    /**
+     * Renders the game screen. Handles rendering of all game objects, updating the game state,
+     * and managing user inputs.
+     *
+     * @param delta the time in seconds since the last render
+     */
     @Override
     public void render(float delta) {
 
-        if (isShowingIntro){
-            ScreenUtils.clear(0,0,0,1);
-            batch.begin();
-            batch.draw(introImage,0,0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            batch.end();
-            return;
-        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             saveState();
             game.goToMenu();
@@ -316,6 +321,11 @@ public class GameScreen implements Screen {
         batch.end();
     }
 
+    /**
+     * Adjusts the camera zoom level.
+     *
+     * @param amount the amount by which to zoom the camera
+     */
     private void zoomCamera(float amount) {
         Vector3 beforeZoom = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(beforeZoom);
@@ -334,6 +344,9 @@ public class GameScreen implements Screen {
         lastPosition.set(camera.position);
     }
 
+    /**
+     * Saves the current state of the game, including player, items, traps, walls, and keys.
+     */
     public void saveState() {
         player.savePlayerState();
 
@@ -364,6 +377,9 @@ public class GameScreen implements Screen {
         preferences.flush();
     }
 
+    /**
+     * Loads the saved state of the game, restoring player, items, traps, walls, and keys.
+     */
     public void loadState() {
         player.loadPlayerState();
 
@@ -400,6 +416,12 @@ public class GameScreen implements Screen {
         friends.loadFriendState();
     }
 
+    /**
+     * Resizes the game viewport and updates relevant components.
+     *
+     * @param width  the new width of the viewport
+     * @param height the new height of the viewport
+     */
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
@@ -410,39 +432,37 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
+    /**
+     * Called when the game is paused. Override if additional functionality is required.
+     */
     @Override
     public void pause() {
     }
+
+    /**
+     * Called when the game is resumed. Override if additional functionality is required.
+     */
     @Override
     public void resume() {
     }
-
+    /**
+     * Sets up the game screen when it is shown. Handles intro screen logic and background music.
+     */
     @Override
     public void show() {
         SoundManager.stopMenuMusic();
-        if (isNewGame) {
-            isShowingIntro = true;
-            introImage = new Texture(Gdx.files.internal("intro.png"));
-            SoundManager.playGameStartSound();
-
-
-            Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    isShowingIntro = false;
-                    SoundManager.playBackgroundMusic();
-                }
-            }, introDuration);
-        } else {
-            isShowingIntro = false;
-            SoundManager.playBackgroundMusic();
-        }
+        SoundManager.playBackgroundMusic();
     }
-
+    /**
+     * Called when the game screen is hidden. Override if additional functionality is required.
+     */
     @Override
     public void hide() {
     }
 
+    /**
+     * Releases all resources used by the game screen to prevent memory leaks.
+     */
     @Override
     public void dispose() {
         tiledMap.dispose();

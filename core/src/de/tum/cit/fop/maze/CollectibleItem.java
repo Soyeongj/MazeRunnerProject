@@ -16,7 +16,12 @@ import java.util.List;
 
 /**
  * Abstract base class for collectible items in the maze game.
- * Handles rendering, collection mechanics, and state persistence.
+ * This class handles rendering, collection mechanics, and state persistence for items.
+ *
+ * Items are loaded from a specific layer in the TiledMap, rendered as textures,
+ * and can be collected by the player if they are within a specified proximity.
+ *
+ * Subclasses must implement the {@link #onCollected()} method to define behavior when an item is collected.
  */
 public abstract class CollectibleItem {
     // Constants
@@ -27,12 +32,26 @@ public abstract class CollectibleItem {
     private final List<Vector2> positions;
     private final float scale;
 
+    /**
+     * Constructs a CollectibleItem with the specified textures, map, and layer name.
+     *
+     * @param textures  the list of textures representing the collectible items
+     * @param map       the TiledMap containing item positions
+     * @param layerName the name of the layer in the TiledMap where item positions are defined
+     */
     protected CollectibleItem(List<Texture> textures, TiledMap map, String layerName) {
         this.textures = new ArrayList<>(textures);
         this.positions = initializePositions(map, layerName);
         this.scale = DEFAULT_SCALE;
     }
 
+    /**
+     * Initializes item positions based on the objects in the specified TiledMap layer.
+     *
+     * @param map       the TiledMap containing item positions
+     * @param layerName the name of the layer to extract item positions from
+     * @return a list of positions extracted from the map
+     */
     private List<Vector2> initializePositions(TiledMap map, String layerName) {
         List<Vector2> itemPositions = new ArrayList<>();
         MapObjects objects = map.getLayers().get(layerName).getObjects();
@@ -47,6 +66,12 @@ public abstract class CollectibleItem {
         return itemPositions;
     }
 
+    /**
+     * Extracts the position from a map object, supporting rectangle objects or direct coordinates.
+     *
+     * @param object the map object to extract the position from
+     * @return the extracted position, or null if no valid position is found
+     */
     private Vector2 extractPosition(MapObject object) {
         if (object instanceof RectangleMapObject) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -60,12 +85,23 @@ public abstract class CollectibleItem {
         return null;
     }
 
+    /**
+     * Renders all collectible items at their current positions.
+     *
+     * @param batch the SpriteBatch used for rendering
+     */
     public void render(SpriteBatch batch) {
         for (int i = 0; i < positions.size(); i++) {
             renderSingleItem(batch, i);
         }
     }
 
+    /**
+     * Renders a single collectible item at the specified index.
+     *
+     * @param batch the SpriteBatch used for rendering
+     * @param index the index of the item to render
+     */
     private void renderSingleItem(SpriteBatch batch, int index) {
         Texture texture = textures.get(index % textures.size());
         Vector2 position = positions.get(index);
@@ -76,7 +112,15 @@ public abstract class CollectibleItem {
         batch.draw(texture, position.x, position.y, width, height);
     }
 
-
+    /**
+     * Checks if the player is within range to collect an item at the specified index.
+     * If so, removes the item and triggers the {@link #onCollected()} method.
+     *
+     * @param playerPosition the player's current position
+     * @param proximity      the maximum distance for item collection
+     * @param index          the index of the item to check
+     * @return true if the item was collected, false otherwise
+     */
     public boolean checkAndCollect(Vector2 playerPosition, float proximity, int index) {
         Iterator<Vector2> iterator = positions.iterator();
         int currentIndex = 0;
@@ -93,6 +137,13 @@ public abstract class CollectibleItem {
         return false;
     }
 
+    /**
+     * Checks if the player is within range to collect all nearby items.
+     *
+     * @param playerPosition the player's current position
+     * @param proximity      the maximum distance for item collection
+     * @return the number of items collected
+     */
     public int checkAndCollectAll(Vector2 playerPosition, float proximity) {
         int collectedCount = 0;
         Iterator<Vector2> iterator = positions.iterator();
@@ -109,15 +160,30 @@ public abstract class CollectibleItem {
         return collectedCount;
     }
 
-
+    /**
+     * Checks if the player is within the specified proximity to the item.
+     *
+     * @param playerPos the player's position
+     * @param itemPos   the item's position
+     * @param proximity the maximum distance for collection
+     * @return true if the player is within range, false otherwise
+     */
     private boolean isWithinCollectionRange(Vector2 playerPos, Vector2 itemPos, float proximity) {
         return playerPos.dst(itemPos) <= proximity;
     }
 
-
+    /**
+     * Abstract method to define behavior when an item is collected.
+     * Must be implemented by subclasses.
+     */
     protected abstract void onCollected();
 
-
+    /**
+     * Saves the current state of collectible items to preferences.
+     *
+     * @param preferences the Preferences instance for saving state
+     * @param prefix      a prefix to differentiate this item's data
+     */
     public void saveState(Preferences preferences, String prefix) {
         preferences.putInteger(prefix + "itemCount", positions.size());
 
@@ -129,13 +195,25 @@ public abstract class CollectibleItem {
         preferences.flush();
     }
 
-
+    /**
+     * Saves the position of a specific item to preferences.
+     *
+     * @param preferences the Preferences instance for saving state
+     * @param prefix      a prefix to differentiate this item's data
+     * @param index       the index of the item
+     * @param position    the position of the item
+     */
     private void savePosition(Preferences preferences, String prefix, int index, Vector2 position) {
         preferences.putFloat(prefix + "itemPosX" + index, position.x);
         preferences.putFloat(prefix + "itemPosY" + index, position.y);
     }
 
-
+    /**
+     * Loads the state of collectible items from preferences.
+     *
+     * @param preferences the Preferences instance containing saved state
+     * @param prefix      a prefix to differentiate this item's data
+     */
     public void loadState(Preferences preferences, String prefix) {
         positions.clear();
         int itemCount = preferences.getInteger(prefix + "itemCount", 0);
@@ -145,12 +223,22 @@ public abstract class CollectibleItem {
         }
     }
 
+    /**
+     * Loads the position of a specific item from preferences.
+     *
+     * @param preferences the Preferences instance containing saved state
+     * @param prefix      a prefix to differentiate this item's data
+     * @param index       the index of the item
+     */
     private void loadPosition(Preferences preferences, String prefix, int index) {
         float x = preferences.getFloat(prefix + "itemPosX" + index, 0);
         float y = preferences.getFloat(prefix + "itemPosY" + index, 0);
         positions.add(new Vector2(x, y));
     }
 
+    /**
+     * Disposes of textures used by this collectible item to free memory.
+     */
     public void dispose() {
         textures.forEach(Texture::dispose);
     }
