@@ -20,5 +20,4 @@ public class GameOverScreen extends AbstractGameScreen {
     public GameOverScreen(MazeRunnerGame game, float finalTime) {
         super(game, new Texture("game-over.jpg"), finalTime);
     }
-
 }
