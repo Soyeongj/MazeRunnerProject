@@ -416,24 +416,15 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         SoundManager.stopMenuMusic();
+
         if (isNewGame) {
-            isShowingIntro = true;
-            introImage = new Texture(Gdx.files.internal("intro.png"));
-            SoundManager.playGameStartSound();
+            final IntroScreen introScreen = new IntroScreen(game, new Texture("intro.png"));
+            game.setScreen(introScreen); // Show the IntroScreen
 
-
-            Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    isShowingIntro = false;
-                    SoundManager.playBackgroundMusic();
-                }
-            }, introDuration);
-        } else {
-            isShowingIntro = false;
             SoundManager.playBackgroundMusic();
         }
     }
+
 
     @Override
     public void hide() {
