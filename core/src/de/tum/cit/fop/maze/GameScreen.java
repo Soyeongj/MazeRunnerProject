@@ -44,7 +44,7 @@ public class GameScreen implements Screen {
     //Camera Controls
     private float currentZoom = 0.10f;
     private final float MIN_ZOOM = 0.10f;
-    private final float MAX_ZOOM = 0.20f;
+    private final float MAX_ZOOM = 0.80f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
 
