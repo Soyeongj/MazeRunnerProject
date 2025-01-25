@@ -15,7 +15,7 @@ import java.util.List;
  * player's state, and saving or loading the item state.
  */
 public class Item extends CollectibleItem {
-    private static final String PREFERENCES_NAME = "ItemState";
+    private static String PREFERENCES_NAME;
 
     /**
      * Constructor for creating an Item based on a TiledMap.
@@ -25,6 +25,7 @@ public class Item extends CollectibleItem {
      */
     public Item(TiledMap map) {
         super(generateTextures(map,"item"),map,"item");
+        this.PREFERENCES_NAME = "ItemState";
     }
 
     /**

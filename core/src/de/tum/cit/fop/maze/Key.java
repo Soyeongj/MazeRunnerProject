@@ -18,8 +18,8 @@ public class Key  {
     private boolean isCollected;
 
     //Constants
-    private float scale = 0.2f;
-    private float proximityRange = 5f;
+    private float scale;
+    private float proximityRange;
 
     /**
      * Constructor to initialize the key at a specific position.
@@ -32,6 +32,8 @@ public class Key  {
         this.y = y;
         this.isCollected = false;
         keyTexture = new Texture("key.png");
+        this.scale = 0.2f;
+        this.proximityRange = 5f;
 
     }
 
@@ -46,14 +48,6 @@ public class Key  {
         }
     }
 
-    /**
-     * Checks if the key has been collected.
-     *
-     * @return true if the key has been collected, false otherwise.
-     */
-    public boolean isCollected() {
-        return isCollected;
-    }
 
     /**
      * Checks the proximity of the player to the key. If the player is within the proximity range,
@@ -80,6 +74,15 @@ public class Key  {
             hud.collectKey();
             SoundManager.playKeyCollectedSound();
         }
+    }
+
+    /**
+     * Checks if the key has been collected.
+     *
+     * @return true if the key has been collected, false otherwise.
+     */
+    public boolean isCollected() {
+        return isCollected;
     }
 
     public float getY() {

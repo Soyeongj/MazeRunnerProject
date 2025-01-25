@@ -15,9 +15,12 @@ import java.util.List;
  * such as a fog effect, when collected by the player.
  */
 public class TrapItem extends CollectibleItem {
-    private long fogEffectStartTime = 0;
-    private boolean isFogActive = false;
-    private static final long FOG_DURATION = 3000; // Duration for how long the fog effect lasts
+    private long fogEffectStartTime;
+    private boolean isFogActive;
+    private static long FOG_DURATION;// Duration for how long the fog effect lasts
+    private static String PREFERENCES_NAME;
+
+
 
     /**
      * Constructs a TrapItem object using the provided map.
@@ -27,6 +30,10 @@ public class TrapItem extends CollectibleItem {
      */
     public TrapItem(TiledMap map) {
         super(generateTextures(map, "trapitem"), map, "trapitem");
+        this.fogEffectStartTime = 0;
+        this.isFogActive = false;
+        this.FOG_DURATION = 3000;
+        this.PREFERENCES_NAME = "trapitemStates";
     }
 
     /**
@@ -102,13 +109,13 @@ public class TrapItem extends CollectibleItem {
      * Saves the current state of the TrapItem, including the fog effect status.
      */
     public void saveTrapItemState() {
-        saveState(Gdx.app.getPreferences("TrapItem"), "TrapItem");
+        saveState(Gdx.app.getPreferences(PREFERENCES_NAME), "TrapItem");
     }
 
     /**
      * Loads the saved state of the TrapItem, restoring the fog effect status.
      */
     public void loadTrapItemState() {
-        loadState(Gdx.app.getPreferences("TrapItem"), "TrapItem");
+        loadState(Gdx.app.getPreferences(PREFERENCES_NAME), "TrapItem");
     }
 }

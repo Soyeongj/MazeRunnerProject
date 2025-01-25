@@ -20,14 +20,17 @@ public class Trap {
     // Rock Falling Controls
     private Texture rockTexture;
     private Vector2 rockPosition;
-    private float rockFallDuration = 0f;
-    public boolean isRockFalling = false;
+    private float rockFallDuration;
+    public boolean isRockFalling;
     private float rockStartY;
-    private static final float fallSpeed = 300f;
-    private static final float fallHeight = 70f;
+    private static float fallSpeed;
+    private static float fallHeight;
 
     // Damage Controls
-    private float livesCoolDown = 0f;
+    private float livesCoolDown;
+
+    //Trap States
+    private static String PREFERENCES_NAME;
 
     /**
      * Constructs a Trap object with the specified position, size, and rock texture path.
@@ -44,6 +47,13 @@ public class Trap {
         this.rockTexture = new Texture(rockTexturePath);
         this.rockPosition = new Vector2(x, y + fallHeight); // Set initial position of the rock
         this.rockStartY = y + fallHeight; // The rock's starting Y position before falling
+        this.rockFallDuration = 0f;
+        this.isRockFalling = false;
+        this.fallSpeed = 300f;
+        this.fallHeight = 70f;
+        this.livesCoolDown = 0f;
+        this.PREFERENCES_NAME = "Trap States";
+
     }
 
     /**
@@ -127,7 +137,7 @@ public class Trap {
      * Saves the current state of the trap, including its position and rock falling status.
      */
     public void saveTrapState() {
-        Preferences prefs = Gdx.app.getPreferences("trap");
+        Preferences prefs = Gdx.app.getPreferences(PREFERENCES_NAME);
         prefs.putFloat("positionX", position.x);
         prefs.putFloat("positionY", position.y);
         prefs.putFloat("lcd", livesCoolDown);
@@ -138,7 +148,7 @@ public class Trap {
      * Loads the saved state of the trap, including its position and rock falling status.
      */
     public void loadTrapState() {
-        Preferences prefs = Gdx.app.getPreferences("trap");
+        Preferences prefs = Gdx.app.getPreferences(PREFERENCES_NAME);
         position.x = prefs.getFloat("positionX", position.x);
         position.y = prefs.getFloat("positionY", position.y);
         livesCoolDown = prefs.getFloat("lcd", livesCoolDown);

@@ -24,9 +24,7 @@ import java.util.List;
  * Subclasses must implement the {@link #onCollected()} method to define behavior when an item is collected.
  */
 public abstract class CollectibleItem {
-    // Constants
-    private static final float DEFAULT_SCALE = 0.2f;
-
+  ;
     // Core components
     private final List<Texture> textures;
     private final List<Vector2> positions;
@@ -42,7 +40,7 @@ public abstract class CollectibleItem {
     protected CollectibleItem(List<Texture> textures, TiledMap map, String layerName) {
         this.textures = new ArrayList<>(textures);
         this.positions = initializePositions(map, layerName);
-        this.scale = DEFAULT_SCALE;
+        this.scale = 0.2f;
     }
 
     /**
@@ -112,30 +110,6 @@ public abstract class CollectibleItem {
         batch.draw(texture, position.x, position.y, width, height);
     }
 
-    /**
-     * Checks if the player is within range to collect an item at the specified index.
-     * If so, removes the item and triggers the {@link #onCollected()} method.
-     *
-     * @param playerPosition the player's current position
-     * @param proximity      the maximum distance for item collection
-     * @param index          the index of the item to check
-     * @return true if the item was collected, false otherwise
-     */
-    public boolean checkAndCollect(Vector2 playerPosition, float proximity, int index) {
-        Iterator<Vector2> iterator = positions.iterator();
-        int currentIndex = 0;
-
-        while (iterator.hasNext()) {
-            Vector2 position = iterator.next();
-            if (isWithinCollectionRange(playerPosition, position, proximity)) {
-                iterator.remove();
-                onCollected();
-                return true;
-            }
-            currentIndex++;
-        }
-        return false;
-    }
 
     /**
      * Checks if the player is within range to collect all nearby items.

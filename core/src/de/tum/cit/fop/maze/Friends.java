@@ -31,16 +31,20 @@ public class Friends {
     private List<Vector2> followingFriendsPositions = new ArrayList<>();
     private Vector2[] mapFriendsPositions;
     private boolean[] isMapFriendSaved;
-    private static final float FOLLOWING_DISTANCE = 5f;
+    private static float FOLLOWING_DISTANCE;
     private BitmapFont font;
-    private float scale = 0.2f;
+    private float scale;
     private Vector2 lastPlayerPosition;
 
     // Variables for animation state
-    private float stateTime = 0f;
-    private float walkAnimationTime = 0.1f;
+    private float stateTime;
+    private float walkAnimationTime;
     private Texture currentTexture;
     private Texture up1, up2, down1, down2, left1, left2, right1, right2;
+
+    //Friends States
+    private static String PREFERENCES_NAME;
+
 
     /**
      * Constructs a Friends instance, initializing friends' textures, positions, and states.
@@ -77,6 +81,12 @@ public class Friends {
         mapFriendsPositions = loadFriendPositions(map);
         isMapFriendSaved = new boolean[mapFriendsPositions.length];
         initializeInitialFollowers(player);
+
+        this.FOLLOWING_DISTANCE = 5f;
+        this.PREFERENCES_NAME = "friendsState";
+        this.scale = 0.2f;
+        this.stateTime = 0f;
+        this.walkAnimationTime = 0.1f;
     }
 
     /**
@@ -376,7 +386,7 @@ public class Friends {
      * Saves the state of all friends (both map friends and followers) to preferences.
      */
     public void saveFriendState() {
-        Preferences preferences = Gdx.app.getPreferences("Friends");
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
         for (int i = 0; i < isMapFriendSaved.length; i++) {
             preferences.putBoolean("mapFriendSaved_" + i, isMapFriendSaved[i]);
         }
@@ -390,15 +400,11 @@ public class Friends {
         preferences.flush();
     }
 
-    public List<Vector2> getFollowingFriendsPositions() {
-        return followingFriendsPositions;
-    }
-
     /**
      * Loads the state of all friends (both map friends and followers) from preferences.
      */
     public void loadFriendState() {
-        Preferences preferences = Gdx.app.getPreferences("Friends");
+        Preferences preferences = Gdx.app.getPreferences(PREFERENCES_NAME);
         for (int i = 0; i < isMapFriendSaved.length; i++) {
             isMapFriendSaved[i] = preferences.getBoolean("mapFriendSaved_" + i, false);
         }
@@ -410,7 +416,10 @@ public class Friends {
             float y = preferences.getFloat("friendPosY_" + i, 0f);
             followingFriendsPositions.add(new Vector2(x, y));
         }
+    }
 
+    public List<Vector2> getFollowingFriendsPositions() {
+        return followingFriendsPositions;
     }
 
     /**

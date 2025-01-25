@@ -27,13 +27,12 @@ public class Wall {
 
     //Moving Walls and Player Collision Controls
     private String direction;
-    private float lastMoveTime = 0f;
-    private static final float MOVE_INTERVAL = 5.0f;
-    private static final float STAY_DURATION = 0.3f;
-    private float stayTimer = 0f;
-    private boolean isAtTarget = false;
-    private boolean isPlayerRemoved = false;
-
+    private float lastMoveTime;
+    private static float MOVE_INTERVAL;
+    private static float STAY_DURATION;
+    private float stayTimer;
+    private boolean isAtTarget;
+    private boolean isPlayerRemoved;
 
     //Game Entities
     private Array<Griever> grievers;
@@ -43,12 +42,16 @@ public class Wall {
     private Map<Griever, Boolean> grieverDeadStates = new HashMap<>();
     private Map<Griever, Vector2> grieverKeySpawnPositions = new HashMap<>();
     private Map<Griever, Boolean> grieverKeySpawned = new HashMap<>();
-    private boolean keySpawned = false;
 
     //Textures
     private TiledMapTileLayer layer;
     private TiledMapTileLayer.Cell cell;
     private TextureRegion texture;
+
+    //Walls states
+    private static String PREFERENCES_NAME;
+
+
 
     /**
      * Constructs a Wall object with initial position and game properties.
@@ -80,6 +83,17 @@ public class Wall {
             grieverKeySpawnPositions.put(griever, null);
             grieverKeySpawned.put(griever, false);
         }
+
+        this.lastMoveTime = 0f;
+        this.MOVE_INTERVAL = 5.0f;
+        this.STAY_DURATION = 0.3f;
+        this.stayTimer = 0f;
+        this.isAtTarget = false;
+        this.isPlayerRemoved = false;
+
+        this.PREFERENCES_NAME = "WallStates";
+
+
     }
 
     /**
@@ -177,6 +191,11 @@ public class Wall {
         stayTimer = 0f;
     }
 
+    /**
+     * Moves the wall back to its original position (originalX, originalY).
+     * Updates the map layer to reflect the move, provided the original position
+     * is not occupied.
+     */
     private void moveToOriginal() {
         Cell cell = layer.getCell(x, y);
         if (cell == null) return;
@@ -287,114 +306,60 @@ public class Wall {
     }
 
 
-    /**
-     * Gets the TiledMapTileLayer associated with the wall.
-     *
-     * @return The TiledMapTileLayer containing the wall
-     */
     public TiledMapTileLayer getLayer() {
         return layer;
     }
 
-    /**
-     * Gets the target Y-coordinate of the wall's movement.
-     *
-     * @return The target Y-coordinate
-     */
+
     public int getTargetY() {
         return targetY;
     }
 
-    /**
-     * Gets the target X-coordinate of the wall's movement.
-     *
-     * @return The target X-coordinate
-     */
+
     public int getTargetX() {
         return targetX;
     }
 
-    /**
-     * Gets the current X-coordinate of the wall.
-     *
-     * @return The current X-coordinate
-     */
+
     public int getX() {
         return x;
     }
 
-    /**
-     * Gets the current Y-coordinate of the wall.
-     *
-     * @return The current Y-coordinate
-     */
+
     public int getY() {
         return y;
     }
 
-    /**
-     * Gets the original X-coordinate of the wall before it started moving.
-     *
-     * @return The original X-coordinate
-     */
+
     public int getOriginalX() {
         return originalX;
     }
 
-    /**
-     * Gets the original Y-coordinate of the wall before it started moving.
-     *
-     * @return The original Y-coordinate
-     */
+
     public int getOriginalY() {
         return originalY;
     }
 
-    /**
-     * Checks if the wall is currently at its target position.
-     *
-     * @return True if the wall is at its target position, false otherwise
-     */
+
     public boolean isAtTarget() {
         return isAtTarget;
     }
 
-    /**
-     * Gets the spawn position of the key for a specific griever.
-     *
-     * @param griever The griever to get the key spawn position for
-     * @return The key spawn position as a Vector2, or null if not set
-     */
+
     public Vector2 getKeySpawnPosition(Griever griever) {
         return grieverKeySpawnPositions.get(griever);
     }
 
-    /**
-     * Checks if a griever is dead.
-     *
-     * @param griever The griever to check
-     * @return True if the griever is dead, false otherwise
-     */
+
     public boolean isGrieverDead(Griever griever) {
         return grieverDeadStates.getOrDefault(griever, false);
     }
 
-    /**
-     * Checks if a key has spawned for a specific griever.
-     *
-     * @param griever The griever to check if the key has spawned for
-     * @return True if the key has spawned, false otherwise
-     */
+
     public boolean hasKeySpawned(Griever griever) {
         return grieverKeySpawned.getOrDefault(griever, false);
     }
 
-    /**
-     * Sets whether a key has been spawned for a specific griever.
-     *
-     * @param griever The griever to set the key spawn state for
-     * @param spawned True if the key has spawned, false otherwise
-     */
     public void setKeySpawned(Griever griever, boolean spawned) {
         grieverKeySpawned.put(griever, spawned);
     }
@@ -404,7 +369,7 @@ public class Wall {
      * Stores information in game preferences for potential game restoration.
      */
     public void saveWallState() {
-        Preferences pref = Gdx.app.getPreferences("wallState");
+        Preferences pref = Gdx.app.getPreferences(PREFERENCES_NAME);
         pref.putInteger("numGrievers", grievers.size);
 
         for (int i = 0; i < grievers.size; i++) {
@@ -426,7 +391,7 @@ public class Wall {
      * Restores griever and key states to their previous configuration.
      */
     public void loadWallState() {
-        Preferences pref = Gdx.app.getPreferences("wallState");
+        Preferences pref = Gdx.app.getPreferences(PREFERENCES_NAME);
         int numGrievers = pref.getInteger("numGrievers", 0);
 
         for (int i = 0; i < numGrievers && i < grievers.size; i++) {

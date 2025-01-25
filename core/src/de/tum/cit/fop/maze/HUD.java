@@ -16,8 +16,8 @@ import com.badlogic.gdx.Preferences;
  */
 public class HUD  {
     //Constants
-    private static final float MESSAGE_DISPLAY_DURATION = 4f;
-    private static final String PREFERENCES_NAME = "HUDState";
+    private static float MESSAGE_DISPLAY_DURATION;
+    private static String PREFERENCES_NAME = "HUDState";
 
     //Font and Display
     private BitmapFont font;
@@ -26,19 +26,18 @@ public class HUD  {
     //Game State Variables
     private int lives;
     private float globalTimer;
-    private boolean isGameRunning = true;
+    private boolean isGameRunning;
     private float finalTime;
     private float scoreTimer;
     private boolean keyCollected;
-
 
     //Screen Dimensions
     private float screenWidth;
     private float screenHeight;
 
     //Messages
-    private String message = "";
-    private float messageTimer = 0f;
+    private String message;
+    private float messageTimer;
 
     /**
      * Constructor for the HUD class. Initializes the font, camera, and game state variables.
@@ -64,6 +63,12 @@ public class HUD  {
 
         hudCamera = new OrthographicCamera();
         setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        this.MESSAGE_DISPLAY_DURATION = 4f;
+        this.isGameRunning = true;
+        this.messageTimer = 0f;
+        this.message = "";
+
     }
 
     /**
@@ -107,14 +112,6 @@ public class HUD  {
         isGameRunning = false;
         finalTime = scoreTimer;
 
-    }
-    /**
-     * Gets the final time when the game ends.
-     *
-     * @return The final time as a float.
-     */
-    public float getFinalTime() {
-        return finalTime;
     }
 
     /**
@@ -205,6 +202,9 @@ public class HUD  {
     }
     public float getScoreTimer() {
         return scoreTimer;
+    }
+    public float getFinalTime() {
+        return finalTime;
     }
     public int getLives() {
         return lives;

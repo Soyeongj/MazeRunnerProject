@@ -25,34 +25,37 @@ public class Griever  {
     private Texture griever;
     private float grieverStateTime;
     private String fixedGrieverDirection;
-    private final float grieverAnimationTime = 0.1f;
-    private final float scale = 0.4f;
+    private float grieverAnimationTime;
+    private float scale;
 
     // Position and Movement Related Variables
     private float monsterX, monsterY;
-    private final float monsterSpeed = 15.0f;
-    private final float detectionRange = 100.0f;
-    private boolean isGrieverFollowingPlayer = false;
+    private float monsterSpeed;
+    private float detectionRange;
+    private boolean isGrieverFollowingPlayer;
     private Vector2 currentTarget;
-    private final Random random = new Random();
-    private boolean isRandomMovement = false;
+    private boolean isRandomMovement;
 
     // Stun Related Variables
-    private boolean isGrieverStunned = false;
-    private float stunTimer = 0.0f;
-    private final float stunDuration = 3.0f;
+    private boolean isGrieverStunned;
+    private float stunTimer;
+    private float stunDuration;
 
     // Layer Related Variables
     private final TiledMapTileLayer pathLayer;
     private final TiledMapTileLayer path2Layer;
 
     //Griever-Damage Related Variables
-    private float LivesCoolDownTimer = 0;
+    private float LivesCoolDownTimer ;
 
-    private static final float MAX_X = 478.86f;
-    private static final float MAX_Y = 478f;
-    private static final float MIN_X = 0f;
-    private static final float MIN_Y = 0f;
+    private static float MAX_X;
+    private static float MAX_Y;
+    private static float MIN_X;
+    private static float MIN_Y;
+
+    //Griever states
+    private static String PREFERENCES_NAME;
+
 
     /**
      * Constructs a Griever at the given starting position.
@@ -67,6 +70,22 @@ public class Griever  {
         this.monsterY = startY;
         this.pathLayer = pathLayer;
         this.path2Layer = path2Layer;
+
+        this.grieverAnimationTime = 0.1f;
+        this.scale = 0.4f;
+        this.monsterSpeed = 15.0f;
+        this.detectionRange = 100.0f;
+        this.isGrieverFollowingPlayer = false;
+        this.isRandomMovement = false;
+        this.isGrieverStunned = false;
+        this.stunTimer = 0.0f;
+        this.stunDuration = 3.0f;
+        this.LivesCoolDownTimer = 0.0f;
+        this.MAX_X = 478.86f;
+        this.MAX_Y = 478f;
+        this.MIN_X = 0f;
+        this.MIN_Y = 0f;
+        this.PREFERENCES_NAME = "GrieverState";
 
         initializeTextures();
     }
@@ -178,7 +197,8 @@ public class Griever  {
      * @param delta The time in seconds since the last update.
      * @param hud The HUD to display the stun message.
      * @return true if the Griever is stunned, false otherwise.
-     */    private boolean handleStunState(float delta, HUD hud) {
+     */
+    private boolean handleStunState(float delta, HUD hud) {
         if (isGrieverStunned) {
             stunTimer += delta;
             hud.stunMessage();
@@ -246,7 +266,8 @@ public class Griever  {
      * @param delta The time in seconds since the last update.
      * @param playerX The X-coordinate of the player.
      * @param playerY The Y-coordinate of the player.
-     */    private void handlePlayerFollowing(float delta, float playerX, float playerY) {
+     */
+    private void handlePlayerFollowing(float delta, float playerX, float playerY) {
         if (currentTarget == null || reachedTarget()) {
             updateTargetTowardsPlayer(playerX, playerY);
         }
@@ -262,7 +283,8 @@ public class Griever  {
      *
      * @param playerX The X-coordinate of the player.
      * @param playerY The Y-coordinate of the player.
-     */    private void updateTargetTowardsPlayer(float playerX, float playerY) {
+     */
+    private void updateTargetTowardsPlayer(float playerX, float playerY) {
         Vector2[] directions = {
                 new Vector2(1, 0), new Vector2(-1, 0),
                 new Vector2(0, 1), new Vector2(0, -1)
@@ -308,7 +330,8 @@ public class Griever  {
      *
      * @param playerX The X-coordinate of the player.
      * @param playerY The Y-coordinate of the player.
-     */    private void updateGrieverState(float playerX, float playerY) {
+     */
+    private void updateGrieverState(float playerX, float playerY) {
         float distance = calculateDistance(playerX, playerY);
         boolean wasFollowingPlayer = isGrieverFollowingPlayer;
         isGrieverFollowingPlayer = distance <= detectionRange;
@@ -362,7 +385,8 @@ public class Griever  {
      * It calculates a random target tile to move towards and checks if the Griever is in a valid path tile.
      *
      * @param delta The time in seconds since the last update.
-     */    private void handleRandomMovement(float delta) {
+     */
+    private void handleRandomMovement(float delta) {
         isRandomMovement = true;
 
         // if it's not in path2 layer
@@ -395,7 +419,8 @@ public class Griever  {
      *
      * @param minDistance The minimum distance the target tile should be away from the Griever's current position.
      * @return A Vector2 representing the coordinates of the target tile, or null if no valid target is found.
-     */    private Vector2 findNextTargetWithMinDistance(float minDistance) {
+     */
+    private Vector2 findNextTargetWithMinDistance(float minDistance) {
         List<Vector2> directions = Arrays.asList(
                 new Vector2(1, 0),
                 new Vector2(-1, 0),
@@ -458,14 +483,16 @@ public class Griever  {
      * @param x The X-coordinate to check.
      * @param y The Y-coordinate to check.
      * @return true if the position is within the valid boundaries, false otherwise.
-     */    private boolean isValidPosition(float x, float y) {
+     */
+    private boolean isValidPosition(float x, float y) {
         return x >= MIN_X && x <= MAX_X && y >= MIN_Y && y <= MAX_Y;
     }
 
 
     /**
      * Handles collision with obstacles. The Griever will either recalculate its path or move to a random target.
-     */    private void handleCollision() {
+     */
+    private void handleCollision() {
         if (isGrieverFollowingPlayer) {
             currentTarget = null;  // Force recalculation of path
         } else {
@@ -480,7 +507,8 @@ public class Griever  {
      * @param playerX The X-coordinate of the player.
      * @param playerY The Y-coordinate of the player.
      * @return The calculated distance.
-     */    private float calculateDistance(float playerX, float playerY) {
+     */
+    private float calculateDistance(float playerX, float playerY) {
         return (float) Math.sqrt(Math.pow(playerX - monsterX, 2) + Math.pow(playerY - monsterY, 2));
     }
 
@@ -572,7 +600,8 @@ public class Griever  {
      * with scaling applied to the texture's width and height.
      *
      * @param batch The SpriteBatch used for rendering the Griever's texture.
-     */    public void render(SpriteBatch batch) {
+     */
+    public void render(SpriteBatch batch) {
         batch.draw(griever, monsterX, monsterY, griever.getWidth() * scale, griever.getHeight() * scale);
     }
 
@@ -611,7 +640,7 @@ public class Griever  {
      * @param index The index used to differentiate between different Griever states in the preferences file.
      */
     public void saveGrieverstate(int index) {
-        Preferences pref = Gdx.app.getPreferences("grieverstate");
+        Preferences pref = Gdx.app.getPreferences(PREFERENCES_NAME);
         pref.putFloat("x_" + index, monsterX);
         pref.putFloat("y_" + index, monsterY);
         pref.putBoolean("isGrieverStunned_" + index, isGrieverStunned);
@@ -628,7 +657,7 @@ public class Griever  {
      * @param index The index used to load the specific Griever state from the preferences file.
      */
     public void loadGrieverstate(int index) {
-        Preferences pref = Gdx.app.getPreferences("grieverstate");
+        Preferences pref = Gdx.app.getPreferences(PREFERENCES_NAME);
         monsterX = pref.getFloat("x_" + index, monsterX);
         monsterY = pref.getFloat("y_" + index, monsterY);
         isGrieverStunned = pref.getBoolean("isGrieverStunned_" + index, isGrieverStunned);

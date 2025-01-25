@@ -9,9 +9,9 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class Door {
     // Constants
-    private static final float SCORE_TIME_MULTIPLIER = 5f;
-    private static final float BASE_SCORE = 1000f;
-    private static final float LIFE_BONUS = 150f;
+    private static float SCORE_TIME_MULTIPLIER;
+    private static float BASE_SCORE;
+    private static float LIFE_BONUS;
 
     // Core components
     private final Vector2 position;
@@ -28,6 +28,9 @@ public class Door {
     public Door(float x, float y, float width, float height) {
         this.position = new Vector2(x, y);
         this.bounds = new Rectangle(x, y, width, height);
+        this.SCORE_TIME_MULTIPLIER = 5f;
+        this.BASE_SCORE = 1000f;
+        this.LIFE_BONUS = 150f;
     }
 
     /**

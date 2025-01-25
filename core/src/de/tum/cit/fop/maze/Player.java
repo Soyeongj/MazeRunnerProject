@@ -30,33 +30,33 @@ public class Player {
 
     //Speed and Running
     private float speed, runningSpeed, normalSpeed;
-    private float runTimer = 0f, cooldownTimer = 0f;
-    private boolean isRunning = false, canRun = true;
-    private final float runDuration = 2f;
-    private final float cooldownDuration = 4f;
+    private float runTimer, cooldownTimer;
+    private boolean isRunning, canRun;
+    private float runDuration;
+    private float cooldownDuration;
 
     //Animation
-    private float stateTime = 0f;
-    private String direction = "right";
-    private final float walkAnimationTime = 0.1f;
+    private float stateTime;
+    private String direction;
+    private float walkAnimationTime;
 
     //Collision
     private TiledMapTileLayer collisionLayer;
-    private String blockedKey = "blocked";
+    private String blockedKey;
 
     //Speed Up Effect Controls
-    private float speedBoostDuration = 0f;
-    private float boostedSpeed = 100.0f;
-    private boolean isSpeedBoosted = false;
+    private float speedBoostDuration;
+    private float boostedSpeed;
+    private boolean isSpeedBoosted;
 
     //VFX Controls
-    private float redEffectTimer = 0f;
-    private boolean isInRedEffect = false;
+    private float redEffectTimer;
+    private boolean isInRedEffect;
 
     //Player states
-    private float scale = 0.2f;
+    private float scale;
     private boolean isDead;
-    private static final String PREFERENCES_NAME = "PlayerState";
+    private static String PREFERENCES_NAME;
 
     /**
      * Constructs a new Player with the specified collision layer.
@@ -81,7 +81,23 @@ public class Player {
         this.dead = new Texture("boydead.png");
 
         this.currentTexture = down1;
+        this.scale = 0.2f;
+        this.PREFERENCES_NAME = "PlayerState";
+        this.redEffectTimer = 0f;
+        this.boostedSpeed = 100.0f;
+        this.blockedKey = "blocked";
+        this.direction = "right";
+        this.walkAnimationTime = 0.1f;
+        this.runTimer = 0f;
+        this.stateTime = 0f;
+        this.cooldownTimer = 0f;
+        this.isRunning = false;
+        this.isInRedEffect = false;
+        this.canRun = true;
         this.isDead = false;
+        this.runDuration = 2f;
+        this.cooldownDuration = 4f;
+        this.speedBoostDuration = 0f;
 
     }
 
