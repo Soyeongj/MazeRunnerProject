@@ -15,7 +15,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.Preferences;
@@ -44,7 +43,7 @@ public class GameScreen implements Screen {
     //Camera Controls
     private float currentZoom = 0.10f;
     private final float MIN_ZOOM = 0.10f;
-    private final float MAX_ZOOM = 0.80f;
+    private final float MAX_ZOOM = 0.3f;
     private final float ZOOM_SPEED = 0.01f;
     private Vector3 lastPosition;
 
@@ -66,10 +65,6 @@ public class GameScreen implements Screen {
     private Arrow arrow;
     private TrapItem trapItem;
 
-    //Intro controls
-    private final boolean isNewGame;
-    private float introDuration = 10.0f;
-    private boolean isShowingIntro;
 
 
     /**
@@ -77,10 +72,9 @@ public class GameScreen implements Screen {
      *
      * @param game The main game class, used to access global resources and methods.
      */
-    public GameScreen(MazeRunnerGame game, String mapPath, boolean isNewGame) {
+    public GameScreen(MazeRunnerGame game, String mapPath) {
         // Core game initialization
         this.game = game;
-        this.isNewGame = isNewGame;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
         this.backgroundTexture = new Texture(Gdx.files.internal("background.png"));
@@ -209,13 +203,6 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
 
-        if (isShowingIntro){
-            ScreenUtils.clear(0,0,0,1);
-            batch.begin();
-            batch.draw(introImage,0,0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            batch.end();
-            return;
-        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             saveState();
             game.goToMenu();
@@ -464,23 +451,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         SoundManager.stopMenuMusic();
-        if (isNewGame) {
-            isShowingIntro = true;
-            introImage = new Texture(Gdx.files.internal("intro.png"));
-            SoundManager.playGameStartSound();
-
-
-            Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    isShowingIntro = false;
-                    SoundManager.playBackgroundMusic();
-                }
-            }, introDuration);
-        } else {
-            isShowingIntro = false;
-            SoundManager.playBackgroundMusic();
-        }
+        SoundManager.playBackgroundMusic();
     }
     /**
      * Called when the game screen is hidden. Override if additional functionality is required.
