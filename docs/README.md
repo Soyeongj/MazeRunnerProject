@@ -1,4 +1,4 @@
-# Maze Game Project
+# FoP Project - Maze Runner, Team K-league
 
 ## Overview
 This project is a maze game developed using Java and the libGDX framework. The game challenges players to navigate through a dynamic maze with moving walls and other mechanics.
@@ -75,9 +75,9 @@ Below is the organization of classes in this project:
 ---
 
 ## UML Class Diagram
-Below is a visual representation of the class hierarchy. (Refer to `docs/uml-diagram.png` for the full diagram.)
+Below is a visual representation of the class hierarchy. 
 
-![UML Diagram](./docs/uml-diagram.png)
+![UML Diagram](./UML%20Diagram.png)
 
 ---
 
