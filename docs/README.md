@@ -32,9 +32,9 @@ foph2425projectfop-kleague/
 │   └── DesktopLauncher.java
 ├── assets/                 # Game assets (images, sounds, and maps)
 ├── docs/                   # Documentation files
-│   ├── README.md           # Documentation overview
-│   ├── javadoc/            # JavaDoc HTML files
-│   └── uml-diagram.png     # UML class diagram
+│   ├── README.md           # Documentation and UMLs overview
+│   ├── LICENSE.            # Details about License
+│   └── javadoc/            # JavaDoc HTML files
 ├── gradle/                 # Gradle configuration files
 ├── .gradle/                # Gradle build system files
 └── .idea/                  # IntelliJ IDEA project configuration files
@@ -57,10 +57,10 @@ Below is the organization of classes in this project:
 - **Griever**
 
 #### 3. Items and Objects
-- **Item** (Base class for all items)
-    - **CollectibleItem** (inherits from `Item`)
-        - **TrapItem** (inherits from `CollectibleItem`)
-        - **Key** (inherits from `CollectibleItem`)
+- **CollectibleItem** (Base class for all items)
+  - **TrapItem** (inherits from `CollectibleItem`)
+  - **Item** (inherits from `CollectibleItem`)
+- **Key**
 
 #### 4. Environment
 - **Wall**
@@ -84,14 +84,14 @@ Below is a visual representation of the class hierarchy. (Refer to `docs/uml-dia
 ## How to Run and Use the Game
 
 ### Prerequisites
-- Java Development Kit (JDK) 8 or later
+- Java Development Kit (JDK) 17 (Amazon Corretto 17 recommended)
 - Gradle installed (if not bundled with the project)
 - IntelliJ IDEA or any other preferred IDE
 
 ### Steps to Run the Game
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/maze-game.git
+   git clone https://github.com/Soyeongj/MazeRunnerProject.git
    ```
 2. Open the project in IntelliJ IDEA.
 3. Ensure all dependencies are resolved (Gradle sync may be required).
@@ -103,16 +103,26 @@ Below is a visual representation of the class hierarchy. (Refer to `docs/uml-dia
 ## Rules and Game Mechanics
 
 ### Basic Rules
-1. The player starts at the entrance of the maze and must reach the exit.
-2. Walls move every 10 seconds based on their predefined direction (left, right, up, or down).
-3. If the player collides with a wall, the game is over.
-4. Completing the maze within a time limit awards bonus points.
+1. The player starts in the safe zone of the maze with three friends and must reach the exit  within a time limit, carrying a key and at least one friend.
+2. Walls move every 5 seconds based on their predefined direction (left, right, up, or down).
+3. If the player or friends collide with obstacles(moving walls, traps) or a griever, the player loses a life. Each life is represented as a saved friend.
+4. If the player lose all friends and the player lose one more life, the game is over.
+5. Saving more friends awards bonus points; however, having more saved friends slows down the player's movement speed.
+
+
+### Basic Controls
+1. Use W, A, S, D keys to move the player up, left, down, and right, respectively.
+2. Hold Shift to temporarily increase the player's speed for 2 seconds. This ability has a cooldown of 4 seconds. 
+3. Press 1 to zoom in and 2 to zoom out.
+4. Press Esc during gameplay to pause the game. From the pause menu, you can select a different map to start a new game or continue playing.
+
 
 ### Additional Features (Beyond Minimum Requirements)
-- **Dynamic Walls**: Walls return to their original positions after each move.
-- **Power-Ups**: Players can collect items to temporarily stop wall movement.
-- **Timer**: Players must complete the maze within a certain time limit.
-- **Score System**: Tracks the player's performance based on time and power-up collection.
+- **Moving Walls**: Certain walls, distinguished by their unique colors, move every 5 seconds. While they pose a threat to the player's life, they are also the only way to kill Grievers and obtain the key.
+- **Limited Vision**: When the player collects a trap item, the screen darkens for 3 seconds, restricting the player's vision and making navigation more challenging.
+- **Stun Ability**: The player possesses the ability to stun a Griever for 3 seconds if they face it within a certain range, providing a brief tactical advantage.
+- **Multiple Conditions for Exit**: To escape through the exit, the player must rescue and bring at least one friend along, in addition to finding the key.
+- **Friendship Dynamics**: Friends, represented as lives, follow the player back closely. While having more friends grants bonus points, it also reduces the player's speed, requiring strategic planning to balance risk and reward.
 
 ---
 
