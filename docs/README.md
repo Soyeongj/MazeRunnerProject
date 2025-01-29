@@ -95,7 +95,7 @@ Below is a visual representation of the class hierarchy.
    ```
 2. Open the project in IntelliJ IDEA.
 3. Ensure all dependencies are resolved (Gradle sync may be required).
-4. Navigate to the `de.tum.cit.fop.maze` package and run the `MazeRunnerGame` class.
+4. Navigate to the `de.tum.cit.fop.maze` package and run the `DesktopLauncher` class.
 5. The game will launch in a new window.
 
 ---
